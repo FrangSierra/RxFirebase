@@ -1,0 +1,37 @@
+apply plugin: 'com.android.library'
+
+android {
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE-FIREBASE.txt'
+        exclude 'META-INF/NOTICE'
+    }
+
+    compileSdkVersion 24
+    buildToolsVersion "25.0.0"
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 24
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    provided 'com.google.firebase:firebase-auth:9.6.1'
+    provided 'com.google.firebase:firebase-database:9.6.1'
+    provided 'com.google.firebase:firebase-storage:9.6.1'
+    provided 'com.android.support:recyclerview-v7:24.0.0'
+    compile 'io.reactivex.rxjava2:rxjava:2.0.0-RC5'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.0-RC1'
+    testCompile 'junit:junit:4.12'
+}
