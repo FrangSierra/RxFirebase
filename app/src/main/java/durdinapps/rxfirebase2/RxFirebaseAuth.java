@@ -105,7 +105,9 @@ public class RxFirebaseAuth {
                 final FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
                     @Override
                     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                        emitter.onNext(firebaseAuth.getCurrentUser());
+                        if (firebaseAuth.getCurrentUser() != null) {
+                            emitter.onNext(firebaseAuth.getCurrentUser());
+                        }
                     }
                 };
                 firebaseAuth.addAuthStateListener(authStateListener);
