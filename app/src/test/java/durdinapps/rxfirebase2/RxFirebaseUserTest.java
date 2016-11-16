@@ -1,8 +1,5 @@
 package durdinapps.rxfirebase2;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -12,7 +9,6 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -20,244 +16,248 @@ import java.util.Collections;
 
 import io.reactivex.observers.TestObserver;
 
+import static durdinapps.rxfirebase2.RxTestUtil.ANY_EMAIL;
+import static durdinapps.rxfirebase2.RxTestUtil.ANY_PASSWORD;
+import static durdinapps.rxfirebase2.RxTestUtil.EXCEPTION;
+import static durdinapps.rxfirebase2.RxTestUtil.setupTask;
+import static durdinapps.rxfirebase2.RxTestUtil.testOnCompleteListener;
+import static durdinapps.rxfirebase2.RxTestUtil.testOnFailureListener;
+import static durdinapps.rxfirebase2.RxTestUtil.testOnSuccessListener;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RxFirebaseUserTest {
 
-   public static final String ANY_EMAIL = "email@email.com";
-   public static final Exception EXCEPTION = new Exception("Something bad happen");
-   public static final String ANY_PASSWORD = "ANY_PASSWORD";
-   @Mock
-   FirebaseUser firebaseUser;
+    @Mock
+    FirebaseUser firebaseUser;
 
-   @Mock
-   GetTokenResult getTokenResult;
+    @Mock
+    GetTokenResult getTokenResult;
 
-   @Mock
-   Task<Void> voidTask;
+    @Mock
+    Task<Void> voidTask;
 
-   @Mock
-   Task<GetTokenResult> getTokenResultTask;
+    @Mock
+    Task<GetTokenResult> getTokenResultTask;
 
-   @Mock
-   UserProfileChangeRequest userProfileChangeRequest;
+    @Mock
+    UserProfileChangeRequest userProfileChangeRequest;
 
-   @Mock
-   AuthCredential authCredential;
+    @Mock
+    AuthCredential authCredential;
 
-   @Mock
-   Task<AuthCredential> authCredentialTask;
+    @Mock
+    Task<AuthCredential> authCredentialTask;
 
-   @Mock
-   AuthResult authResult;
+    @Mock
+    AuthResult authResult;
 
-   @Mock
-   Task<AuthResult> authResultTask;
+    @Mock
+    Task<AuthResult> authResultTask;
 
-   private ArgumentCaptor<OnCompleteListener> testOnCompleteListener;
-   private ArgumentCaptor<OnSuccessListener> testOnSuccessListener;
-   private ArgumentCaptor<OnFailureListener> testOnFailureListener;
+    private boolean ANY_FORCE_REFRESH_VALUE = true;
 
 
-   private boolean ANY_FORCE_REFRESH_VALUE = true;
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
 
+        setupTask(getTokenResultTask);
+        setupTask(voidTask);
+        setupTask(authResultTask);
+        setupTask(authCredentialTask);
 
-   @Before
-   public void setUp() throws Exception {
-      MockitoAnnotations.initMocks(this);
-      testOnCompleteListener = ArgumentCaptor.forClass(OnCompleteListener.class);
-      testOnSuccessListener = ArgumentCaptor.forClass(OnSuccessListener.class);
-      testOnFailureListener = ArgumentCaptor.forClass(OnFailureListener.class);
+        when(firebaseUser.getToken(ANY_FORCE_REFRESH_VALUE)).thenReturn(getTokenResultTask);
+        when(firebaseUser.updateEmail(ANY_EMAIL)).thenReturn(voidTask);
+        when(firebaseUser.updatePassword(ANY_PASSWORD)).thenReturn(voidTask);
+        when(firebaseUser.updateProfile(userProfileChangeRequest)).thenReturn(voidTask);
+        when(firebaseUser.delete()).thenReturn(voidTask);
+        when(firebaseUser.reauthenticate(authCredential)).thenReturn(voidTask);
+        when(firebaseUser.linkWithCredential(authCredential)).thenReturn(authResultTask);
+    }
 
-      setupTask(getTokenResultTask);
-      setupTask(voidTask);
-      setupTask(authResultTask);
-      setupTask(authCredentialTask);
+    @Test
+    public void getToken() throws Exception {
+        TestObserver<GetTokenResult> userTestObserver = RxFirebaseUser.getToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
 
-      when(firebaseUser.getToken(ANY_FORCE_REFRESH_VALUE)).thenReturn(getTokenResultTask);
-      when(firebaseUser.updateEmail(ANY_EMAIL)).thenReturn(voidTask);
-      when(firebaseUser.updatePassword(ANY_PASSWORD)).thenReturn(voidTask);
-      when(firebaseUser.updateProfile(userProfileChangeRequest)).thenReturn(voidTask);
-      when(firebaseUser.delete()).thenReturn(voidTask);
-      when(firebaseUser.reauthenticate(authCredential)).thenReturn(voidTask);
-      when(firebaseUser.linkWithCredential(authCredential)).thenReturn(authResultTask);
-   }
+        testOnSuccessListener.getValue().onSuccess(getTokenResult);
+        testOnCompleteListener.getValue().onComplete(getTokenResultTask);
 
-   private <T> void setupTask(Task<T> task) {
-      when(task.addOnCompleteListener(testOnCompleteListener.capture())).thenReturn(task);
-      when(task.addOnSuccessListener(testOnSuccessListener.capture())).thenReturn(task);
-      when(task.addOnFailureListener(testOnFailureListener.capture())).thenReturn(task);
-   }
+        verify(firebaseUser).getToken(ANY_FORCE_REFRESH_VALUE);
 
-   @Test
-   public void getToken() throws Exception {
-      TestObserver<GetTokenResult> test = RxFirebaseUser.getToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
+        userTestObserver.assertComplete()
+                .assertNoErrors()
+                .assertValueCount(1)
+                .dispose();
+    }
 
-      testOnSuccessListener.getValue().onSuccess(getTokenResult);
-      testOnCompleteListener.getValue().onComplete(getTokenResultTask);
+    @Test
+    public void getTokenError() throws Exception {
+        TestObserver<GetTokenResult> userTestObserver = RxFirebaseUser.getToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
+        verify(firebaseUser).getToken(ANY_FORCE_REFRESH_VALUE);
 
-      verify(firebaseUser).getToken(ANY_FORCE_REFRESH_VALUE);
+        userTestObserver.assertError(EXCEPTION)
+                .dispose();
+    }
 
-      test.assertComplete()
-            .assertNoErrors()
-            .assertValueCount(1);
-   }
+    @Test
+    public void updateEmail() throws Exception {
+        TestObserver<Void> userTestObserver = RxFirebaseUser.updateEmail(firebaseUser, ANY_EMAIL).test();
 
-   @Test
-   public void getTokenError() throws Exception {
-      TestObserver<GetTokenResult> test = RxFirebaseUser.getToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
-      testOnFailureListener.getValue().onFailure(EXCEPTION);
-      verify(firebaseUser).getToken(ANY_FORCE_REFRESH_VALUE);
+        testOnCompleteListener.getValue().onComplete(voidTask);
+        testOnSuccessListener.getValue().onSuccess(voidTask);
 
-      test.assertError(EXCEPTION);
+        verify(firebaseUser).updateEmail(ANY_EMAIL);
 
-   }
+        userTestObserver.assertComplete()
+                .dispose();
 
-   @Test
-   public void updateEmail() throws Exception {
-      TestObserver<Void> test = RxFirebaseUser.updateEmail(firebaseUser, ANY_EMAIL).test();
+    }
 
-      testOnCompleteListener.getValue().onComplete(voidTask);
-      testOnSuccessListener.getValue().onSuccess(voidTask);
+    @Test
+    public void updateEmailError() throws Exception {
+        TestObserver<Void> userTestObserver = RxFirebaseUser.updateEmail(firebaseUser, ANY_EMAIL).test();
 
-      verify(firebaseUser).updateEmail(ANY_EMAIL);
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
 
-      test.assertComplete();
+        verify(firebaseUser).updateEmail(ANY_EMAIL);
 
-   }
+        userTestObserver.assertError(EXCEPTION)
+                .dispose();
 
-   @Test
-   public void updateEmailError() throws Exception {
-      TestObserver<Void> test = RxFirebaseUser.updateEmail(firebaseUser, ANY_EMAIL).test();
+    }
 
-      testOnFailureListener.getValue().onFailure(EXCEPTION);
+    @Test
+    public void updatePassword() throws Exception {
+        TestObserver<Void> userTestObserver = RxFirebaseUser.updatePassword(firebaseUser, ANY_PASSWORD).test();
+        testOnCompleteListener.getValue().onComplete(voidTask);
+        testOnSuccessListener.getValue().onSuccess(voidTask);
 
-      verify(firebaseUser).updateEmail(ANY_EMAIL);
+        verify(firebaseUser).updatePassword(ANY_PASSWORD);
 
-      test.assertError(EXCEPTION);
+        userTestObserver.assertComplete()
+                .dispose();
+    }
 
-   }
+    @Test
+    public void updatePasswordError() throws Exception {
+        TestObserver<Void> userTestObserver = RxFirebaseUser.updatePassword(firebaseUser, ANY_PASSWORD).test();
 
-   @Test
-   public void updatePassword() throws Exception {
-      TestObserver<Void> test = RxFirebaseUser.updatePassword(firebaseUser, ANY_PASSWORD).test();
-      testOnCompleteListener.getValue().onComplete(voidTask);
-      testOnSuccessListener.getValue().onSuccess(voidTask);
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
 
-      verify(firebaseUser).updatePassword(ANY_PASSWORD);
+        verify(firebaseUser).updatePassword(ANY_PASSWORD);
 
-      test.assertComplete();
-   }
+        userTestObserver.assertError(EXCEPTION)
+                .dispose();
 
-   @Test
-   public void updatePasswordError() throws Exception {
-      TestObserver<Void> test = RxFirebaseUser.updatePassword(firebaseUser, ANY_PASSWORD).test();
+    }
 
-      testOnFailureListener.getValue().onFailure(EXCEPTION);
+    @Test
+    public void updateProfile() throws Exception {
+        TestObserver<Void> userTestObserver = RxFirebaseUser.updateProfile(firebaseUser, userProfileChangeRequest).test();
 
-      verify(firebaseUser).updatePassword(ANY_PASSWORD);
+        testOnCompleteListener.getValue().onComplete(voidTask);
+        testOnSuccessListener.getValue().onSuccess(voidTask);
 
-      test.assertError(EXCEPTION);
+        verify(firebaseUser).updateProfile(userProfileChangeRequest);
 
-   }
+        userTestObserver.assertComplete()
+                .dispose();
 
-   @Test
-   public void updateProfile() throws Exception {
-      TestObserver<Void> test = RxFirebaseUser.updateProfile(firebaseUser, userProfileChangeRequest).test();
+    }
 
-      testOnCompleteListener.getValue().onComplete(voidTask);
-      testOnSuccessListener.getValue().onSuccess(voidTask);
+    @Test
+    public void updateProfileError() throws Exception {
+        TestObserver<Void> userTestObserver = RxFirebaseUser.updateProfile(firebaseUser, userProfileChangeRequest).test();
 
-      verify(firebaseUser).updateProfile(userProfileChangeRequest);
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
 
-      test.assertComplete();
+        verify(firebaseUser).updateProfile(userProfileChangeRequest);
 
-   }
+        userTestObserver.assertError(EXCEPTION)
+                .dispose();
 
-   @Test
-   public void updateProfileError() throws Exception {
-      TestObserver<Void> test = RxFirebaseUser.updateProfile(firebaseUser, userProfileChangeRequest).test();
+    }
 
-      testOnFailureListener.getValue().onFailure(EXCEPTION);
+    @Test
+    public void delete() throws Exception {
+        TestObserver<Void> userTestObserver = RxFirebaseUser.delete(firebaseUser).test();
 
-      verify(firebaseUser).updateProfile(userProfileChangeRequest);
+        testOnCompleteListener.getValue().onComplete(voidTask);
+        testOnSuccessListener.getValue().onSuccess(voidTask);
 
-      test.assertError(EXCEPTION);
+        verify(firebaseUser).delete();
 
-   }
+        userTestObserver.assertComplete()
+                .dispose();
+    }
 
-   @Test
-   public void delete() throws Exception {
-      TestObserver<Void> test = RxFirebaseUser.delete(firebaseUser).test();
+    @Test
+    public void deleteError() throws Exception {
+        TestObserver<Void> userTestObserver = RxFirebaseUser.delete(firebaseUser).test();
 
-      testOnCompleteListener.getValue().onComplete(voidTask);
-      testOnSuccessListener.getValue().onSuccess(voidTask);
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
+        verify(firebaseUser).delete();
 
-      verify(firebaseUser).delete();
+        userTestObserver.assertError(EXCEPTION)
+                .dispose();
+    }
 
-      test.assertComplete();
-   }
+    @Test
+    public void reAuthenticate() throws Exception {
+        TestObserver<Void> userTestObserver = RxFirebaseUser.reAuthenticate(firebaseUser, authCredential).test();
 
-   @Test
-   public void deleteError() throws Exception {
-      TestObserver<Void> test = RxFirebaseUser.delete(firebaseUser).test();
+        testOnCompleteListener.getValue().onComplete(voidTask);
+        testOnSuccessListener.getValue().onSuccess(voidTask);
 
-      testOnFailureListener.getValue().onFailure(EXCEPTION);
-      verify(firebaseUser).delete();
+        verify(firebaseUser).reauthenticate(authCredential);
 
-      test.assertError(EXCEPTION);
-   }
+        userTestObserver.assertComplete()
+                .dispose();
 
-   @Test
-   public void reAuthenticate() throws Exception {
-      TestObserver<Void> test = RxFirebaseUser.reAuthenticate(firebaseUser, authCredential).test();
+    }
 
-      testOnCompleteListener.getValue().onComplete(voidTask);
-      testOnSuccessListener.getValue().onSuccess(voidTask);
+    @Test
+    public void reAuthenticateError() throws Exception {
+        TestObserver<Void> userTestObserver = RxFirebaseUser.reAuthenticate(firebaseUser, authCredential).test();
 
-      verify(firebaseUser).reauthenticate(authCredential);
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
 
-      test.assertComplete();
+        verify(firebaseUser).reauthenticate(authCredential);
 
-   }
+        userTestObserver.assertError(EXCEPTION)
+                .dispose();
+    }
 
-   @Test
-   public void reAuthenticateError() throws Exception {
-      TestObserver<Void> test = RxFirebaseUser.reAuthenticate(firebaseUser, authCredential).test();
+    @Test
+    public void linkWithCredendials() throws Exception {
+        TestObserver<AuthResult> userTestObserver = RxFirebaseUser.linkWithCredential(firebaseUser, authCredential).test();
 
-      testOnFailureListener.getValue().onFailure(EXCEPTION);
+        testOnSuccessListener.getValue().onSuccess(authResult);
+        testOnCompleteListener.getValue().onComplete(authResultTask);
 
-      verify(firebaseUser).reauthenticate(authCredential);
+        verify(firebaseUser).linkWithCredential(authCredential);
 
-      test.assertError(EXCEPTION);
-   }
 
-   @Test
-   public void linkWithCredendials() throws Exception {
-      TestObserver<AuthResult> test = RxFirebaseUser.linkWithCredential(firebaseUser, authCredential).test();
+        userTestObserver.assertNoErrors()
+                .assertValueCount(1)
+                .assertComplete()
+                .assertValueSet(Collections.singletonList(authResult))
+                .dispose();
+    }
 
-      testOnSuccessListener.getValue().onSuccess(authResult);
-      testOnCompleteListener.getValue().onComplete(authResultTask);
+    @Test
+    public void linkWithCredentialsError() throws Exception {
+        TestObserver<AuthResult> userTestObserver = RxFirebaseUser.linkWithCredential(firebaseUser, authCredential).test();
 
-      verify(firebaseUser).linkWithCredential(authCredential);
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
 
+        verify(firebaseUser).linkWithCredential(authCredential);
 
-      test.assertNoErrors()
-            .assertValueCount(1)
-            .assertComplete()
-            .assertValueSet(Collections.singletonList(authResult));
-   }
+        userTestObserver.assertError(EXCEPTION)
+                .dispose();
 
-   @Test
-   public void linkWithCredentialsError() throws Exception {
-      TestObserver<AuthResult> test = RxFirebaseUser.linkWithCredential(firebaseUser, authCredential).test();
 
-      testOnFailureListener.getValue().onFailure(EXCEPTION);
-
-      verify(firebaseUser).linkWithCredential(authCredential);
-
-      test.assertError(EXCEPTION);
-
-   }
+    }
 }

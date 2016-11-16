@@ -1,9 +1,6 @@
 package durdinapps.rxfirebase2;
 
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -12,7 +9,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.ProviderQueryResult;
 import com.google.firebase.database.DataSnapshot;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -20,386 +16,326 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
-import io.reactivex.CompletableSource;
-import io.reactivex.internal.disposables.EmptyDisposable;
 import io.reactivex.observers.TestObserver;
 
+import static durdinapps.rxfirebase2.RxTestUtil.ANY_EMAIL;
+import static durdinapps.rxfirebase2.RxTestUtil.ANY_PASSWORD;
+import static durdinapps.rxfirebase2.RxTestUtil.ANY_TOKEN;
+import static durdinapps.rxfirebase2.RxTestUtil.EXCEPTION;
+import static durdinapps.rxfirebase2.RxTestUtil.setupTask;
+import static durdinapps.rxfirebase2.RxTestUtil.testOnCompleteListener;
+import static durdinapps.rxfirebase2.RxTestUtil.testOnFailureListener;
+import static durdinapps.rxfirebase2.RxTestUtil.testOnSuccessListener;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RxFirebaseAuthTest {
 
+    @Mock
+    private FirebaseAuth firebaseAuth;
 
     @Mock
-    private FirebaseAuth mockAuth;
+    private Task<AuthResult> authResultTask;
 
     @Mock
-    private Task<AuthResult> mockAuthTask;
+    private Task<ProviderQueryResult> providerQueryResultTask;
 
     @Mock
-    private Task<ProviderQueryResult> mockProviderQueryResultTask;
+    private Task<Void> voidTask;
 
     @Mock
-    private Task<Void> mockVoidTask;
+    private AuthResult authResult;
 
     @Mock
-    private AuthResult mockAuthResult;
+    private ProviderQueryResult providerQueryResult;
 
     @Mock
-    private ProviderQueryResult mockProviderQueryResult;
+    private DataSnapshot dataSnapshot;
 
     @Mock
-    private DataSnapshot mockDataSnapshot;
+    private AuthCredential authCredential;
 
     @Mock
-    private AuthCredential mockCredentials;
+    private FirebaseUser firebaseUser;
 
-    @Mock
-    private FirebaseUser mockUser;
-
-    private ArgumentCaptor<OnCompleteListener> testOnCompleteListener;
-    private ArgumentCaptor<OnSuccessListener> testOnSuccessListener;
-    private ArgumentCaptor<OnFailureListener> testOnFailureListener;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
-        testOnCompleteListener = ArgumentCaptor.forClass(OnCompleteListener.class);
-        testOnSuccessListener = ArgumentCaptor.forClass(OnSuccessListener.class);
-        testOnFailureListener = ArgumentCaptor.forClass(OnFailureListener.class);
+        setupTask(authResultTask);
+        setupTask(providerQueryResultTask);
+        setupTask(voidTask);
 
-        setupTask(mockAuthTask);
-        setupTask(mockProviderQueryResultTask);
-        setupTask(mockVoidTask);
+        when(firebaseAuth.signInAnonymously()).thenReturn(authResultTask);
+        when(firebaseAuth.signInWithEmailAndPassword(ANY_EMAIL, ANY_PASSWORD)).thenReturn(authResultTask);
+        when(firebaseAuth.signInWithCredential(authCredential)).thenReturn(authResultTask);
+        when(firebaseAuth.signInWithCustomToken(ANY_TOKEN)).thenReturn(authResultTask);
+        when(firebaseAuth.createUserWithEmailAndPassword(ANY_EMAIL, ANY_PASSWORD)).thenReturn(authResultTask);
+        when(firebaseAuth.fetchProvidersForEmail(ANY_EMAIL)).thenReturn(providerQueryResultTask);
+        when(firebaseAuth.sendPasswordResetEmail(ANY_EMAIL)).thenReturn(voidTask);
 
-        when(mockAuth.signInAnonymously()).thenReturn(mockAuthTask);
-        when(mockAuth.signInWithEmailAndPassword("email", "password")).thenReturn(mockAuthTask);
-        when(mockAuth.signInWithCredential(mockCredentials)).thenReturn(mockAuthTask);
-        when(mockAuth.signInWithCustomToken("token")).thenReturn(mockAuthTask);
-        when(mockAuth.createUserWithEmailAndPassword("email", "password")).thenReturn(mockAuthTask);
-        when(mockAuth.fetchProvidersForEmail("email")).thenReturn(mockProviderQueryResultTask);
-        when(mockAuth.sendPasswordResetEmail("email")).thenReturn(mockVoidTask);
-
-        when(mockAuth.getCurrentUser()).thenReturn(mockUser);
+        when(firebaseAuth.getCurrentUser()).thenReturn(firebaseUser);
 
     }
-
-    private <T> void setupTask(Task<T> task) {
-        when(task.addOnCompleteListener(testOnCompleteListener.capture())).thenReturn(task);
-        when(task.addOnSuccessListener(testOnSuccessListener.capture())).thenReturn(task);
-        when(task.addOnFailureListener(testOnFailureListener.capture())).thenReturn(task);
-    }
-
-    /**
-     * A class containing a completable instance and counts the number of subscribers.
-     */
-    static final class NormalCompletable extends AtomicInteger {
-
-        public final Completable completable = Completable.unsafeCreate(new CompletableSource() {
-            @Override
-            public void subscribe(CompletableObserver s) {
-                getAndIncrement();
-                EmptyDisposable.complete(s);
-            }
-        });
-
-        /**
-         * Asserts the given number of subscriptions happened.
-         * @param n the expected number of subscriptions
-         */
-        public void assertSubscriptions(int n) {
-            Assert.assertEquals(n, get());
-        }
-    }
-
-    /**
-     * A class containing a completable instance that emits a TestException and counts
-     * the number of subscribers.
-     */
-    static final class ErrorCompletable extends AtomicInteger {
-
-        private static final long serialVersionUID = 7192337844700923752L;
-
-        public final Completable completable = Completable.unsafeCreate(new CompletableSource() {
-            @Override
-            public void subscribe(CompletableObserver s) {
-                getAndIncrement();
-                EmptyDisposable.error(new RuntimeException(), s);
-            }
-        });
-
-        /**
-         * Asserts the given number of subscriptions happened.
-         * @param n the expected number of subscriptions
-         */
-        public void assertSubscriptions(int n) {
-            Assert.assertEquals(n, get());
-        }
-    }
-
-    /** A normal Completable object. */
-    final NormalCompletable normal = new NormalCompletable();
-
-    /** An error Completable object. */
-    final ErrorCompletable error = new ErrorCompletable();
 
     @Test
     public void signInAnonymously() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .signInAnonymously(mockAuth)
+                .signInAnonymously(firebaseAuth)
                 .test();
 
+        testOnSuccessListener.getValue().onSuccess(authResult);
+        testOnCompleteListener.getValue().onComplete(authResultTask);
 
-        testOnSuccessListener.getValue().onSuccess(mockAuthResult);
-        testOnCompleteListener.getValue().onComplete(mockAuthTask);
-
-        verify(mockAuth).signInAnonymously();
+        verify(firebaseAuth).signInAnonymously();
 
         authTestObserver
                 .assertNoErrors()
                 .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(mockAuthResult))
+                .assertValueSet(Collections.singletonList(authResult))
                 .assertComplete();
     }
 
     @Test
-    public void signInAnonymously_error() throws InterruptedException {
+    public void signInAnonymouslyError() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .signInAnonymously(mockAuth)
+                .signInAnonymously(firebaseAuth)
                 .test();
 
-        Exception e = new Exception("something bad happened");
-        testOnFailureListener.getValue().onFailure(e);
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
 
-        verify(mockAuth).signInAnonymously();
+        verify(firebaseAuth).signInAnonymously();
 
-        authTestObserver.assertError(e)
+        authTestObserver.assertError(EXCEPTION)
                 .assertNotComplete();
     }
 
     @Test
     public void createUserWithEmailAndPassword() throws InterruptedException {
         TestObserver authTestObserver = RxFirebaseAuth
-                .createUserWithEmailAndPassword(mockAuth, "email", "password")
+                .createUserWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
                 .test();
 
-        testOnSuccessListener.getValue().onSuccess(mockAuthResult);
-        testOnCompleteListener.getValue().onComplete(mockAuthTask);
+        testOnSuccessListener.getValue().onSuccess(authResult);
+        testOnCompleteListener.getValue().onComplete(authResultTask);
 
-        verify(mockAuth).createUserWithEmailAndPassword("email", "password");
+        verify(firebaseAuth).createUserWithEmailAndPassword(ANY_EMAIL, ANY_PASSWORD);
 
-        authTestObserver.assertNoErrors();
-        authTestObserver.assertValueCount(1);
-        authTestObserver.assertValueSet(Collections.singletonList(mockAuthResult));
-        authTestObserver.assertComplete();
+        authTestObserver.assertNoErrors()
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(authResult))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
-    public void createUserWithEmailAndPassword_error() throws InterruptedException {
+    public void createUserWithEmailAndPasswordError() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .createUserWithEmailAndPassword(mockAuth, "email", "password")
+                .createUserWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
                 .test();
 
-        Exception e = new Exception("Something happend");
-        testOnFailureListener.getValue().onFailure(e);
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
 
-        verify(mockAuth).createUserWithEmailAndPassword("email", "password");
+        verify(firebaseAuth).createUserWithEmailAndPassword(ANY_EMAIL, ANY_PASSWORD);
 
-        authTestObserver
-                .assertError(e)
-                .assertNotComplete();
+        authTestObserver.assertError(EXCEPTION)
+                .assertNotComplete()
+                .dispose();
     }
 
     @Test
     public void signInWithEmailAndPassword() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .signInWithEmailAndPassword(mockAuth, "email", "password")
+                .signInWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
                 .test();
 
-        testOnSuccessListener.getValue().onSuccess(mockAuthResult);
-        testOnCompleteListener.getValue().onComplete(mockAuthTask);
+        testOnSuccessListener.getValue().onSuccess(authResult);
+        testOnCompleteListener.getValue().onComplete(authResultTask);
 
-        verify(mockAuth).signInWithEmailAndPassword(eq("email"), eq("password"));
+        verify(firebaseAuth).signInWithEmailAndPassword(eq(ANY_EMAIL), eq(ANY_PASSWORD));
 
-        authTestObserver.assertNoErrors();
-        authTestObserver.assertValueCount(1);
-        authTestObserver.assertValueSet(Collections.singletonList(mockAuthResult));
-        authTestObserver.assertComplete();
+        authTestObserver.assertNoErrors()
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(authResult))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
-    public void signInWithEmailAndPassword_error() throws InterruptedException {
+    public void signInWithEmailAndPasswordError() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .signInWithEmailAndPassword(mockAuth, "email", "password")
+                .signInWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
                 .test();
 
-        Exception e = new Exception("something bad happened");
-        testOnFailureListener.getValue().onFailure(e);
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
 
-        verify(mockAuth).signInWithEmailAndPassword(eq("email"), eq("password"));
+        verify(firebaseAuth).signInWithEmailAndPassword(eq(ANY_EMAIL), eq(ANY_PASSWORD));
 
-        authTestObserver.assertError(e);
-        authTestObserver.assertNotComplete();
+        authTestObserver.assertError(EXCEPTION)
+                .assertNotComplete()
+                .dispose();
     }
 
     @Test
     public void signInWithCredential() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .signInWithCredential(mockAuth, mockCredentials)
+                .signInWithCredential(firebaseAuth, authCredential)
                 .test();
 
-        testOnSuccessListener.getValue().onSuccess(mockAuthResult);
-        testOnCompleteListener.getValue().onComplete(mockAuthTask);
+        testOnSuccessListener.getValue().onSuccess(authResult);
+        testOnCompleteListener.getValue().onComplete(authResultTask);
 
-        verify(mockAuth).signInWithCredential(mockCredentials);
+        verify(firebaseAuth).signInWithCredential(authCredential);
 
-        authTestObserver.assertNoErrors();
-        authTestObserver.assertValueCount(1);
-        authTestObserver.assertValueSet(Collections.singletonList(mockAuthResult));
-        authTestObserver.assertComplete();
+        authTestObserver.assertNoErrors()
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(authResult))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
-    public void signInWithCredential_error() throws InterruptedException {
+    public void signInWithCredentialError() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .signInWithCredential(mockAuth, mockCredentials)
+                .signInWithCredential(firebaseAuth, authCredential)
                 .test();
 
-        Exception e = new Exception("something bad happened");
-        testOnFailureListener.getValue().onFailure(e);
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
 
-        verify(mockAuth).signInWithCredential(mockCredentials);
+        verify(firebaseAuth).signInWithCredential(authCredential);
 
-        authTestObserver.assertError(e);
-        authTestObserver.assertNotComplete();
+        authTestObserver.assertError(EXCEPTION)
+                .assertNotComplete()
+                .dispose();
     }
 
     @Test
     public void signInWithCustomToken() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .signInWithCustomToken(mockAuth, "token")
+                .signInWithCustomToken(firebaseAuth, ANY_TOKEN)
                 .test();
 
-        testOnSuccessListener.getValue().onSuccess(mockAuthResult);
-        testOnCompleteListener.getValue().onComplete(mockAuthTask);
+        testOnSuccessListener.getValue().onSuccess(authResult);
+        testOnCompleteListener.getValue().onComplete(authResultTask);
 
-        verify(mockAuth).signInWithCustomToken(eq("token"));
+        verify(firebaseAuth).signInWithCustomToken(eq(ANY_TOKEN));
 
-        authTestObserver.assertNoErrors();
-        authTestObserver.assertValueCount(1);
-        authTestObserver.assertValueSet(Collections.singletonList(mockAuthResult));
-        authTestObserver.assertComplete();
+        authTestObserver.assertNoErrors()
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(authResult))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
-    public void signInWithCustomToken_error() throws InterruptedException {
+    public void signInWithCustomTokenError() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .signInWithCustomToken(mockAuth, "token")
+                .signInWithCustomToken(firebaseAuth, ANY_TOKEN)
                 .test();
 
-        Exception e = new Exception("something bad happened");
-        testOnFailureListener.getValue().onFailure(e);
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
 
-        verify(mockAuth).signInWithCustomToken(eq("token"));
+        verify(firebaseAuth).signInWithCustomToken(eq(ANY_TOKEN));
 
-        authTestObserver.assertError(e);
-        authTestObserver.assertNotComplete();
+        authTestObserver.assertError(EXCEPTION)
+                .assertNotComplete()
+                .dispose();
     }
 
     @Test
     public void fetchProvidersForEmail() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .fetchProvidersForEmail(mockAuth, "email")
+                .fetchProvidersForEmail(firebaseAuth, ANY_EMAIL)
                 .test();
 
-        testOnSuccessListener.getValue().onSuccess(mockProviderQueryResult);
-        testOnCompleteListener.getValue().onComplete(mockProviderQueryResultTask);
+        testOnSuccessListener.getValue().onSuccess(providerQueryResult);
+        testOnCompleteListener.getValue().onComplete(providerQueryResultTask);
 
-        verify(mockAuth).fetchProvidersForEmail(eq("email"));
+        verify(firebaseAuth).fetchProvidersForEmail(eq(ANY_EMAIL));
 
-        authTestObserver.assertNoErrors();
-        authTestObserver.assertValueCount(1);
-        authTestObserver.assertValueSet(Collections.singletonList(mockProviderQueryResult));
-        authTestObserver.assertComplete();
+        authTestObserver.assertNoErrors()
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(providerQueryResult))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
-    public void fetchProvidersForEmail_error() throws InterruptedException {
+    public void fetchProvidersForEmailError() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .fetchProvidersForEmail(mockAuth, "email")
+                .fetchProvidersForEmail(firebaseAuth, ANY_EMAIL)
                 .test();
 
-        Exception e = new Exception("something bad happened");
-        testOnFailureListener.getValue().onFailure(e);
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
 
-        verify(mockAuth).fetchProvidersForEmail("email");
+        verify(firebaseAuth).fetchProvidersForEmail(ANY_EMAIL);
 
-        authTestObserver.assertError(e);
-        authTestObserver.assertNotComplete();
+        authTestObserver.assertError(EXCEPTION)
+                .assertNotComplete()
+                .dispose();
     }
 
     @Test
     public void sendPasswordResetEmail() throws InterruptedException {
         TestObserver authTestObserver = RxFirebaseAuth
-                .sendPasswordResetEmail(mockAuth, "email")
+                .sendPasswordResetEmail(firebaseAuth, ANY_EMAIL)
                 .test();
 
-        testOnCompleteListener.getValue().onComplete(mockVoidTask);
+        testOnCompleteListener.getValue().onComplete(voidTask);
 
-        verify(mockAuth).sendPasswordResetEmail(eq("email"));
+        verify(firebaseAuth).sendPasswordResetEmail(eq(ANY_EMAIL));
 
-        authTestObserver.assertNoErrors();
-        authTestObserver.assertValueSet(Collections.singletonList(mockVoidTask));
-        authTestObserver.assertComplete();
+        authTestObserver.assertNoErrors()
+                .assertValueSet(Collections.singletonList(voidTask))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
-    public void sendPasswordResetEmail_error() throws InterruptedException {
+    public void sendPasswordResetEmailError() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .sendPasswordResetEmail(mockAuth, "email")
+                .sendPasswordResetEmail(firebaseAuth, ANY_EMAIL)
                 .test();
 
-        Exception e = new Exception("something bad happened");
-        testOnFailureListener.getValue().onFailure(e);
+        testOnFailureListener.getValue().onFailure(EXCEPTION);
 
-        verify(mockAuth).sendPasswordResetEmail(eq("email"));
+        verify(firebaseAuth).sendPasswordResetEmail(eq(ANY_EMAIL));
 
-        authTestObserver.assertError(e);
-        authTestObserver.assertNotComplete();
+        authTestObserver.assertError(EXCEPTION)
+                .assertNotComplete()
+                .dispose();
     }
 
     @Test
     public void testObserveAuthState() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .observeAuthState(mockAuth)
+                .observeAuthState(firebaseAuth)
                 .test();
 
         ArgumentCaptor<FirebaseAuth.AuthStateListener> argument = ArgumentCaptor.forClass(FirebaseAuth.AuthStateListener.class);
-        verify(mockAuth).addAuthStateListener(argument.capture());
-        argument.getValue().onAuthStateChanged(mockAuth);
+        verify(firebaseAuth).addAuthStateListener(argument.capture());
+        argument.getValue().onAuthStateChanged(firebaseAuth);
 
-        authTestObserver.assertNoErrors();
-        authTestObserver.assertValueCount(1);
-        authTestObserver.assertValueSet(Collections.singletonList(mockUser));
-        authTestObserver.assertNotComplete();
+        authTestObserver.assertNoErrors()
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(firebaseUser))
+                .assertNotComplete()
+                .dispose();
     }
 }
