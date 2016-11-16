@@ -20,19 +20,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Collections;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableSource;
-import io.reactivex.functions.Action;
 import io.reactivex.internal.disposables.EmptyDisposable;
 import io.reactivex.observers.TestObserver;
-import io.reactivex.subscribers.TestSubscriber;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -89,7 +84,7 @@ public class RxFirebaseAuthTest {
         when(mockAuth.signInWithCustomToken("token")).thenReturn(mockAuthTask);
         when(mockAuth.createUserWithEmailAndPassword("email", "password")).thenReturn(mockAuthTask);
         when(mockAuth.fetchProvidersForEmail("email")).thenReturn(mockProviderQueryResultTask);
-         when(mockAuth.sendPasswordResetEmail("email")).thenReturn(mockVoidTask);
+        when(mockAuth.sendPasswordResetEmail("email")).thenReturn(mockVoidTask);
 
         when(mockAuth.getCurrentUser()).thenReturn(mockUser);
 
