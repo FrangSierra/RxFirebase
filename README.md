@@ -7,6 +7,7 @@ This repository started as a personal usage of [Nick Moskalenko](https://github.
 ## Download
 
 ##### Gradle:
+
 ```groovy
 dependencies {
   compile 'com.github.frangsierra:rx2firebase:0.5.0'
@@ -26,10 +27,10 @@ allprojects {
 One of the differences between RxJava and RxJava 2 is that RxJava 2 no longer accepts `null` values. Throwing a `NullPointerException` immediately. For this reason some of the methods of the library as been redesigned to return a `Completable` instead of a `Observable<Void>`. For example:
 
 ####RxFirebase 
-```
+
+```java
 @NonNull
-public static Observable<Void> updateEmail(@NonNull final FirebaseUser firebaseUser,
-                                               @NonNull final String email) {
+public static Observable<Void> updateEmail(@NonNull final FirebaseUser firebaseUser, @NonNull final String email) {
         return Observable.create(new Observable.OnSubscribe<Void>() {
             @Override
             public void call(final Subscriber<? super Void> subscriber) {
@@ -38,11 +39,12 @@ public static Observable<Void> updateEmail(@NonNull final FirebaseUser firebaseU
         });
 }
 ```
+
 ####Rx2Firebase
-```
+
+```java
 @NonNull
-public static Completable updateEmail(@NonNull final FirebaseUser firebaseUser,
-                                          @NonNull final String email) {
+public static Completable updateEmail(@NonNull final FirebaseUser firebaseUser, @NonNull final String email) {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(CompletableEmitter emitter) throws Exception {
@@ -67,6 +69,7 @@ It also provides a custom implementation of `FirebaseRecyclerAdapter`:
 
 ### Authentication:
 Sign in with email and password:
+
 ```java
     RxFirebaseAuth.signInWithEmailAndPassword(auth, email, password)
                 .map(authResult -> authResult.getUser() != null)
@@ -75,15 +78,20 @@ Sign in with email and password:
                     Log.i("Rxfirebase2", "User logged " + logged);
                 });
 ```
+
 ### Database:
+
 You can observe values providing the Class of expected data like:
+
 ```java
     RxFirebaseDatabase.observeSingleValueEvent(getPostsRef().child("posts"), Post.class)
                 .subscribe(post -> {
            //Do something with yourpost 
         });
 ```
+
 or providing your own mapper between DataSnapshot and your data type:
+
 ```java
     RxFirebaseDatabase.observeSingleValueEvent(getPostsRef().child("posts"),
                 dataSnapshot -> {
@@ -94,9 +102,11 @@ or providing your own mapper between DataSnapshot and your data type:
                     // process author value
                 });
 ```
+
 There are some pre-defined mappers to make things easier:
 
 #####Observing list values
+
 ```java
     RxFirebaseDatabase.observeSingleValueEvent(getPostsRef().child("posts"), DataSnapshotMapper.listOf(PostComment.class))
                 .subscribe(blogPost -> {
@@ -105,6 +115,7 @@ There are some pre-defined mappers to make things easier:
 ```
 
 #####Observing map values
+
 ```java
      RxFirebaseDatabase.observeSingleValueEvent(getPostsRef().child("posts"), DataSnapshotMapper.mapOf(PostComment.class))
                 .subscribe(PostCommentAsMapItem -> {
@@ -137,11 +148,14 @@ or download file as bytes array
 ```
 
 ### RxFirebaseRecyclerAdapter:
+
 RxFirebaseRecyclerAdapter was created looking for a way to manage the `RxFirebaseChildEvent<DataSnapshot>`  items recieved with the `observeChildEvent` method. It is an abstract class based on FirebaseRecyclerAdapter but modifying the query and firebase call dependency. 
 Doing this, now it only recieve a RxFirebaseRecyclerAdapter and using the method `manageChildItem`it will manage the `ChildEvent` doing the right task based on the `EventType` of the item:
 
 For example:
+
 ##### Posts are emited to our disposable:
+
 ```java 
    RxFirebaseDatabase.observeChildEvent(getPostsRefFromGroup(groupId))
                 .subscribeOn(Schedulers.io())
@@ -154,7 +168,9 @@ For example:
                     getView().showReloadLayout(true);
                 }));    
 ```
+
 ##### We call `manageChildItem(item)` in our Custom adapter which extends `RxFirebaseRecyclerAdapter`:
+
 ```java
  public void managePost(RxFirebaseChildEvent<DataSnapshot> post) {
         if(postRecyclerView.getVisibility() != View.VISIBLE) {
@@ -167,7 +183,9 @@ For example:
         adapter.manageChildItem(post);
     }
 ```
+
 ##### Custom adapter example:
+
 ```java
 public class PostAdapter extends RxFirebaseRecyclerAdapter<PostViewHolder, Post> {
     private static final String TAG = "PostAdapter";
