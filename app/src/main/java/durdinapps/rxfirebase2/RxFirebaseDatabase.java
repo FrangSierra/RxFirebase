@@ -133,41 +133,40 @@ public class RxFirebaseDatabase {
         return Flowable.create(new FlowableOnSubscribe<RxFirebaseChildEvent<DataSnapshot>>() {
             @Override
             public void subscribe(final FlowableEmitter<RxFirebaseChildEvent<DataSnapshot>> emitter) throws Exception {
-                final ChildEventListener childEventListener = query.addChildEventListener(
-                        new ChildEventListener() {
+                final ChildEventListener childEventListener = new ChildEventListener() {
 
-                            @Override
-                            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-                                emitter.onNext(
-                                        new RxFirebaseChildEvent<DataSnapshot>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
-                                                RxFirebaseChildEvent.EventType.ADDED));
-                            }
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                        emitter.onNext(
+                                new RxFirebaseChildEvent<DataSnapshot>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
+                                        RxFirebaseChildEvent.EventType.ADDED));
+                    }
 
-                            @Override
-                            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
-                                emitter.onNext(
-                                        new RxFirebaseChildEvent<DataSnapshot>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
-                                                RxFirebaseChildEvent.EventType.CHANGED));
-                            }
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+                        emitter.onNext(
+                                new RxFirebaseChildEvent<DataSnapshot>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
+                                        RxFirebaseChildEvent.EventType.CHANGED));
+                    }
 
-                            @Override
-                            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                                emitter.onNext(new RxFirebaseChildEvent<DataSnapshot>(dataSnapshot.getKey(), dataSnapshot,
-                                        RxFirebaseChildEvent.EventType.REMOVED));
-                            }
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+                        emitter.onNext(new RxFirebaseChildEvent<DataSnapshot>(dataSnapshot.getKey(), dataSnapshot,
+                                RxFirebaseChildEvent.EventType.REMOVED));
+                    }
 
-                            @Override
-                            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
-                                emitter.onNext(
-                                        new RxFirebaseChildEvent<DataSnapshot>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
-                                                RxFirebaseChildEvent.EventType.MOVED));
-                            }
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+                        emitter.onNext(
+                                new RxFirebaseChildEvent<DataSnapshot>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
+                                        RxFirebaseChildEvent.EventType.MOVED));
+                    }
 
-                            @Override
-                            public void onCancelled(DatabaseError error) {
-                                emitter.onError(new RxFirebaseDataException(error));
-                            }
-                        });
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        emitter.onError(new RxFirebaseDataException(error));
+                    }
+                };
                 emitter.setCancellable(new Cancellable() {
                     @Override
                     public void cancel() throws Exception {
