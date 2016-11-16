@@ -3,6 +3,25 @@
 
 This repository started as a personal usage of [Nick Moskalenko](https://github.com/nmoskalenko) RxFirebase library. You can check his work [here](https://github.com/nmoskalenko/RxFirebase).
 
+
+## Download
+
+##### Gradle:
+```groovy
+dependencies {
+  compile 'com.github.frangsierra:rx2firebase:0.5.0'
+}
+```
+```
+allprojects {
+		repositories {
+			...
+			maven { url "https://jitpack.io" }
+		}
+	}
+```
+
+
 ## RxJava and RxJava 2.0
 One of the differences between RxJava and RxJava 2 is that RxJava 2 no longer accepts `null` values. Throwing a `NullPointerException` immediately. For this reason some of the methods of the library as been redesigned to return a `Completable` instead of a `Observable<Void>`. For example:
 
@@ -193,26 +212,4 @@ public class PostAdapter extends RxFirebaseRecyclerAdapter<PostViewHolder, Post>
     }
 
 }
-```
-## Download
-
-##### Gradle:
-```groovy
-dependencies {
-  compile 'com.google.firebase:firebase-auth:9.6.1'
-  compile 'com.google.firebase:firebase-database:9.6.1'
-  compile 'com.google.firebase:firebase-storage:9.6.1'
-  compile 'com.android.support:recyclerview-v7:24.x'
-  compile 'com.durdinapps:rxfirebase2:1.0'
-}
-```
-
-##### Maven:
-```
-<dependency>
-  <groupId>com.durdinapps</groupId>
-  <artifactId>rxfirebase2</artifactId>
-  <version>1.0</version>
-  <type>pom</type>
-</dependency>
 ```
