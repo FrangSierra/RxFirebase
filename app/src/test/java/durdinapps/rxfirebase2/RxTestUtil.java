@@ -7,11 +7,14 @@ import com.google.android.gms.tasks.Task;
 
 import org.mockito.ArgumentCaptor;
 
+import durdinapps.rxfirebase2.exceptions.RxFirebaseNullDataException;
+
 import static org.mockito.Mockito.when;
 
 public class RxTestUtil {
     public static final String ANY_EMAIL = "email@email.com";
     public static final Exception EXCEPTION = new Exception("Something bad happen");
+    public static final Exception NULL_FIREBASE_EXCEPTION = new RxFirebaseNullDataException();
     public static final String ANY_PASSWORD = "ANY_PASSWORD";
     public static final String ANY_TOKEN = "ANY_KEY";
     public static final String ANY_KEY = "_token_";

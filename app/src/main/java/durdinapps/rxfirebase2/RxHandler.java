@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import durdinapps.rxfirebase2.exceptions.RxFirebaseNullDataException;
 import io.reactivex.Emitter;
 
 public class RxHandler<T> implements OnSuccessListener<T>, OnFailureListener, OnCompleteListener<T> {
@@ -31,7 +32,11 @@ public class RxHandler<T> implements OnSuccessListener<T>, OnFailureListener, On
 
     @Override
     public void onSuccess(T res) {
-        emitter.onNext(res);
+        if (res != null) {
+            emitter.onNext(res);
+        } else {
+            emitter.onError(new RxFirebaseNullDataException("Observables can't emit null values"));
+        }
     }
 
     @Override

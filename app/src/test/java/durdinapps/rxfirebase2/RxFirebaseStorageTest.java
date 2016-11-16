@@ -22,6 +22,7 @@ import java.util.Collections;
 import io.reactivex.observers.TestObserver;
 
 import static durdinapps.rxfirebase2.RxTestUtil.EXCEPTION;
+import static durdinapps.rxfirebase2.RxTestUtil.NULL_FIREBASE_EXCEPTION;
 import static durdinapps.rxfirebase2.RxTestUtil.setupTask;
 import static durdinapps.rxfirebase2.RxTestUtil.testOnCompleteListener;
 import static durdinapps.rxfirebase2.RxTestUtil.testOnFailureListener;
@@ -106,7 +107,9 @@ public class RxFirebaseStorageTest {
         when(mockStorageRef.getStream(processor)).thenReturn(mockStreamDownloadTask);
         when(mockStorageRef.getMetadata()).thenReturn(mockMetadataTask);
         when(mockStorageRef.putBytes(notNullbytes)).thenReturn(mockUploadTask);
+        when(mockStorageRef.putBytes(nullBytes)).thenReturn(mockUploadTask);
         when(mockStorageRef.putBytes(notNullbytes, metadata)).thenReturn(mockUploadTask);
+        when(mockStorageRef.putBytes(nullBytes, metadata)).thenReturn(mockUploadTask);
         when(mockStorageRef.putFile(uri)).thenReturn(mockUploadTask);
         when(mockStorageRef.putFile(uri, metadata)).thenReturn(mockUploadTask);
         when(mockStorageRef.putFile(uri, metadata, uri)).thenReturn(mockUploadTask);
@@ -131,6 +134,22 @@ public class RxFirebaseStorageTest {
                 .assertValueCount(1)
                 .assertValueSet(Collections.singletonList(notNullbytes))
                 .assertComplete()
+                .dispose();
+    }
+
+    @Test
+    public void getBytesNoData() throws InterruptedException {
+        TestObserver<byte[]> storageTestObserver =
+                RxFirebaseStorage.getBytes(mockStorageRef, 20)
+                        .test();
+
+        testOnFailureListener.getValue().onFailure(NULL_FIREBASE_EXCEPTION);
+
+        verify(mockStorageRef).getBytes(20);
+
+        storageTestObserver.assertError(NULL_FIREBASE_EXCEPTION)
+                .assertValueSet(Collections.singletonList(nullBytes))
+                .assertNotComplete()
                 .dispose();
     }
 
@@ -258,6 +277,23 @@ public class RxFirebaseStorageTest {
 
         storageTestObserver.assertNoErrors()
                 .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(uploadSnapshot))
+                .assertNotComplete()
+                .dispose();
+    }
+
+    @Test
+    public void putBytesNoData() throws InterruptedException {
+
+        TestObserver<UploadTask.TaskSnapshot> storageTestObserver =
+                RxFirebaseStorage.putBytes(mockStorageRef, nullBytes)
+                        .test();
+
+        testOnFailureListener.getValue().onFailure(NULL_FIREBASE_EXCEPTION);
+
+        verify(mockStorageRef).putBytes(nullBytes);
+
+        storageTestObserver.assertError(NULL_FIREBASE_EXCEPTION)
                 .assertValueSet(Collections.singletonList(uploadSnapshot))
                 .assertNotComplete()
                 .dispose();

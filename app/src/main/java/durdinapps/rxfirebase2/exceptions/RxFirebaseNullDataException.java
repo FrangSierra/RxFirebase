@@ -1,8 +1,14 @@
 package durdinapps.rxfirebase2.exceptions;
 
-/**
- * Created by fragarsie on 11/16/16.
- */
 
-public class RxFirebaseNullDataException {
+import android.support.annotation.NonNull;
+
+public class RxFirebaseNullDataException extends NullPointerException {
+
+    public RxFirebaseNullDataException() {
+    }
+    public RxFirebaseNullDataException(@NonNull String detailMessage) {
+        super(detailMessage);
+    }
+
 }
