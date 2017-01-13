@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.ProviderQueryResult;
 
 import io.reactivex.BackpressureStrategy;
@@ -103,18 +102,16 @@ public class RxFirebaseAuth {
    }
 
    @NonNull
-   public static Flowable<FirebaseUser> observeAuthState(@NonNull final FirebaseAuth firebaseAuth,
+   public static Flowable<FirebaseAuth> observeAuthState(@NonNull final FirebaseAuth firebaseAuth,
                                                          @NonNull BackpressureStrategy strategy) {
 
-      return Flowable.create(new FlowableOnSubscribe<FirebaseUser>() {
+      return Flowable.create(new FlowableOnSubscribe<FirebaseAuth>() {
          @Override
-         public void subscribe(final FlowableEmitter<FirebaseUser> emitter) throws Exception {
+         public void subscribe(final FlowableEmitter<FirebaseAuth> emitter) throws Exception {
             final FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
                @Override
                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                  if (firebaseAuth.getCurrentUser() != null) {
-                     emitter.onNext(firebaseAuth.getCurrentUser());
-                  }
+                  emitter.onNext(firebaseAuth);
                }
             };
             firebaseAuth.addAuthStateListener(authStateListener);
@@ -166,7 +163,7 @@ public class RxFirebaseAuth {
    }
 
    @NonNull
-   public static Flowable<FirebaseUser> observeAuthState(@NonNull final FirebaseAuth firebaseAuth) {
+   public static Flowable<FirebaseAuth> observeAuthState(@NonNull final FirebaseAuth firebaseAuth) {
 
       return observeAuthState(firebaseAuth, BackpressureStrategy.DROP);
    }

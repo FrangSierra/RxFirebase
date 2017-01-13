@@ -325,7 +325,7 @@ public class RxFirebaseAuthTest {
     @Test
     public void testObserveAuthState() throws InterruptedException {
 
-        TestSubscriber<FirebaseUser> authTestObserver = RxFirebaseAuth
+        TestSubscriber<FirebaseAuth> authTestObserver = RxFirebaseAuth
                 .observeAuthState(firebaseAuth)
                 .test();
 
@@ -335,7 +335,7 @@ public class RxFirebaseAuthTest {
 
         authTestObserver.assertNoErrors()
                 .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(firebaseUser))
+                .assertValueSet(Collections.singletonList(firebaseAuth))
                 .assertNotComplete()
                 .dispose();
     }
