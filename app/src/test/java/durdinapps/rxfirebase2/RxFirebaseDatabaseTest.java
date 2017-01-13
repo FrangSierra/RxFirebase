@@ -77,7 +77,7 @@ public class RxFirebaseDatabaseTest {
 
     @Test
     public void testObserveSingleValue() throws InterruptedException {
-        TestObserver<ChildData> testObserver = RxFirebaseDatabase
+        TestSubscriber<ChildData> testObserver = RxFirebaseDatabase
                 .observeSingleValueEvent(databaseReference, ChildData.class)
                 .test();
 
@@ -98,7 +98,7 @@ public class RxFirebaseDatabaseTest {
         DataSnapshot mockFirebaseDataSnapshotNoData = mock(DataSnapshot.class);
         when(mockFirebaseDataSnapshotNoData.exists()).thenReturn(false);
 
-        TestObserver<ChildData> testObserver = RxFirebaseDatabase
+        TestSubscriber<ChildData> testObserver = RxFirebaseDatabase
                 .observeSingleValueEvent(databaseReference, ChildData.class)
                 .test();
 
@@ -113,7 +113,7 @@ public class RxFirebaseDatabaseTest {
     @Test
     public void testObserveSingleWrongType() throws InterruptedException {
 
-        TestObserver<WrongType> testObserver = RxFirebaseDatabase
+        TestSubscriber<WrongType> testObserver = RxFirebaseDatabase
                 .observeSingleValueEvent(databaseReference, WrongType.class)
                 .test();
 
@@ -129,7 +129,7 @@ public class RxFirebaseDatabaseTest {
     @Test
     public void testObserveSingleValue_Disconnected() throws InterruptedException {
 
-        TestObserver<ChildData> testObserver = RxFirebaseDatabase
+        TestSubscriber<ChildData> testObserver = RxFirebaseDatabase
                 .observeSingleValueEvent(databaseReference, ChildData.class)
                 .test();
 
@@ -162,7 +162,7 @@ public class RxFirebaseDatabaseTest {
     @Test
     public void testObserveValueEvent() throws InterruptedException {
 
-        TestObserver<ChildData> testObserver = RxFirebaseDatabase
+        TestSubscriber<ChildData> testObserver = RxFirebaseDatabase
                 .observeValueEvent(databaseReference, ChildData.class)
                 .test();
 
@@ -181,7 +181,7 @@ public class RxFirebaseDatabaseTest {
     public void testSingleValueEvent() throws InterruptedException {
 
 
-        TestObserver<ChildData> testObserver = RxFirebaseDatabase
+        TestSubscriber<ChildData> testObserver = RxFirebaseDatabase
                 .observeSingleValueEvent(databaseReference, ChildData.class)
                 .test();
 

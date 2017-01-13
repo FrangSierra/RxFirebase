@@ -15,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.Collections;
 
 import io.reactivex.observers.TestObserver;
+import io.reactivex.subscribers.TestSubscriber;
 
 import static durdinapps.rxfirebase2.RxTestUtil.ANY_EMAIL;
 import static durdinapps.rxfirebase2.RxTestUtil.ANY_PASSWORD;
@@ -78,7 +79,7 @@ public class RxFirebaseUserTest {
 
     @Test
     public void getToken() throws Exception {
-        TestObserver<GetTokenResult> userTestObserver = RxFirebaseUser.getToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
+        TestSubscriber<GetTokenResult> userTestObserver = RxFirebaseUser.getToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
 
         testOnSuccessListener.getValue().onSuccess(getTokenResult);
         testOnCompleteListener.getValue().onComplete(getTokenResultTask);
@@ -93,7 +94,7 @@ public class RxFirebaseUserTest {
 
     @Test
     public void getTokenError() throws Exception {
-        TestObserver<GetTokenResult> userTestObserver = RxFirebaseUser.getToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
+        TestSubscriber<GetTokenResult> userTestObserver = RxFirebaseUser.getToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
         testOnFailureListener.getValue().onFailure(EXCEPTION);
         verify(firebaseUser).getToken(ANY_FORCE_REFRESH_VALUE);
 
@@ -231,8 +232,8 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void linkWithCredendials() throws Exception {
-        TestObserver<AuthResult> userTestObserver = RxFirebaseUser.linkWithCredential(firebaseUser, authCredential).test();
+    public void linkWithCredentials() throws Exception {
+        TestSubscriber<AuthResult> userTestObserver = RxFirebaseUser.linkWithCredential(firebaseUser, authCredential).test();
 
         testOnSuccessListener.getValue().onSuccess(authResult);
         testOnCompleteListener.getValue().onComplete(authResultTask);
@@ -249,7 +250,7 @@ public class RxFirebaseUserTest {
 
     @Test
     public void linkWithCredentialsError() throws Exception {
-        TestObserver<AuthResult> userTestObserver = RxFirebaseUser.linkWithCredential(firebaseUser, authCredential).test();
+        TestSubscriber<AuthResult> userTestObserver = RxFirebaseUser.linkWithCredential(firebaseUser, authCredential).test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
 

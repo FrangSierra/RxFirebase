@@ -215,6 +215,24 @@ public class RxFirebaseStorage {
    }
 
    @NonNull
+   public static Flowable<byte[]> getBytes(@NonNull final StorageReference storageRef,
+                                           final long maxDownloadSizeBytes) {
+      return getBytes(storageRef, maxDownloadSizeBytes, BackpressureStrategy.BUFFER);
+   }
+
+   @NonNull
+   public static Flowable<Uri> getDownloadUrl(@NonNull final StorageReference storageRef) {
+      return getDownloadUrl(storageRef, BackpressureStrategy.DROP);
+   }
+
+   @NonNull
+   public static Flowable<FileDownloadTask.TaskSnapshot> getFile(@NonNull final StorageReference storageRef,
+                                                                 @NonNull final File destinationFile) {
+      return getFile(storageRef, destinationFile, BackpressureStrategy.DROP);
+   }
+
+
+   @NonNull
    public static Flowable<FileDownloadTask.TaskSnapshot> getFile(@NonNull final StorageReference storageRef,
                                                                  @NonNull final Uri destinationUri) {
       return getFile(storageRef, destinationUri, BackpressureStrategy.DROP);
