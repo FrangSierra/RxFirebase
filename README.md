@@ -10,7 +10,7 @@ This repository started as a personal usage of [Nick Moskalenko](https://github.
 
 ```groovy
 dependencies {
-  compile 'com.github.frangsierra:rx2firebase:v1.0.0'
+  compile 'com.github.frangsierra:rx2firebase:1.0.0'
 }
 ```
 ```
