@@ -6,6 +6,7 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.junit.Before;
@@ -30,6 +31,8 @@ import io.reactivex.subscribers.TestSubscriber;
 
 import static durdinapps.rxfirebase2.RxTestUtil.ANY_KEY;
 import static durdinapps.rxfirebase2.RxTestUtil.PREVIOUS_CHILD_NAME;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,6 +41,9 @@ public class RxFirebaseDatabaseTest {
 
    @Mock
    private DatabaseReference databaseReference;
+
+   @Mock
+   private Query query;
 
    @Mock
    private DataSnapshot dataSnapshot;
@@ -135,7 +141,7 @@ public class RxFirebaseDatabaseTest {
 
       ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
       verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
-      argument.getValue().onCancelled(DatabaseError.zzagb(DatabaseError.DISCONNECTED));
+      argument.getValue().onCancelled(DatabaseError.zzpI(DatabaseError.DISCONNECTED));
 
       testObserver.assertError(RxFirebaseDataException.class)
          .assertNotComplete()
@@ -152,7 +158,7 @@ public class RxFirebaseDatabaseTest {
 
       ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
       verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
-      argument.getValue().onCancelled(DatabaseError.zzagb(DatabaseError.OPERATION_FAILED));
+      argument.getValue().onCancelled(DatabaseError.zzpI(DatabaseError.OPERATION_FAILED));
 
       testObserver.assertError(RxFirebaseDataException.class)
          .assertNotComplete()
@@ -327,11 +333,51 @@ public class RxFirebaseDatabaseTest {
 
       ArgumentCaptor<ChildEventListener> argument = ArgumentCaptor.forClass(ChildEventListener.class);
       verify(databaseReference).addChildEventListener(argument.capture());
-      argument.getValue().onCancelled(DatabaseError.zzagb(DatabaseError.DISCONNECTED));
+      argument.getValue().onCancelled(DatabaseError.zzpI(DatabaseError.DISCONNECTED));
 
       testObserver.assertError(RxFirebaseDataException.class)
          .assertNotComplete()
          .dispose();
+   }
+
+   @Test
+   public void testObserveListWithDataSnapshotMapper() {
+      TestSubscriber<List<ChildData>> testObserver = RxFirebaseDatabase
+              .observeValueEvent(query, DataSnapshotMapper.listOf(ChildData.class))
+              .test();
+
+      ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
+      verify(query).addValueEventListener(argument.capture());
+      argument.getValue().onDataChange(dataSnapshot);
+
+      testObserver.assertNoErrors()
+              .assertValueCount(1)
+              .assertValueSet(Collections.singletonList(childDataList))
+              .assertNotComplete()
+              .dispose();
+   }
+
+   @Test
+   public void testObserveListWithDataSnapshotCustomMapper() throws Exception {
+      //noinspection unchecked
+      Function<DataSnapshot, ChildData> mapper = (Function<DataSnapshot, ChildData>) mock(Function.class);
+      doReturn(childData).when(mapper).apply(eq(dataSnapshot));
+     
+      TestSubscriber<List<ChildData>> testObserver = RxFirebaseDatabase
+              .observeValueEvent(query, DataSnapshotMapper.listOf(ChildData.class, mapper))
+              .test();
+
+      ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
+      verify(query).addValueEventListener(argument.capture());
+      argument.getValue().onDataChange(dataSnapshot);
+
+      verify(mapper).apply(dataSnapshot);
+
+      testObserver.assertNoErrors()
+              .assertValueCount(1)
+              .assertValueSet(Collections.singletonList(childDataList))
+              .assertNotComplete()
+              .dispose();
    }
 
    class ChildData {
