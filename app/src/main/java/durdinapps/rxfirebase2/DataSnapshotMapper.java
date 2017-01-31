@@ -24,6 +24,10 @@ public abstract class DataSnapshotMapper<T, U> implements Function<T, U> {
       return new TypedListDataSnapshotMapper<>(clazz);
    }
 
+   public static <U> DataSnapshotMapper<DataSnapshot, List<U>> listOf(Class<U> clazz, Function<DataSnapshot, U> mapper) {
+      return new TypedListDataSnapshotMapper<>(clazz, mapper);
+   }
+
    public static <U> DataSnapshotMapper<DataSnapshot, LinkedHashMap<String, U>> mapOf(Class<U> clazz) {
       return new TypedMapDataSnapshotMapper<>(clazz);
    }
@@ -66,16 +70,24 @@ public abstract class DataSnapshotMapper<T, U> implements Function<T, U> {
    private static class TypedListDataSnapshotMapper<U> extends DataSnapshotMapper<DataSnapshot, List<U>> {
 
       private final Class<U> clazz;
+      private final Function<DataSnapshot, U> mapper;
 
-      public TypedListDataSnapshotMapper(final Class<U> clazz) {
+      TypedListDataSnapshotMapper(final Class<U> clazz) {
+         this(clazz, null);
+      }
+
+      TypedListDataSnapshotMapper(final Class<U> clazz, Function<DataSnapshot, U> mapper) {
          this.clazz = clazz;
+         this.mapper = mapper;
       }
 
       @Override
-      public List<U> apply(final DataSnapshot dataSnapshot) {
+      public List<U> apply(final DataSnapshot dataSnapshot) throws Exception {
          List<U> items = new ArrayList<>();
          for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-            items.add(getDataSnapshotTypedValue(childSnapshot, clazz));
+            items.add(mapper != null
+                    ? mapper.apply(childSnapshot)
+                    : getDataSnapshotTypedValue(childSnapshot, clazz));
          }
          return items;
       }
@@ -85,7 +97,7 @@ public abstract class DataSnapshotMapper<T, U> implements Function<T, U> {
 
       private final Class<U> clazz;
 
-      public TypedMapDataSnapshotMapper(final Class<U> clazz) {
+      TypedMapDataSnapshotMapper(final Class<U> clazz) {
          this.clazz = clazz;
       }
 
