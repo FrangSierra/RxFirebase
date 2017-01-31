@@ -1,3 +1,11 @@
+buildscript {
+    ext {
+        rx_version = "2.0.4"
+        rx_android_version = "2.0.1"
+        firebase_version = "10.0.1"
+        support_version = "25.1.1"
+    }
+}
 apply plugin: 'com.android.library'
 
 android {
@@ -27,12 +35,12 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    provided 'com.google.firebase:firebase-auth:10.0.1'
-    provided 'com.google.firebase:firebase-database:10.0.1'
-    provided 'com.google.firebase:firebase-storage:10.0.1'
-    provided 'com.android.support:recyclerview-v7:25.1.1'
-    compile 'io.reactivex.rxjava2:rxjava:2.0.4'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    provided "com.google.firebase:firebase-auth:$firebase_version"
+    provided "com.google.firebase:firebase-database:$firebase_version"
+    provided "com.google.firebase:firebase-storage:$firebase_version"
+    provided "com.android.support:recyclerview-v7:$support_version"
+    compile "io.reactivex.rxjava2:rxjava:$rx_version"
+    compile "io.reactivex.rxjava2:rxandroid:$rx_android_version"
     testCompile 'junit:junit:4.12'
     testCompile "org.mockito:mockito-core:2.2.16"
 }
