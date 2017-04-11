@@ -21,6 +21,12 @@ import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeEmitter;
+import io.reactivex.MaybeOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Cancellable;
 import io.reactivex.functions.Function;
 
@@ -56,15 +62,16 @@ public class RxFirebaseDatabase {
 
 
    @NonNull
-   public static Flowable<DataSnapshot> observeSingleValueEvent(@NonNull final Query query,
-                                                                @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<DataSnapshot>() {
+   public static Maybe<DataSnapshot> observeSingleValueEvent(@NonNull final Query query) {
+      return Maybe.create(new MaybeOnSubscribe<DataSnapshot>() {
          @Override
-         public void subscribe(final FlowableEmitter<DataSnapshot> emitter) throws Exception {
+         public void subscribe(final MaybeEmitter<DataSnapshot> emitter) throws Exception {
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                @Override
                public void onDataChange(DataSnapshot dataSnapshot) {
-                  emitter.onNext(dataSnapshot);
+                  if (dataSnapshot.exists())
+                     emitter.onSuccess(dataSnapshot);
+
                   emitter.onComplete();
                }
 
@@ -74,17 +81,15 @@ public class RxFirebaseDatabase {
                }
             });
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<DataSnapshot> runTransaction(@NonNull final DatabaseReference ref,
-                                                       @NonNull final boolean fireLocalEvents,
-                                                       @NonNull final long transactionValue,
-                                                       @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<DataSnapshot>() {
-         @Override
-         public void subscribe(final FlowableEmitter<DataSnapshot> emitter) throws Exception {
+   public static Single<DataSnapshot> runTransaction(@NonNull final DatabaseReference ref,
+                                                     @NonNull final boolean fireLocalEvents,
+                                                     @NonNull final long transactionValue) {
+      return Single.create(new SingleOnSubscribe<DataSnapshot>() {
+         @Override public void subscribe(final SingleEmitter emitter) throws Exception {
             ref.runTransaction(new Transaction.Handler() {
                @Override
                public Transaction.Result doTransaction(MutableData mutableData) {
@@ -99,12 +104,11 @@ public class RxFirebaseDatabase {
 
                @Override
                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                  emitter.onNext(dataSnapshot);
-                  emitter.onComplete();
+                  emitter.onSuccess(dataSnapshot);
                }
             }, fireLocalEvents);
          }
-      }, strategy);
+      });
    }
 
    @NonNull
@@ -180,13 +184,6 @@ public class RxFirebaseDatabase {
    }
 
    @NonNull
-   public static Flowable<DataSnapshot> runTransaction(@NonNull final DatabaseReference ref,
-                                                       @NonNull final long transactionValue,
-                                                       @NonNull BackpressureStrategy strategy) {
-      return runTransaction(ref, true, transactionValue, strategy);
-   }
-
-   @NonNull
    public static <T> Flowable<T> observeValueEvent(@NonNull final Query query,
                                                    @NonNull final Class<T> clazz,
                                                    @NonNull BackpressureStrategy strategy) {
@@ -195,10 +192,9 @@ public class RxFirebaseDatabase {
 
 
    @NonNull
-   public static <T> Flowable<T> observeSingleValueEvent(@NonNull final Query query,
-                                                         @NonNull final Class<T> clazz,
-                                                         @NonNull BackpressureStrategy strategy) {
-      return observeSingleValueEvent(query, DataSnapshotMapper.of(clazz), strategy);
+   public static <T> Maybe<T> observeSingleValueEvent(@NonNull final Query query,
+                                                      @NonNull final Class<T> clazz) {
+      return observeSingleValueEvent(query, DataSnapshotMapper.of(clazz));
    }
 
    @NonNull
@@ -216,10 +212,9 @@ public class RxFirebaseDatabase {
    }
 
    @NonNull
-   public static <T> Flowable<T> observeSingleValueEvent(@NonNull final Query query,
-                                                         @NonNull final Function<? super DataSnapshot, ? extends T> mapper,
-                                                         @NonNull BackpressureStrategy strategy) {
-      return observeSingleValueEvent(query, strategy).map(mapper);
+   public static <T> Maybe<T> observeSingleValueEvent(@NonNull final Query query,
+                                                      @NonNull final Function<? super DataSnapshot, ? extends T> mapper) {
+      return observeSingleValueEvent(query).map(mapper);
    }
 
    @NonNull
@@ -236,40 +231,21 @@ public class RxFirebaseDatabase {
 
 
    @NonNull
-   public static Flowable<DataSnapshot> observeSingleValueEvent(@NonNull final Query query) {
-      return observeSingleValueEvent(query, BackpressureStrategy.DROP);
-   }
-
-   @NonNull
-   public static Flowable<DataSnapshot> runTransaction(@NonNull final DatabaseReference ref,
-                                                       @NonNull final boolean fireLocalEvents,
-                                                       @NonNull final long transactionValue) {
-      return runTransaction(ref, fireLocalEvents, transactionValue, BackpressureStrategy.DROP);
-   }
-
-   @NonNull
    public static Flowable<RxFirebaseChildEvent<DataSnapshot>> observeChildEvent(
       @NonNull final Query query) {
       return observeChildEvent(query, BackpressureStrategy.DROP);
    }
 
    @NonNull
-   public static Flowable<DataSnapshot> runTransaction(@NonNull final DatabaseReference ref,
-                                                       @NonNull final long transactionValue) {
-      return runTransaction(ref, true, transactionValue, BackpressureStrategy.DROP);
+   public static Single<DataSnapshot> runTransaction(@NonNull final DatabaseReference ref,
+                                                     @NonNull final long transactionValue) {
+      return runTransaction(ref, true, transactionValue);
    }
 
    @NonNull
    public static <T> Flowable<T> observeValueEvent(@NonNull final Query query,
                                                    @NonNull final Class<T> clazz) {
       return observeValueEvent(query, DataSnapshotMapper.of(clazz), BackpressureStrategy.DROP);
-   }
-
-
-   @NonNull
-   public static <T> Flowable<T> observeSingleValueEvent(@NonNull final Query query,
-                                                         @NonNull final Class<T> clazz) {
-      return observeSingleValueEvent(query, DataSnapshotMapper.of(clazz), BackpressureStrategy.DROP);
    }
 
    @NonNull
@@ -282,12 +258,6 @@ public class RxFirebaseDatabase {
    public static <T> Flowable<T> observeValueEvent(@NonNull final Query query,
                                                    @NonNull final Function<? super DataSnapshot, ? extends T> mapper) {
       return observeValueEvent(query, BackpressureStrategy.DROP).map(mapper);
-   }
-
-   @NonNull
-   public static <T> Flowable<T> observeSingleValueEvent(@NonNull final Query query,
-                                                         @NonNull final Function<? super DataSnapshot, ? extends T> mapper) {
-      return observeSingleValueEvent(query, BackpressureStrategy.DROP).map(mapper);
    }
 
    @NonNull

@@ -18,7 +18,6 @@ import org.mockito.MockitoAnnotations;
 import java.util.Collections;
 
 import io.reactivex.observers.TestObserver;
-import io.reactivex.subscribers.TestSubscriber;
 
 import static durdinapps.rxfirebase2.RxTestUtil.ANY_EMAIL;
 import static durdinapps.rxfirebase2.RxTestUtil.ANY_PASSWORD;
@@ -85,7 +84,7 @@ public class RxFirebaseAuthTest {
    @Test
    public void signInAnonymously() throws InterruptedException {
 
-      TestSubscriber<AuthResult> authTestObserver = RxFirebaseAuth
+      TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
          .signInAnonymously(firebaseAuth)
          .test();
 
@@ -104,7 +103,7 @@ public class RxFirebaseAuthTest {
    @Test
    public void signInAnonymouslyError() throws InterruptedException {
 
-      TestSubscriber<AuthResult> authTestObserver = RxFirebaseAuth
+      TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
          .signInAnonymously(firebaseAuth)
          .test();
 
@@ -118,7 +117,7 @@ public class RxFirebaseAuthTest {
 
    @Test
    public void createUserWithEmailAndPassword() throws InterruptedException {
-      TestSubscriber<AuthResult> authTestObserver = RxFirebaseAuth
+      TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
          .createUserWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
          .test();
 
@@ -137,7 +136,7 @@ public class RxFirebaseAuthTest {
    @Test
    public void createUserWithEmailAndPasswordError() throws InterruptedException {
 
-      TestSubscriber<AuthResult> authTestObserver = RxFirebaseAuth
+      TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
          .createUserWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
          .test();
 
@@ -153,7 +152,7 @@ public class RxFirebaseAuthTest {
    @Test
    public void signInWithEmailAndPassword() throws InterruptedException {
 
-      TestSubscriber<AuthResult> authTestObserver = RxFirebaseAuth
+      TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
          .signInWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
          .test();
 
@@ -172,7 +171,7 @@ public class RxFirebaseAuthTest {
    @Test
    public void signInWithEmailAndPasswordError() throws InterruptedException {
 
-      TestSubscriber<AuthResult> authTestObserver = RxFirebaseAuth
+      TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
          .signInWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
          .test();
 
@@ -188,7 +187,7 @@ public class RxFirebaseAuthTest {
    @Test
    public void signInWithCredential() throws InterruptedException {
 
-      TestSubscriber<AuthResult> authTestObserver = RxFirebaseAuth
+      TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
          .signInWithCredential(firebaseAuth, authCredential)
          .test();
 
@@ -207,7 +206,7 @@ public class RxFirebaseAuthTest {
    @Test
    public void signInWithCredentialError() throws InterruptedException {
 
-      TestSubscriber<AuthResult> authTestObserver = RxFirebaseAuth
+      TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
          .signInWithCredential(firebaseAuth, authCredential)
          .test();
 
@@ -223,7 +222,7 @@ public class RxFirebaseAuthTest {
    @Test
    public void signInWithCustomToken() throws InterruptedException {
 
-      TestSubscriber<AuthResult> authTestObserver = RxFirebaseAuth
+      TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
          .signInWithCustomToken(firebaseAuth, ANY_TOKEN)
          .test();
 
@@ -242,7 +241,7 @@ public class RxFirebaseAuthTest {
    @Test
    public void signInWithCustomTokenError() throws InterruptedException {
 
-      TestSubscriber<AuthResult> authTestObserver = RxFirebaseAuth
+      TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
          .signInWithCustomToken(firebaseAuth, ANY_TOKEN)
          .test();
 
@@ -258,7 +257,7 @@ public class RxFirebaseAuthTest {
    @Test
    public void fetchProvidersForEmail() throws InterruptedException {
 
-      TestSubscriber<ProviderQueryResult> authTestObserver = RxFirebaseAuth
+      TestObserver<ProviderQueryResult> authTestObserver = RxFirebaseAuth
          .fetchProvidersForEmail(firebaseAuth, ANY_EMAIL)
          .test();
 
@@ -277,7 +276,7 @@ public class RxFirebaseAuthTest {
    @Test
    public void fetchProvidersForEmailError() throws InterruptedException {
 
-      TestSubscriber<ProviderQueryResult> authTestObserver = RxFirebaseAuth
+      TestObserver<ProviderQueryResult> authTestObserver = RxFirebaseAuth
          .fetchProvidersForEmail(firebaseAuth, ANY_EMAIL)
          .test();
 
@@ -325,7 +324,7 @@ public class RxFirebaseAuthTest {
    @Test
    public void testObserveAuthState() throws InterruptedException {
 
-      TestSubscriber<FirebaseAuth> authTestObserver = RxFirebaseAuth
+      TestObserver<FirebaseAuth> authTestObserver = RxFirebaseAuth
          .observeAuthState(firebaseAuth)
          .test();
 
@@ -336,7 +335,7 @@ public class RxFirebaseAuthTest {
       authTestObserver.assertNoErrors()
          .assertValueCount(1)
          .assertValueSet(Collections.singletonList(firebaseAuth))
-         .assertNotComplete()
+         .assertComplete()
          .dispose();
    }
 }

@@ -12,196 +12,181 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.io.InputStream;
 
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
-import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeEmitter;
+import io.reactivex.MaybeOnSubscribe;
 
 public class RxFirebaseStorage {
 
    @NonNull
-   public static Flowable<byte[]> getBytes(@NonNull final StorageReference storageRef,
-                                           final long maxDownloadSizeBytes,
-                                           @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<byte[]>() {
+   public static Maybe<byte[]> getBytes(@NonNull final StorageReference storageRef,
+                                        final long maxDownloadSizeBytes) {
+      return Maybe.create(new MaybeOnSubscribe<byte[]>() {
          @Override
-         public void subscribe(FlowableEmitter<byte[]> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<byte[]> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.getBytes(maxDownloadSizeBytes));
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<Uri> getDownloadUrl(@NonNull final StorageReference storageRef,
-                                              @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<Uri>() {
+   public static Maybe<Uri> getDownloadUrl(@NonNull final StorageReference storageRef) {
+      return Maybe.create(new MaybeOnSubscribe<Uri>() {
          @Override
-         public void subscribe(FlowableEmitter<Uri> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<Uri> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.getDownloadUrl());
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<FileDownloadTask.TaskSnapshot> getFile(@NonNull final StorageReference storageRef,
-                                                                 @NonNull final File destinationFile,
-                                                                 @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<FileDownloadTask.TaskSnapshot>() {
+   public static Maybe<FileDownloadTask.TaskSnapshot> getFile(@NonNull final StorageReference storageRef,
+                                                              @NonNull final File destinationFile) {
+      return Maybe.create(new MaybeOnSubscribe<FileDownloadTask.TaskSnapshot>() {
          @Override
-         public void subscribe(FlowableEmitter<FileDownloadTask.TaskSnapshot> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<FileDownloadTask.TaskSnapshot> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.getFile(destinationFile));
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<FileDownloadTask.TaskSnapshot> getFile(@NonNull final StorageReference storageRef,
-                                                                 @NonNull final Uri destinationUri,
-                                                                 @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<FileDownloadTask.TaskSnapshot>() {
+   public static Maybe<FileDownloadTask.TaskSnapshot> getFile(@NonNull final StorageReference storageRef,
+                                                              @NonNull final Uri destinationUri) {
+      return Maybe.create(new MaybeOnSubscribe<FileDownloadTask.TaskSnapshot>() {
          @Override
-         public void subscribe(FlowableEmitter<FileDownloadTask.TaskSnapshot> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<FileDownloadTask.TaskSnapshot> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.getFile(destinationUri));
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<StorageMetadata> getMetadata(@NonNull final StorageReference storageRef,
-                                                       @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<StorageMetadata>() {
+   public static Maybe<StorageMetadata> getMetadata(@NonNull final StorageReference storageRef) {
+      return Maybe.create(new MaybeOnSubscribe<StorageMetadata>() {
          @Override
-         public void subscribe(FlowableEmitter<StorageMetadata> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<StorageMetadata> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.getMetadata());
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<StreamDownloadTask.TaskSnapshot> getStream(@NonNull final StorageReference storageRef,
-                                                                     @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<StreamDownloadTask.TaskSnapshot>() {
+   public static Maybe<StreamDownloadTask.TaskSnapshot> getStream(@NonNull final StorageReference storageRef) {
+      return Maybe.create(new MaybeOnSubscribe<StreamDownloadTask.TaskSnapshot>() {
          @Override
-         public void subscribe(FlowableEmitter<StreamDownloadTask.TaskSnapshot> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<StreamDownloadTask.TaskSnapshot> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.getStream());
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<StreamDownloadTask.TaskSnapshot> getStream(@NonNull final StorageReference storageRef,
-                                                                     @NonNull final StreamDownloadTask.StreamProcessor processor,
-                                                                     @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<StreamDownloadTask.TaskSnapshot>() {
+   public static Maybe<StreamDownloadTask.TaskSnapshot> getStream(@NonNull final StorageReference storageRef,
+                                                                  @NonNull final StreamDownloadTask.StreamProcessor processor) {
+      return Maybe.create(new MaybeOnSubscribe<StreamDownloadTask.TaskSnapshot>() {
          @Override
-         public void subscribe(FlowableEmitter<StreamDownloadTask.TaskSnapshot> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<StreamDownloadTask.TaskSnapshot> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.getStream(processor));
          }
-      }, strategy);
+      });
    }
 
 
    @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putBytes(@NonNull final StorageReference storageRef,
-                                                            @NonNull final byte[] bytes,
-                                                            @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<UploadTask.TaskSnapshot>() {
+   public static Maybe<UploadTask.TaskSnapshot> putBytes(@NonNull final StorageReference storageRef,
+                                                         @NonNull final byte[] bytes) {
+      return Maybe.create(new MaybeOnSubscribe<UploadTask.TaskSnapshot>() {
          @Override
-         public void subscribe(FlowableEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.putBytes(bytes));
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putBytes(@NonNull final StorageReference storageRef,
-                                                            @NonNull final byte[] bytes,
-                                                            @NonNull final StorageMetadata metadata,
-                                                            @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<UploadTask.TaskSnapshot>() {
+   public static Maybe<UploadTask.TaskSnapshot> putBytes(@NonNull final StorageReference storageRef,
+                                                         @NonNull final byte[] bytes,
+                                                         @NonNull final StorageMetadata metadata) {
+      return Maybe.create(new MaybeOnSubscribe<UploadTask.TaskSnapshot>() {
          @Override
-         public void subscribe(FlowableEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.putBytes(bytes, metadata));
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putFile(@NonNull final StorageReference storageRef,
-                                                           @NonNull final Uri uri, @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<UploadTask.TaskSnapshot>() {
+   public static Maybe<UploadTask.TaskSnapshot> putFile(@NonNull final StorageReference storageRef,
+                                                        @NonNull final Uri uri) {
+      return Maybe.create(new MaybeOnSubscribe<UploadTask.TaskSnapshot>() {
          @Override
-         public void subscribe(FlowableEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.putFile(uri));
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putFile(@NonNull final StorageReference storageRef,
-                                                           @NonNull final Uri uri,
-                                                           @NonNull final StorageMetadata metadata,
-                                                           @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<UploadTask.TaskSnapshot>() {
+   public static Maybe<UploadTask.TaskSnapshot> putFile(@NonNull final StorageReference storageRef,
+                                                        @NonNull final Uri uri,
+                                                        @NonNull final StorageMetadata metadata) {
+      return Maybe.create(new MaybeOnSubscribe<UploadTask.TaskSnapshot>() {
          @Override
-         public void subscribe(FlowableEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.putFile(uri, metadata));
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putFile(@NonNull final StorageReference storageRef,
-                                                           @NonNull final Uri uri,
-                                                           @NonNull final StorageMetadata metadata,
-                                                           @NonNull final Uri existingUploadUri,
-                                                           @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<UploadTask.TaskSnapshot>() {
+   public static Maybe<UploadTask.TaskSnapshot> putFile(@NonNull final StorageReference storageRef,
+                                                        @NonNull final Uri uri,
+                                                        @NonNull final StorageMetadata metadata,
+                                                        @NonNull final Uri existingUploadUri) {
+      return Maybe.create(new MaybeOnSubscribe<UploadTask.TaskSnapshot>() {
          @Override
-         public void subscribe(FlowableEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.putFile(uri, metadata, existingUploadUri));
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putStream(@NonNull final StorageReference storageRef,
-                                                             @NonNull final InputStream stream,
-                                                             @NonNull final StorageMetadata metadata,
-                                                             @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<UploadTask.TaskSnapshot>() {
+   public static Maybe<UploadTask.TaskSnapshot> putStream(@NonNull final StorageReference storageRef,
+                                                          @NonNull final InputStream stream,
+                                                          @NonNull final StorageMetadata metadata) {
+      return Maybe.create(new MaybeOnSubscribe<UploadTask.TaskSnapshot>() {
          @Override
-         public void subscribe(FlowableEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.putStream(stream, metadata));
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putStream(@NonNull final StorageReference storageRef,
-                                                             @NonNull final InputStream stream,
-                                                             @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<UploadTask.TaskSnapshot>() {
+   public static Maybe<UploadTask.TaskSnapshot> putStream(@NonNull final StorageReference storageRef,
+                                                          @NonNull final InputStream stream) {
+      return Maybe.create(new MaybeOnSubscribe<UploadTask.TaskSnapshot>() {
          @Override
-         public void subscribe(FlowableEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.putStream(stream));
          }
-      }, strategy);
+      });
    }
 
    @NonNull
-   public static Flowable<StorageMetadata> updateMetadata(@NonNull final StorageReference storageRef,
-                                                          @NonNull final StorageMetadata metadata,
-                                                          @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<StorageMetadata>() {
+   public static Maybe<StorageMetadata> updateMetadata(@NonNull final StorageReference storageRef,
+                                                       @NonNull final StorageMetadata metadata) {
+      return Maybe.create(new MaybeOnSubscribe<StorageMetadata>() {
          @Override
-         public void subscribe(FlowableEmitter<StorageMetadata> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<StorageMetadata> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, storageRef.updateMetadata(metadata));
          }
-      }, strategy);
+      });
    }
 
    @NonNull
@@ -212,99 +197,5 @@ public class RxFirebaseStorage {
             RxCompletableHandler.assignOnTask(emitter, storageRef.delete());
          }
       });
-   }
-
-   @NonNull
-   public static Flowable<byte[]> getBytes(@NonNull final StorageReference storageRef,
-                                           final long maxDownloadSizeBytes) {
-      return getBytes(storageRef, maxDownloadSizeBytes, BackpressureStrategy.BUFFER);
-   }
-
-   @NonNull
-   public static Flowable<Uri> getDownloadUrl(@NonNull final StorageReference storageRef) {
-      return getDownloadUrl(storageRef, BackpressureStrategy.DROP);
-   }
-
-   @NonNull
-   public static Flowable<FileDownloadTask.TaskSnapshot> getFile(@NonNull final StorageReference storageRef,
-                                                                 @NonNull final File destinationFile) {
-      return getFile(storageRef, destinationFile, BackpressureStrategy.DROP);
-   }
-
-
-   @NonNull
-   public static Flowable<FileDownloadTask.TaskSnapshot> getFile(@NonNull final StorageReference storageRef,
-                                                                 @NonNull final Uri destinationUri) {
-      return getFile(storageRef, destinationUri, BackpressureStrategy.DROP);
-   }
-
-   @NonNull
-   public static Flowable<StorageMetadata> getMetadata(@NonNull final StorageReference storageRef) {
-      return getMetadata(storageRef, BackpressureStrategy.DROP);
-   }
-
-   @NonNull
-   public static Flowable<StreamDownloadTask.TaskSnapshot> getStream(@NonNull final StorageReference storageRef) {
-      return getStream(storageRef, BackpressureStrategy.DROP);
-   }
-
-   @NonNull
-   public static Flowable<StreamDownloadTask.TaskSnapshot> getStream(@NonNull final StorageReference storageRef,
-                                                                     @NonNull final StreamDownloadTask.StreamProcessor processor) {
-      return getStream(storageRef, processor, BackpressureStrategy.DROP);
-   }
-
-
-   @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putBytes(@NonNull final StorageReference storageRef,
-                                                            @NonNull final byte[] bytes) {
-      return putBytes(storageRef, bytes, BackpressureStrategy.DROP);
-   }
-
-   @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putBytes(@NonNull final StorageReference storageRef,
-                                                            @NonNull final byte[] bytes,
-                                                            @NonNull final StorageMetadata metadata) {
-      return putBytes(storageRef, bytes, metadata, BackpressureStrategy.DROP);
-   }
-
-   @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putFile(@NonNull final StorageReference storageRef,
-                                                           @NonNull final Uri uri) {
-      return putFile(storageRef, uri, BackpressureStrategy.DROP);
-   }
-
-   @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putFile(@NonNull final StorageReference storageRef,
-                                                           @NonNull final Uri uri,
-                                                           @NonNull final StorageMetadata metadata) {
-      return putFile(storageRef, uri, metadata, BackpressureStrategy.DROP);
-   }
-
-   @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putFile(@NonNull final StorageReference storageRef,
-                                                           @NonNull final Uri uri,
-                                                           @NonNull final StorageMetadata metadata,
-                                                           @NonNull final Uri existingUploadUri) {
-      return putFile(storageRef, uri, metadata, existingUploadUri, BackpressureStrategy.DROP);
-   }
-
-   @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putStream(@NonNull final StorageReference storageRef,
-                                                             @NonNull final InputStream stream,
-                                                             @NonNull final StorageMetadata metadata) {
-      return putStream(storageRef, stream, metadata, BackpressureStrategy.DROP);
-   }
-
-   @NonNull
-   public static Flowable<UploadTask.TaskSnapshot> putStream(@NonNull final StorageReference storageRef,
-                                                             @NonNull final InputStream stream) {
-      return putStream(storageRef, stream, BackpressureStrategy.DROP);
-   }
-
-   @NonNull
-   public static Flowable<StorageMetadata> updateMetadata(@NonNull final StorageReference storageRef,
-                                                          @NonNull final StorageMetadata metadata) {
-      return updateMetadata(storageRef, metadata, BackpressureStrategy.DROP);
    }
 }

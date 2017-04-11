@@ -8,26 +8,23 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
-import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeEmitter;
+import io.reactivex.MaybeOnSubscribe;
 
 public class RxFirebaseUser {
 
    @NonNull
-   public static Flowable<GetTokenResult> getToken(@NonNull final FirebaseUser firebaseUser,
-                                                   final boolean forceRefresh,
-                                                   @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<GetTokenResult>() {
+   public static Maybe<GetTokenResult> getToken(@NonNull final FirebaseUser firebaseUser,
+                                                   final boolean forceRefresh) {
+      return Maybe.create(new MaybeOnSubscribe<GetTokenResult>() {
          @Override
-         public void subscribe(FlowableEmitter<GetTokenResult> emitter) throws Exception {
+         public void subscribe(MaybeEmitter<GetTokenResult> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, firebaseUser.getToken(forceRefresh));
-         }
-      }, strategy);
+         }});
    }
 
    @NonNull
@@ -85,29 +82,11 @@ public class RxFirebaseUser {
    }
 
    @NonNull
-   public static Flowable<AuthResult> linkWithCredential(@NonNull final FirebaseUser firebaseUser,
-                                                         @NonNull final AuthCredential credential,
-                                                         @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<AuthResult>() {
-         @Override
-         public void subscribe(FlowableEmitter<AuthResult> emitter) throws Exception {
-            RxHandler.assignOnTask(emitter, firebaseUser.linkWithCredential(credential));
-         }
-      }, strategy);
-   }
-
-
-   @NonNull
-   public static Flowable<AuthResult> linkWithCredential(@NonNull final FirebaseUser firebaseUser,
+   public static Maybe<AuthResult> linkWithCredential(@NonNull final FirebaseUser firebaseUser,
                                                          @NonNull final AuthCredential credential) {
-      return linkWithCredential(firebaseUser, credential, BackpressureStrategy.DROP);
+      return Maybe.create(new MaybeOnSubscribe<AuthResult>() {
+         @Override public void subscribe(MaybeEmitter<AuthResult> emitter) throws Exception {
+            RxHandler.assignOnTask(emitter, firebaseUser.linkWithCredential(credential));
+         }});
    }
-
-
-   @NonNull
-   public static Flowable<GetTokenResult> getToken(@NonNull final FirebaseUser firebaseUser,
-                                                   final boolean forceRefresh) {
-      return getToken(firebaseUser, forceRefresh, BackpressureStrategy.DROP);
-   }
-
 }

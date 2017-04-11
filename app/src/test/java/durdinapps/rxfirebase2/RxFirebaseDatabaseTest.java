@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import durdinapps.rxfirebase2.exceptions.RxFirebaseDataException;
 import io.reactivex.functions.Function;
@@ -83,7 +82,7 @@ public class RxFirebaseDatabaseTest {
 
    @Test
    public void testObserveSingleValue() throws InterruptedException {
-      TestSubscriber<ChildData> testObserver = RxFirebaseDatabase
+      TestObserver<ChildData> testObserver = RxFirebaseDatabase
          .observeSingleValueEvent(databaseReference, ChildData.class)
          .test();
 
@@ -104,7 +103,7 @@ public class RxFirebaseDatabaseTest {
       DataSnapshot mockFirebaseDataSnapshotNoData = mock(DataSnapshot.class);
       when(mockFirebaseDataSnapshotNoData.exists()).thenReturn(false);
 
-      TestSubscriber<ChildData> testObserver = RxFirebaseDatabase
+      TestObserver<ChildData> testObserver = RxFirebaseDatabase
          .observeSingleValueEvent(databaseReference, ChildData.class)
          .test();
 
@@ -112,14 +111,15 @@ public class RxFirebaseDatabaseTest {
       verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
       argument.getValue().onDataChange(mockFirebaseDataSnapshotNoData);
 
-      testObserver.assertError(NullPointerException.class)
+      testObserver.assertValueCount(0)
+         .assertComplete()
          .dispose();
    }
 
    @Test
    public void testObserveSingleWrongType() throws InterruptedException {
 
-      TestSubscriber<WrongType> testObserver = RxFirebaseDatabase
+      TestObserver<WrongType> testObserver = RxFirebaseDatabase
          .observeSingleValueEvent(databaseReference, WrongType.class)
          .test();
 
@@ -135,7 +135,7 @@ public class RxFirebaseDatabaseTest {
    @Test
    public void testObserveSingleValue_Disconnected() throws InterruptedException {
 
-      TestSubscriber<ChildData> testObserver = RxFirebaseDatabase
+      TestObserver<ChildData> testObserver = RxFirebaseDatabase
          .observeSingleValueEvent(databaseReference, ChildData.class)
          .test();
 
@@ -151,9 +151,8 @@ public class RxFirebaseDatabaseTest {
    @Test
    public void testObserveSingleValueEventFailed() throws InterruptedException {
 
-      TestObserver<List<ChildData>> testObserver = RxFirebaseDatabase
+      TestObserver<ChildData> testObserver = RxFirebaseDatabase
          .observeSingleValueEvent(databaseReference, ChildData.class)
-         .toList()
          .test();
 
       ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
@@ -187,7 +186,7 @@ public class RxFirebaseDatabaseTest {
    public void testSingleValueEvent() throws InterruptedException {
 
 
-      TestSubscriber<ChildData> testObserver = RxFirebaseDatabase
+      TestObserver<ChildData> testObserver = RxFirebaseDatabase
          .observeSingleValueEvent(databaseReference, ChildData.class)
          .test();
 
@@ -205,9 +204,8 @@ public class RxFirebaseDatabaseTest {
    @Test
    public void testObserveValueEventList() throws InterruptedException {
 
-      TestObserver<List<ChildData>> testObserver = RxFirebaseDatabase
+      TestObserver<ChildData> testObserver = RxFirebaseDatabase
          .observeSingleValueEvent(databaseReference, ChildData.class)
-         .toList()
          .test();
 
       ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
@@ -216,7 +214,6 @@ public class RxFirebaseDatabaseTest {
 
       testObserver.assertNoErrors()
          .assertValueCount(1)
-         .assertValueSet(Collections.singletonList(childDataList))
          .assertComplete()
          .dispose();
    }
@@ -225,20 +222,12 @@ public class RxFirebaseDatabaseTest {
    public void testObserveValuesMap() throws InterruptedException {
       TestObserver<Map<String, ChildData>> testObserver = RxFirebaseDatabase
          .observeSingleValueEvent(databaseReference)
-         .toMap(new Function<DataSnapshot, String>() {
+         .map(new Function<DataSnapshot, Map<String, ChildData>>() {
             @Override
-            public String apply(DataSnapshot dataSnapshot) throws Exception {
-               return dataSnapshot.getKey();
-            }
-         }, new Function<DataSnapshot, ChildData>() {
-            @Override
-            public ChildData apply(DataSnapshot dataSnapshot) {
-               return dataSnapshot.getValue(ChildData.class);
-            }
-         }, new Callable<Map<String, ChildData>>() {
-            @Override
-            public Map<String, ChildData> call() throws Exception {
-               return new LinkedHashMap<String, ChildData>();
+            public LinkedHashMap<String, ChildData> apply(DataSnapshot dataSnapshot) throws Exception {
+               LinkedHashMap<String, ChildData> map = new LinkedHashMap<>();
+               map.put(dataSnapshot.getKey(), dataSnapshot.getValue(ChildData.class));
+               return map;
             }
          }).test();
 
