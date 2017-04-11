@@ -86,8 +86,8 @@ public abstract class DataSnapshotMapper<T, U> implements Function<T, U> {
          List<U> items = new ArrayList<>();
          for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
             items.add(mapper != null
-                    ? mapper.apply(childSnapshot)
-                    : getDataSnapshotTypedValue(childSnapshot, clazz));
+               ? mapper.apply(childSnapshot)
+               : getDataSnapshotTypedValue(childSnapshot, clazz));
          }
          return items;
       }

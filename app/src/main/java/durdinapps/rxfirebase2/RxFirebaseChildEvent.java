@@ -28,21 +28,33 @@ public class RxFirebaseChildEvent<T> {
       this.eventType = eventType;
    }
 
+   /**
+    * @return the key associate to this {@link RxFirebaseChildEvent};
+    */
    @NonNull
    public String getKey() {
       return key;
    }
 
+   /**
+    * @return the value associate to this {@link RxFirebaseChildEvent};
+    */
    @NonNull
    public T getValue() {
       return value;
    }
 
+   /**
+    * @return the previous child name at this position;
+    */
    @NonNull
    public String getPreviousChildName() {
       return previousChildName;
    }
 
+   /**
+    * @return the kind of event of this event. This is used to different them when an item is added, changed, moved or removed.
+    */
    @NonNull
    public EventType getEventType() {
       return eventType;
@@ -69,6 +81,9 @@ public class RxFirebaseChildEvent<T> {
       return result;
    }
 
+   /**
+    * Enum used to different when an item is added, changed, moved or removed.
+    */
    public enum EventType {
       ADDED,
       CHANGED,
