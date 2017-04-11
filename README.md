@@ -10,7 +10,7 @@ This repository started as a personal usage of [Nick Moskalenko](https://github.
 
 ```groovy
 dependencies {
-  compile 'com.github.frangsierra:rx2firebase:1.0.0'
+  compile 'com.github.frangsierra:rx2firebase:1.1.0'
 }
 ```
 ```
@@ -26,7 +26,7 @@ allprojects {
 ## RxJava and RxJava 2.0
 One of the differences between RxJava and RxJava 2 is that RxJava 2 no longer accepts `null` values. Throwing a `NullPointerException` immediately. For this reason some of the methods of the library as been redesigned to return a `Completable` instead of a `Observable<Void>`. For example:
 
-####RxFirebase 
+#### RxFirebase 
 
 ```java
 @NonNull
@@ -40,7 +40,7 @@ public static Observable<Void> updateEmail(@NonNull final FirebaseUser firebaseU
 }
 ```
 
-####Rx2Firebase
+#### Rx2Firebase
 
 ```java
 @NonNull
@@ -105,7 +105,7 @@ or providing your own mapper between DataSnapshot and your data type:
 
 There are some pre-defined mappers to make things easier:
 
-#####Observing list values
+##### Observing list values
 
 ```java
     RxFirebaseDatabase.observeSingleValueEvent(getPostsRef().child("posts"), DataSnapshotMapper.listOf(PostComment.class))
@@ -114,7 +114,7 @@ There are some pre-defined mappers to make things easier:
                 });
 ```
 
-#####Observing map values
+##### Observing map values
 
 ```java
      RxFirebaseDatabase.observeSingleValueEvent(getPostsRef().child("posts"), DataSnapshotMapper.mapOf(PostComment.class))
