@@ -138,7 +138,7 @@ public class RxFirebaseDatabase {
    /**
     * Update the specific child keys to the specified values.
     *
-    * @param ref reference represents a particular location in your database.
+    * @param ref        reference represents a particular location in your database.
     * @param updateData The paths to update and their new values
     * @return a {@link Completable} which is complete when the update children call finish successfully.
     */

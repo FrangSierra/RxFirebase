@@ -335,7 +335,7 @@ public class RxFirebaseAuthTest {
       authTestObserver.assertNoErrors()
          .assertValueCount(1)
          .assertValueSet(Collections.singletonList(firebaseAuth))
-         .assertComplete()
+         .assertNotComplete()
          .dispose();
    }
 }
