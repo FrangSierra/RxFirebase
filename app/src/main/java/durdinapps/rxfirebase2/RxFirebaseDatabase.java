@@ -11,6 +11,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
+import java.util.Iterator;
 import java.util.Map;
 
 import durdinapps.rxfirebase2.exceptions.RxFirebaseDataException;
@@ -217,6 +219,54 @@ public class RxFirebaseDatabase {
 
          }
       }, strategy);
+   }
+
+   /**
+    * Method which retrieve a list of DataSnapshot from multiple {@link DatabaseReference}.
+    * @param whereRefs array of {@link DatabaseReference references.}
+    * @return a {@link Flowable} which emmit {@link DataSnapshot} from the given queries.
+    */
+   @NonNull
+   public static Flowable<DataSnapshot> observeMultipleSingleValueEvent(@NonNull DatabaseReference... whereRefs){
+      @SuppressWarnings("unchecked")
+      Maybe<DataSnapshot>[] singleQueries = (Maybe<DataSnapshot>[]) Array.newInstance(Maybe.class, whereRefs.length);
+      for (int i = 0; i < whereRefs.length; i++) {
+         singleQueries[i] = (observeSingleValueEvent(whereRefs[i]));
+      }
+      return Maybe.mergeArray(singleQueries);
+   }
+
+   /**
+    * Retrieve the child {@link DatabaseReference references} from an specific parent which equals to the
+    * references retrieved from another query. Which allow to make a "where" clause on a no relational table.
+    *
+    * Example:
+    * DatabaseReference from = reference.child("Tweets");
+    * Query where = reference.child("favorited").child(userA);
+    * requestFilteredReferenceKeys(from, where).subscribe...
+    *
+    * This last method will return the key references(/tweets/tweetId) which the userA mark as favorited.
+    * With the given list we can work together with {@link RxFirebaseDatabase#observeMultipleSingleValueEvent(DatabaseReference...)}
+    * to retrieve the Datasnapshots from the desired {@link DatabaseReference} based on other {@link DatabaseReference} values.
+    * @param from base reference where you want to retrieve the original references.
+    * @param whereRef reference that you use as a filter to create your from references.
+    * @return a {@link Maybe} which contain the list of the given DatabaseReferences.
+    */
+   @NonNull
+   public static Maybe<DatabaseReference[]> requestFilteredReferenceKeys(@NonNull final DatabaseReference from,
+                                                                         @NonNull Query whereRef){
+     return observeSingleValueEvent(whereRef, new Function<DataSnapshot, DatabaseReference[]>() {
+        @Override
+        public DatabaseReference[] apply(@io.reactivex.annotations.NonNull DataSnapshot dataSnapshot) throws Exception {
+           int childrenCount = (int) dataSnapshot.getChildrenCount();
+           DatabaseReference[] filterRefs = new DatabaseReference[childrenCount];
+           final Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+           for (int i = 0; i < childrenCount; i++) {
+              filterRefs[i] = from.child(iterator.next().getKey());
+           }
+           return filterRefs;
+        }
+     });
    }
 
    /**
