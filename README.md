@@ -146,7 +146,28 @@ or download file as bytes array
                     Log.e("RxFirebaseSample", throwable.toString());
             });
 ```
+### RxFirebaseQuery
 
+RxFirebaseQuery is a builder class used to work together with methods from RxFirebaseDatabase that allow you to retrieve data from multiple databaseReferences. Doing this allow you to build and create dynamic queries to retrieve database objects from references retrieved from different tables easily. 
+At the moment RxFirebaseQuery just allow the user to create the queries and retrieve the data. Filters should be done with the `DatabaseReference` items that you pass to the constructor. In other hand for update and delete data you should use `Firebase` method `updateChildren()`
+```java
+	public void retrieveTweetsFromUsersThatIFollow() {
+	      String userId = "123";
+	      DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+	      DatabaseReference from = reference.child("tweets");
+	      Query where = reference.child("users").child(userId).child("feedReferences");
+	      RxFirebaseQuery.getInstance()
+		    .filterByRefs(from, where)
+		    .asList()
+		    .subscribe(dataSnapshots -> {
+		       Log.i("RxFirebase", "Retrieved a total of " + dataSnapshots.size() + " tweets");
+		       for (DataSnapshot dataSnapshot : dataSnapshots) {
+			  Tweet tweet = dataSnapshot.getValue(Tweet.class);
+			  Log.i("RxFirebase", "New tweet for user feed: " + tweet.getDescription());
+		       }
+		    });
+	   }
+```
 ### RxFirebaseRecyclerAdapter:
 
 RxFirebaseRecyclerAdapter was created looking for a way to manage the `RxFirebaseChildEvent<DataSnapshot>`  items recieved with the `observeChildEvent` method. It is an abstract class based on FirebaseRecyclerAdapter but modifying the query and firebase call dependency. 
