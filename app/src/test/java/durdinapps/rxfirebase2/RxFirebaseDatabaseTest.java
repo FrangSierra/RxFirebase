@@ -40,12 +40,16 @@ public class RxFirebaseDatabaseTest {
 
    @Mock
    private DatabaseReference databaseReference;
+   @Mock
+   private DatabaseReference databaseReferenceTwo;
 
    @Mock
    private Query query;
 
    @Mock
    private DataSnapshot dataSnapshot;
+   @Mock
+   private DataSnapshot dataSnapshotTwo;
 
    @Mock
    private Task<Void> voidTask;
@@ -112,7 +116,7 @@ public class RxFirebaseDatabaseTest {
       argument.getValue().onDataChange(mockFirebaseDataSnapshotNoData);
 
       testObserver.assertValueCount(0)
-         .assertComplete()
+         .assertNotComplete()
          .dispose();
    }
 
@@ -183,22 +187,41 @@ public class RxFirebaseDatabaseTest {
    }
 
    @Test
+   public void testMultipleSingleValueEvent() throws InterruptedException {
+
+      TestSubscriber<DataSnapshot> testObserver = RxFirebaseDatabase
+         .observeMultipleSingleValueEvent(databaseReference, databaseReferenceTwo)
+         .test();
+
+      ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
+      verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
+      argument.getValue().onDataChange(dataSnapshot);
+      verify(databaseReferenceTwo).addListenerForSingleValueEvent(argument.capture());
+      argument.getValue().onDataChange(dataSnapshotTwo);
+
+      testObserver.assertNoErrors()
+         .assertValueCount(2)
+         .assertComplete()
+         .dispose();
+   }
+
+   @Test
    public void testSingleValueEvent() throws InterruptedException {
 
 
       TestObserver<ChildData> testObserver = RxFirebaseDatabase
-         .observeSingleValueEvent(databaseReference, ChildData.class)
-         .test();
+            .observeSingleValueEvent(databaseReference, ChildData.class)
+            .test();
 
       ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
       verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
       argument.getValue().onDataChange(dataSnapshot);
 
       testObserver.assertNoErrors()
-         .assertValueCount(1)
-         .assertValueSet(Collections.singletonList(childData))
-         .assertComplete()
-         .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(childData))
+            .assertComplete()
+            .dispose();
    }
 
    @Test
@@ -351,7 +374,7 @@ public class RxFirebaseDatabaseTest {
       //noinspection unchecked
       Function<DataSnapshot, ChildData> mapper = (Function<DataSnapshot, ChildData>) mock(Function.class);
       doReturn(childData).when(mapper).apply(eq(dataSnapshot));
-     
+
       TestSubscriber<List<ChildData>> testObserver = RxFirebaseDatabase
               .observeValueEvent(query, DataSnapshotMapper.listOf(ChildData.class, mapper))
               .test();
