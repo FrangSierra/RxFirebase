@@ -221,6 +221,11 @@ public class RxFirebaseDatabase {
       }, strategy);
    }
 
+   /**
+    * Method which retrieve a list of DataSnapshot from multiple {@link DatabaseReference}.
+    * @param whereRefs array of {@link DatabaseReference references.}
+    * @return a {@link Flowable} which emmit {@link DataSnapshot} from the given queries.
+    */
    @NonNull
    public static Flowable<DataSnapshot> observeMultipleSingleValueEvent(@NonNull DatabaseReference... whereRefs){
       @SuppressWarnings("unchecked")
@@ -231,6 +236,22 @@ public class RxFirebaseDatabase {
       return Maybe.mergeArray(singleQueries);
    }
 
+   /**
+    * Retrieve the child {@link DatabaseReference references} from an specific parent which equals to the
+    * references retrieved from another query. Which allow to make a "where" clause on a no relational table.
+    *
+    * Example:
+    * DatabaseReference from = reference.child("Tweets");
+    * Query where = reference.child("favorited").child(userA);
+    * requestFilteredReferenceKeys(from, where).subscribe...
+    *
+    * This last method will return the key references(/tweets/tweetId) which the userA mark as favorited.
+    * With the given list we can work together with {@link RxFirebaseDatabase#observeMultipleSingleValueEvent(DatabaseReference...)}
+    * to retrieve the Datasnapshots from the desired {@link DatabaseReference} based on other {@link DatabaseReference} values.
+    * @param from base reference where you want to retrieve the original references.
+    * @param whereRef reference that you use as a filter to create your from references.
+    * @return a {@link Maybe} which contain the list of the given DatabaseReferences.
+    */
    @NonNull
    public static Maybe<DatabaseReference[]> requestFilteredReferenceKeys(@NonNull final DatabaseReference from,
                                                                          @NonNull Query whereRef){
