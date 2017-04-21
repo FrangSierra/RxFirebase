@@ -11,6 +11,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
+import java.util.Iterator;
 import java.util.Map;
 
 import durdinapps.rxfirebase2.exceptions.RxFirebaseDataException;
@@ -217,6 +219,33 @@ public class RxFirebaseDatabase {
 
          }
       }, strategy);
+   }
+
+   @NonNull
+   public static Flowable<DataSnapshot> observeMultipleSingleValueEvent(@NonNull DatabaseReference... whereRefs){
+      @SuppressWarnings("unchecked")
+      Maybe<DataSnapshot>[] singleQueries = (Maybe<DataSnapshot>[]) Array.newInstance(Maybe.class, whereRefs.length);
+      for (int i = 0; i < whereRefs.length; i++) {
+         singleQueries[i] = (observeSingleValueEvent(whereRefs[i]));
+      }
+      return Maybe.mergeArray(singleQueries);
+   }
+
+   @NonNull
+   public static Maybe<DatabaseReference[]> requestFilteredReferenceKeys(@NonNull final DatabaseReference from,
+                                                                         @NonNull Query whereRef){
+     return observeSingleValueEvent(whereRef, new Function<DataSnapshot, DatabaseReference[]>() {
+        @Override
+        public DatabaseReference[] apply(@io.reactivex.annotations.NonNull DataSnapshot dataSnapshot) throws Exception {
+           int childrenCount = (int) dataSnapshot.getChildrenCount();
+           DatabaseReference[] filterRefs = new DatabaseReference[childrenCount];
+           final Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+           for (int i = 0; i < childrenCount; i++) {
+              filterRefs[i] = from.child(iterator.next().getKey());
+           }
+           return filterRefs;
+        }
+     });
    }
 
    /**
