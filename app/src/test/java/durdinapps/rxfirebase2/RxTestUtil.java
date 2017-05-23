@@ -13,6 +13,8 @@ import static org.mockito.Mockito.when;
 
 public class RxTestUtil {
    public static final String ANY_EMAIL = "email@email.com";
+   public static final String RESULT_CODE = "ABC";
+   public static final String ANY_CODE = "ABCDE";
    public static final Exception EXCEPTION = new Exception("Something bad happen");
    public static final Exception NULL_FIREBASE_EXCEPTION = new RxFirebaseNullDataException();
    public static final String ANY_PASSWORD = "ANY_PASSWORD";

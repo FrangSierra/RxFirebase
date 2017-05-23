@@ -2,6 +2,8 @@ package durdinapps.rxfirebase2;
 
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -135,6 +137,33 @@ public class RxFirebaseDatabase {
       });
    }
 
+
+   /**
+    * Set the given value on the specified {@link DatabaseReference}.
+    *
+    * @param ref reference represents a particular location in your database.
+    * @param value value to update.
+    * @return a {@link Completable} which is complete when the set value call finish successfully.
+    */
+   @NonNull
+   public static Completable setValue(@NonNull final DatabaseReference ref,
+                                      final Object value) {
+      return Completable.create(new CompletableOnSubscribe() {
+         @Override
+         public void subscribe(@io.reactivex.annotations.NonNull final CompletableEmitter e) throws Exception {
+            ref.setValue(value).addOnSuccessListener(new OnSuccessListener<Void>() {
+               @Override public void onSuccess(Void aVoid) {
+                  e.onComplete();
+               }
+            }).addOnFailureListener(new OnFailureListener() {
+               @Override public void onFailure(@NonNull Exception exception) {
+                  e.onError(exception);
+               }
+            });
+         }
+      });
+   }
+
    /**
     * Update the specific child keys to the specified values.
     *
@@ -223,11 +252,12 @@ public class RxFirebaseDatabase {
 
    /**
     * Method which retrieve a list of DataSnapshot from multiple {@link DatabaseReference}.
+    *
     * @param whereRefs array of {@link DatabaseReference references.}
     * @return a {@link Flowable} which emmit {@link DataSnapshot} from the given queries.
     */
    @NonNull
-   public static Flowable<DataSnapshot> observeMultipleSingleValueEvent(@NonNull DatabaseReference... whereRefs){
+   public static Flowable<DataSnapshot> observeMultipleSingleValueEvent(@NonNull DatabaseReference... whereRefs) {
       @SuppressWarnings("unchecked")
       Maybe<DataSnapshot>[] singleQueries = (Maybe<DataSnapshot>[]) Array.newInstance(Maybe.class, whereRefs.length);
       for (int i = 0; i < whereRefs.length; i++) {
@@ -239,34 +269,35 @@ public class RxFirebaseDatabase {
    /**
     * Retrieve the child {@link DatabaseReference references} from an specific parent which equals to the
     * references retrieved from another query. Which allow to make a "where" clause on a no relational table.
-    *
+    * <p>
     * Example:
     * DatabaseReference from = reference.child("Tweets");
     * Query where = reference.child("favorited").child(userA);
     * requestFilteredReferenceKeys(from, where).subscribe...
-    *
+    * <p>
     * This last method will return the key references(/tweets/tweetId) which the userA mark as favorited.
     * With the given list we can work together with {@link RxFirebaseDatabase#observeMultipleSingleValueEvent(DatabaseReference...)}
     * to retrieve the Datasnapshots from the desired {@link DatabaseReference} based on other {@link DatabaseReference} values.
-    * @param from base reference where you want to retrieve the original references.
+    *
+    * @param from     base reference where you want to retrieve the original references.
     * @param whereRef reference that you use as a filter to create your from references.
     * @return a {@link Maybe} which contain the list of the given DatabaseReferences.
     */
    @NonNull
    public static Maybe<DatabaseReference[]> requestFilteredReferenceKeys(@NonNull final DatabaseReference from,
-                                                                         @NonNull Query whereRef){
-     return observeSingleValueEvent(whereRef, new Function<DataSnapshot, DatabaseReference[]>() {
-        @Override
-        public DatabaseReference[] apply(@io.reactivex.annotations.NonNull DataSnapshot dataSnapshot) throws Exception {
-           int childrenCount = (int) dataSnapshot.getChildrenCount();
-           DatabaseReference[] filterRefs = new DatabaseReference[childrenCount];
-           final Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-           for (int i = 0; i < childrenCount; i++) {
-              filterRefs[i] = from.child(iterator.next().getKey());
-           }
-           return filterRefs;
-        }
-     });
+                                                                         @NonNull Query whereRef) {
+      return observeSingleValueEvent(whereRef, new Function<DataSnapshot, DatabaseReference[]>() {
+         @Override
+         public DatabaseReference[] apply(@io.reactivex.annotations.NonNull DataSnapshot dataSnapshot) throws Exception {
+            int childrenCount = (int) dataSnapshot.getChildrenCount();
+            DatabaseReference[] filterRefs = new DatabaseReference[childrenCount];
+            final Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+            for (int i = 0; i < childrenCount; i++) {
+               filterRefs[i] = from.child(iterator.next().getKey());
+            }
+            return filterRefs;
+         }
+      });
    }
 
    /**

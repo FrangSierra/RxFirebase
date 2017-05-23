@@ -2,6 +2,7 @@ package durdinapps.rxfirebase2;
 
 
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.ActionCodeResult;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,10 +20,12 @@ import java.util.Collections;
 
 import io.reactivex.observers.TestObserver;
 
+import static durdinapps.rxfirebase2.RxTestUtil.ANY_CODE;
 import static durdinapps.rxfirebase2.RxTestUtil.ANY_EMAIL;
 import static durdinapps.rxfirebase2.RxTestUtil.ANY_PASSWORD;
 import static durdinapps.rxfirebase2.RxTestUtil.ANY_TOKEN;
 import static durdinapps.rxfirebase2.RxTestUtil.EXCEPTION;
+import static durdinapps.rxfirebase2.RxTestUtil.RESULT_CODE;
 import static durdinapps.rxfirebase2.RxTestUtil.setupTask;
 import static durdinapps.rxfirebase2.RxTestUtil.testOnCompleteListener;
 import static durdinapps.rxfirebase2.RxTestUtil.testOnFailureListener;
@@ -43,6 +46,12 @@ public class RxFirebaseAuthTest {
    private Task<ProviderQueryResult> providerQueryResultTask;
 
    @Mock
+   private Task<ActionCodeResult> actionCodeResultTask;
+
+   @Mock
+   private Task<String> checkCodeResultTask;
+
+   @Mock
    private Task<Void> voidTask;
 
    @Mock
@@ -50,6 +59,9 @@ public class RxFirebaseAuthTest {
 
    @Mock
    private ProviderQueryResult providerQueryResult;
+
+   @Mock
+   private ActionCodeResult actionCodeResult;
 
    @Mock
    private DataSnapshot dataSnapshot;
@@ -67,6 +79,8 @@ public class RxFirebaseAuthTest {
 
       setupTask(authResultTask);
       setupTask(providerQueryResultTask);
+      setupTask(actionCodeResultTask);
+      setupTask(checkCodeResultTask);
       setupTask(voidTask);
 
       when(firebaseAuth.signInAnonymously()).thenReturn(authResultTask);
@@ -75,7 +89,11 @@ public class RxFirebaseAuthTest {
       when(firebaseAuth.signInWithCustomToken(ANY_TOKEN)).thenReturn(authResultTask);
       when(firebaseAuth.createUserWithEmailAndPassword(ANY_EMAIL, ANY_PASSWORD)).thenReturn(authResultTask);
       when(firebaseAuth.fetchProvidersForEmail(ANY_EMAIL)).thenReturn(providerQueryResultTask);
+      when(firebaseAuth.checkActionCode(ANY_CODE)).thenReturn(actionCodeResultTask);
+      when(firebaseAuth.verifyPasswordResetCode(ANY_CODE)).thenReturn(checkCodeResultTask);
       when(firebaseAuth.sendPasswordResetEmail(ANY_EMAIL)).thenReturn(voidTask);
+      when(firebaseAuth.confirmPasswordReset(ANY_CODE, ANY_PASSWORD)).thenReturn(voidTask);
+      when(firebaseAuth.applyActionCode(ANY_CODE)).thenReturn(voidTask);
 
       when(firebaseAuth.getCurrentUser()).thenReturn(firebaseUser);
 
@@ -274,6 +292,25 @@ public class RxFirebaseAuthTest {
    }
 
    @Test
+   public void checkActionCode() throws InterruptedException {
+
+      TestObserver<ActionCodeResult> authTestObserver = RxFirebaseAuth
+         .checkActionCode(firebaseAuth, ANY_CODE)
+         .test();
+
+      testOnSuccessListener.getValue().onSuccess(actionCodeResult);
+      testOnCompleteListener.getValue().onComplete(actionCodeResultTask);
+
+      verify(firebaseAuth).checkActionCode(eq(ANY_CODE));
+
+      authTestObserver.assertNoErrors()
+         .assertValueCount(1)
+         .assertValueSet(Collections.singletonList(actionCodeResult))
+         .assertComplete()
+         .dispose();
+   }
+
+   @Test
    public void fetchProvidersForEmailError() throws InterruptedException {
 
       TestObserver<ProviderQueryResult> authTestObserver = RxFirebaseAuth
@@ -290,6 +327,25 @@ public class RxFirebaseAuthTest {
    }
 
    @Test
+   public void verifyPasswordResetCode() throws InterruptedException {
+
+      TestObserver<String> authTestObserver = RxFirebaseAuth
+         .verifyPasswordResetCode(firebaseAuth, ANY_CODE)
+         .test();
+
+      testOnSuccessListener.getValue().onSuccess(RESULT_CODE);
+      testOnCompleteListener.getValue().onComplete(checkCodeResultTask);
+
+      verify(firebaseAuth).verifyPasswordResetCode(ANY_CODE);
+
+      authTestObserver.assertNoErrors()
+         .assertValueCount(1)
+         .assertValueSet(Collections.singletonList(RESULT_CODE))
+         .assertComplete()
+         .dispose();
+   }
+
+   @Test
    public void sendPasswordResetEmail() throws InterruptedException {
       TestObserver authTestObserver = RxFirebaseAuth
          .sendPasswordResetEmail(firebaseAuth, ANY_EMAIL)
@@ -298,6 +354,38 @@ public class RxFirebaseAuthTest {
       testOnCompleteListener.getValue().onComplete(voidTask);
 
       verify(firebaseAuth).sendPasswordResetEmail(eq(ANY_EMAIL));
+
+      authTestObserver.assertNoErrors()
+         .assertValueSet(Collections.singletonList(voidTask))
+         .assertComplete()
+         .dispose();
+   }
+
+   @Test
+   public void confirmPasswordReset() throws InterruptedException {
+      TestObserver authTestObserver = RxFirebaseAuth
+         .confirmPasswordReset(firebaseAuth, ANY_CODE, ANY_PASSWORD)
+         .test();
+
+      testOnCompleteListener.getValue().onComplete(voidTask);
+
+      verify(firebaseAuth).confirmPasswordReset(eq(ANY_CODE), eq(ANY_PASSWORD));
+
+      authTestObserver.assertNoErrors()
+         .assertValueSet(Collections.singletonList(voidTask))
+         .assertComplete()
+         .dispose();
+   }
+
+   @Test
+   public void applyActionCode() throws InterruptedException {
+      TestObserver authTestObserver = RxFirebaseAuth
+         .applyActionCode(firebaseAuth, ANY_CODE)
+         .test();
+
+      testOnCompleteListener.getValue().onComplete(voidTask);
+
+      verify(firebaseAuth).applyActionCode(eq(ANY_CODE));
 
       authTestObserver.assertNoErrors()
          .assertValueSet(Collections.singletonList(voidTask))
