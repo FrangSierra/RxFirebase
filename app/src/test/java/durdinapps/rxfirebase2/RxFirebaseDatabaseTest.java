@@ -116,7 +116,7 @@ public class RxFirebaseDatabaseTest {
       argument.getValue().onDataChange(mockFirebaseDataSnapshotNoData);
 
       testObserver.assertValueCount(0)
-         .assertNotComplete()
+         .assertNoErrors()
          .dispose();
    }
 
