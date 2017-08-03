@@ -2,8 +2,8 @@ buildscript {
     ext {
         rx_version = "2.1.0"
         rx_android_version = "2.0.1"
-        firebase_version = "10.2.6"
-        support_version = "25.3.1"
+        firebase_version = "11.0.4"
+        support_version = "26.0.0"
     }
 }
 apply plugin: 'com.android.library'
@@ -16,12 +16,12 @@ android {
         exclude 'META-INF/NOTICE'
     }
 
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.1"
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 25
+        minSdkVersion 14
+        targetSdkVersion 26
         versionCode 4
         versionName "1.0"
     }
