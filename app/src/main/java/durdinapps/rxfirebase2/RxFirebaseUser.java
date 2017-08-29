@@ -6,6 +6,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
+import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
 import io.reactivex.Completable;
@@ -25,12 +26,12 @@ public class RxFirebaseUser {
     * @return a {@link Maybe} which emits an {@link GetTokenResult} if success.
     */
    @NonNull
-   public static Maybe<GetTokenResult> getToken(@NonNull final FirebaseUser firebaseUser,
-                                                final boolean forceRefresh) {
+   public static Maybe<GetTokenResult> getIdToken(@NonNull final FirebaseUser firebaseUser,
+                                                  final boolean forceRefresh) {
       return Maybe.create(new MaybeOnSubscribe<GetTokenResult>() {
          @Override
          public void subscribe(MaybeEmitter<GetTokenResult> emitter) throws Exception {
-            RxHandler.assignOnTask(emitter, firebaseUser.getToken(forceRefresh));
+            RxHandler.assignOnTask(emitter, firebaseUser.getIdToken(forceRefresh));
          }
       });
    }
@@ -185,6 +186,41 @@ public class RxFirebaseUser {
       return Maybe.create(new MaybeOnSubscribe<AuthResult>() {
          @Override public void subscribe(MaybeEmitter<AuthResult> emitter) throws Exception {
             RxHandler.assignOnTask(emitter, firebaseUser.unlink(provider));
+         }
+      });
+   }
+
+   /**
+    * updates the current phone number for the given user.
+    *
+    * @param firebaseUser        current firebaseUser instance.
+    * @param phoneAuthCredential new phone credential.
+    * @return a {@link Completable} if the task is complete successfully.
+    */
+   @NonNull
+   public static Completable updatePhoneNumber(@NonNull final FirebaseUser firebaseUser,
+                                               @NonNull final PhoneAuthCredential phoneAuthCredential) {
+      return Completable.create(new CompletableOnSubscribe() {
+         @Override public void subscribe(CompletableEmitter emitter) throws Exception {
+            RxCompletableHandler.assignOnTask(emitter, firebaseUser.updatePhoneNumber(phoneAuthCredential));
+         }
+      });
+   }
+
+   /**
+    * Reauthenticates the user with the given credential, and returns the profile data for that account.
+    * This is useful for operations that require a recent sign-in, to prevent or resolve a {@link com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException}
+    *
+    * @param firebaseUser current firebaseUser instance.
+    * @param credential   Authcredential used for reauthenticate.
+    * @return a {@link Maybe} which emits an {@link AuthResult} if success.
+    */
+   @NonNull
+   public static Maybe<AuthResult> reauthenticateAndRetrieveData(@NonNull final FirebaseUser firebaseUser,
+                                                                 @NonNull final AuthCredential credential) {
+      return Maybe.create(new MaybeOnSubscribe<AuthResult>() {
+         @Override public void subscribe(MaybeEmitter<AuthResult> emitter) throws Exception {
+            RxHandler.assignOnTask(emitter, firebaseUser.reauthenticateAndRetrieveData(credential));
          }
       });
    }

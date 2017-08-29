@@ -81,6 +81,12 @@ public class RxFirebaseDatabaseTest {
       when(dataSnapshot.getValue(ChildData.class)).thenReturn(childData);
       when(dataSnapshot.getKey()).thenReturn(ANY_KEY);
       when(dataSnapshot.getChildren()).thenReturn(Arrays.asList(dataSnapshot));
+
+      when(dataSnapshotTwo.exists()).thenReturn(true);
+      when(dataSnapshotTwo.getValue(ChildData.class)).thenReturn(childData);
+      when(dataSnapshotTwo.getKey()).thenReturn(ANY_KEY);
+      when(dataSnapshotTwo.getChildren()).thenReturn(Arrays.asList(dataSnapshotTwo));
+
       when(databaseReference.updateChildren(updatedData)).thenReturn(voidTask);
    }
 
@@ -116,7 +122,7 @@ public class RxFirebaseDatabaseTest {
       argument.getValue().onDataChange(mockFirebaseDataSnapshotNoData);
 
       testObserver.assertValueCount(0)
-         .assertNotComplete()
+         .assertComplete()
          .dispose();
    }
 
@@ -145,7 +151,7 @@ public class RxFirebaseDatabaseTest {
 
       ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
       verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
-      argument.getValue().onCancelled(DatabaseError.zzqv(DatabaseError.DISCONNECTED));
+      argument.getValue().onCancelled(DatabaseError.zzfr(DatabaseError.DISCONNECTED));
 
       testObserver.assertError(RxFirebaseDataException.class)
          .assertNotComplete()
@@ -161,7 +167,7 @@ public class RxFirebaseDatabaseTest {
 
       ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
       verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
-      argument.getValue().onCancelled(DatabaseError.zzqv(DatabaseError.OPERATION_FAILED));
+      argument.getValue().onCancelled(DatabaseError.zzfr(DatabaseError.OPERATION_FAILED));
 
       testObserver.assertError(RxFirebaseDataException.class)
          .assertNotComplete()
@@ -345,7 +351,7 @@ public class RxFirebaseDatabaseTest {
 
       ArgumentCaptor<ChildEventListener> argument = ArgumentCaptor.forClass(ChildEventListener.class);
       verify(databaseReference).addChildEventListener(argument.capture());
-      argument.getValue().onCancelled(DatabaseError.zzqv(DatabaseError.DISCONNECTED));
+      argument.getValue().onCancelled(DatabaseError.zzfr(DatabaseError.DISCONNECTED));
 
       testObserver.assertError(RxFirebaseDataException.class)
          .assertNotComplete()

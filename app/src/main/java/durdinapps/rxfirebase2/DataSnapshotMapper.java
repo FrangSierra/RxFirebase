@@ -59,11 +59,7 @@ public abstract class DataSnapshotMapper<T, U> implements Function<T, U> {
 
       @Override
       public U apply(final DataSnapshot dataSnapshot) {
-         if (dataSnapshot.exists()) {
             return getDataSnapshotTypedValue(dataSnapshot, clazz);
-         } else {
-            return null;
-         }
       }
    }
 
@@ -121,16 +117,12 @@ public abstract class DataSnapshotMapper<T, U> implements Function<T, U> {
 
       @Override
       public U apply(DataSnapshot dataSnapshot) {
-         if (dataSnapshot.exists()) {
             U value = dataSnapshot.getValue(genericTypeIndicator);
             if (value == null) {
                throw Exceptions.propagate(new RxFirebaseDataCastException(
                   "unable to cast firebase data response to generic type"));
             }
             return value;
-         } else {
-            return null;
-         }
       }
    }
 
