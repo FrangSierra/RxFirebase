@@ -67,23 +67,24 @@ public class RxFirebaseUserTest {
       setupTask(authResultTask);
       setupTask(authCredentialTask);
 
-      when(firebaseUser.getToken(ANY_FORCE_REFRESH_VALUE)).thenReturn(getTokenResultTask);
+      when(firebaseUser.getIdToken(ANY_FORCE_REFRESH_VALUE)).thenReturn(getTokenResultTask);
       when(firebaseUser.updateEmail(ANY_EMAIL)).thenReturn(voidTask);
       when(firebaseUser.updatePassword(ANY_PASSWORD)).thenReturn(voidTask);
       when(firebaseUser.updateProfile(userProfileChangeRequest)).thenReturn(voidTask);
       when(firebaseUser.delete()).thenReturn(voidTask);
       when(firebaseUser.reauthenticate(authCredential)).thenReturn(voidTask);
+      when(firebaseUser.reauthenticateAndRetrieveData(authCredential)).thenReturn(authResultTask);
       when(firebaseUser.linkWithCredential(authCredential)).thenReturn(authResultTask);
    }
 
    @Test
    public void getToken() throws Exception {
-      TestObserver<GetTokenResult> userTestObserver = RxFirebaseUser.getToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
+      TestObserver<GetTokenResult> userTestObserver = RxFirebaseUser.getIdToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
 
       testOnSuccessListener.getValue().onSuccess(getTokenResult);
       testOnCompleteListener.getValue().onComplete(getTokenResultTask);
 
-      verify(firebaseUser).getToken(ANY_FORCE_REFRESH_VALUE);
+      verify(firebaseUser).getIdToken(ANY_FORCE_REFRESH_VALUE);
 
       userTestObserver.assertComplete()
          .assertNoErrors()
@@ -93,9 +94,9 @@ public class RxFirebaseUserTest {
 
    @Test
    public void getTokenError() throws Exception {
-      TestObserver<GetTokenResult> userTestObserver = RxFirebaseUser.getToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
+      TestObserver<GetTokenResult> userTestObserver = RxFirebaseUser.getIdToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
       testOnFailureListener.getValue().onFailure(EXCEPTION);
-      verify(firebaseUser).getToken(ANY_FORCE_REFRESH_VALUE);
+      verify(firebaseUser).getIdToken(ANY_FORCE_REFRESH_VALUE);
 
       userTestObserver.assertError(EXCEPTION)
          .dispose();
@@ -214,6 +215,23 @@ public class RxFirebaseUserTest {
       verify(firebaseUser).reauthenticate(authCredential);
 
       userTestObserver.assertComplete()
+         .dispose();
+
+   }
+
+   @Test
+   public void reauthenticateAndRetrieveData() throws Exception {
+      TestObserver<AuthResult> userTestObserver = RxFirebaseUser.reauthenticateAndRetrieveData(firebaseUser, authCredential).test();
+
+      testOnSuccessListener.getValue().onSuccess(authResult);
+      testOnCompleteListener.getValue().onComplete(authResultTask);
+
+      verify(firebaseUser).reauthenticateAndRetrieveData(authCredential);
+
+      userTestObserver.assertNoErrors()
+         .assertValueCount(1)
+         .assertComplete()
+         .assertValueSet(Collections.singletonList(authResult))
          .dispose();
 
    }

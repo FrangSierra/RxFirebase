@@ -287,4 +287,53 @@ public class RxFirebaseAuth {
          }
       });
    }
+
+   /**
+    * Registers a listener to changes in the ID token state.
+    * There can be more than one listener registered at the same time. The listeners are called asynchronously, possibly on a different thread.
+    *
+    * Authentication state changes are:
+    *
+    * -When a user signs in
+    * -When the current user signs out
+    * -When the current user changes
+    * -When there is a change in the current user's token
+    *
+    * Use RemoveIdTokenListener to unregister a listener.
+    *
+    * @param firebaseAuth firebaseAuth instance.
+    * @param idTokenListener given token listener.
+    * @return a {@link Completable} which emits when the action is completed.
+    */
+   @NonNull
+   public static Completable addIdTokenListener(@NonNull final FirebaseAuth firebaseAuth,
+                                                @NonNull final FirebaseAuth.IdTokenListener idTokenListener) {
+      return Completable.create(new CompletableOnSubscribe() {
+         @Override
+         public void subscribe(CompletableEmitter emitter) throws Exception {
+            firebaseAuth.addIdTokenListener(idTokenListener);
+            emitter.onComplete();
+         }
+      });
+   }
+
+   /**
+    * Unregisters a listener of ID token changes.
+    * Listener must previously been added with AddIdTokenListener.
+    *
+    * @param firebaseAuth firebaseAuth instance.
+    * @param idTokenListener given token listener.
+    * @return a {@link Completable} which emits when the action is completed.
+    */
+   @NonNull
+   public static Completable removeIdTokenListener(@NonNull final FirebaseAuth firebaseAuth,
+                                                   @NonNull final FirebaseAuth.IdTokenListener idTokenListener) {
+      return Completable.create(new CompletableOnSubscribe() {
+         @Override
+         public void subscribe(CompletableEmitter emitter) throws Exception {
+            firebaseAuth.removeIdTokenListener(idTokenListener);
+            emitter.onComplete();
+         }
+      });
+   }
 }

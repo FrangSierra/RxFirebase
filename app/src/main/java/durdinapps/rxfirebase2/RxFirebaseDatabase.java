@@ -58,7 +58,8 @@ public class RxFirebaseDatabase {
             final ValueEventListener valueEventListener = new ValueEventListener() {
                @Override
                public void onDataChange(DataSnapshot dataSnapshot) {
-                  emitter.onNext(dataSnapshot);
+                  if (dataSnapshot.exists())
+                     emitter.onNext(dataSnapshot);
                }
 
                @Override
@@ -81,7 +82,8 @@ public class RxFirebaseDatabase {
     * Listener for a single change in te data at the given query location.
     *
     * @param query reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
-    * @return a {@link Maybe} which emits the actual state of the database for the given query.
+    * @return a {@link Maybe} which emits the actual state of the database for the given query. onSuccess will be only call when
+    * the given {@link DataSnapshot} exists.
     */
    @NonNull
    public static Single<DataSnapshot> observeSingleValueEvent(@NonNull final Query query) {
@@ -91,7 +93,9 @@ public class RxFirebaseDatabase {
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                @Override
                public void onDataChange(DataSnapshot dataSnapshot) {
-                  emitter.onSuccess(dataSnapshot);
+                  if (dataSnapshot.exists())
+                     emitter.onSuccess(dataSnapshot);
+                  emitter.onComplete();
                }
 
                @Override
@@ -146,7 +150,7 @@ public class RxFirebaseDatabase {
    /**
     * Set the given value on the specified {@link DatabaseReference}.
     *
-    * @param ref reference represents a particular location in your database.
+    * @param ref   reference represents a particular location in your database.
     * @param value value to update.
     * @return a {@link Completable} which is complete when the set value call finish successfully.
     */
