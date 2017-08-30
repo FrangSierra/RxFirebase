@@ -13,7 +13,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
-import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -26,15 +25,22 @@ import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.Maybe;
-import io.reactivex.MaybeEmitter;
-import io.reactivex.MaybeOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Cancellable;
 import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 
 public class RxFirebaseDatabase {
+
+   public static final Predicate<DataSnapshot> DATA_SNAPSHOT_EXISTENCE_PREDICATE = new Predicate<DataSnapshot>() {
+      @Override
+      public boolean test(@io.reactivex.annotations.NonNull DataSnapshot dataSnapshot) throws Exception {
+         return dataSnapshot.exists();
+      }
+   };
 
    /**
     * Listener for changes in te data at the given query location.
@@ -80,10 +86,10 @@ public class RxFirebaseDatabase {
     * the given {@link DataSnapshot} exists.
     */
    @NonNull
-   public static Maybe<DataSnapshot> observeSingleValueEvent(@NonNull final Query query) {
-      return Maybe.create(new MaybeOnSubscribe<DataSnapshot>() {
+   public static Single<DataSnapshot> observeSingleValueEvent(@NonNull final Query query) {
+      return Single.create(new SingleOnSubscribe<DataSnapshot>() {
          @Override
-         public void subscribe(final MaybeEmitter<DataSnapshot> emitter) throws Exception {
+         public void subscribe(final SingleEmitter<DataSnapshot> emitter) throws Exception {
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                @Override
                public void onDataChange(DataSnapshot dataSnapshot) {
@@ -261,12 +267,15 @@ public class RxFirebaseDatabase {
     */
    @NonNull
    public static Flowable<DataSnapshot> observeMultipleSingleValueEvent(@NonNull DatabaseReference... whereRefs) {
-      @SuppressWarnings("unchecked")
-      Maybe<DataSnapshot>[] singleQueries = (Maybe<DataSnapshot>[]) Array.newInstance(Maybe.class, whereRefs.length);
-      for (int i = 0; i < whereRefs.length; i++) {
-         singleQueries[i] = (observeSingleValueEvent(whereRefs[i]));
-      }
-      return Maybe.mergeArray(singleQueries);
+      return Single.merge(Flowable.fromArray(whereRefs)
+      .map(new Function<DatabaseReference, SingleSource<? extends DataSnapshot>>() {
+            @Override
+            public SingleSource<? extends DataSnapshot> apply(@io.reactivex.annotations.NonNull DatabaseReference databaseReference) throws
+                  Exception {
+               return observeSingleValueEvent(databaseReference);
+            }
+         })
+      );
    }
 
    /**
@@ -371,7 +380,9 @@ public class RxFirebaseDatabase {
    @NonNull
    public static <T> Maybe<T> observeSingleValueEvent(@NonNull final Query query,
                                                       @NonNull final Function<? super DataSnapshot, ? extends T> mapper) {
-      return observeSingleValueEvent(query).map(mapper);
+      return observeSingleValueEvent(query)
+              .filter(DATA_SNAPSHOT_EXISTENCE_PREDICATE)
+              .map(mapper);
    }
 
    /**

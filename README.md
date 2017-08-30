@@ -10,7 +10,7 @@ This repository started as a personal usage of [Nick Moskalenko](https://github.
 
 ```groovy
 dependencies {
-  compile 'com.github.frangsierra:rx2firebase:1.0.0'
+  compile 'com.github.frangsierra:rx2firebase:1.1.3'
 }
 ```
 ```
@@ -26,7 +26,7 @@ allprojects {
 ## RxJava and RxJava 2.0
 One of the differences between RxJava and RxJava 2 is that RxJava 2 no longer accepts `null` values. Throwing a `NullPointerException` immediately. For this reason some of the methods of the library as been redesigned to return a `Completable` instead of a `Observable<Void>`. For example:
 
-####RxFirebase 
+#### RxFirebase 
 
 ```java
 @NonNull
@@ -40,7 +40,7 @@ public static Observable<Void> updateEmail(@NonNull final FirebaseUser firebaseU
 }
 ```
 
-####Rx2Firebase
+#### Rx2Firebase
 
 ```java
 @NonNull
@@ -105,7 +105,7 @@ or providing your own mapper between DataSnapshot and your data type:
 
 There are some pre-defined mappers to make things easier:
 
-#####Observing list values
+##### Observing list values
 
 ```java
     RxFirebaseDatabase.observeSingleValueEvent(getPostsRef().child("posts"), DataSnapshotMapper.listOf(PostComment.class))
@@ -114,7 +114,7 @@ There are some pre-defined mappers to make things easier:
                 });
 ```
 
-#####Observing map values
+##### Observing map values
 
 ```java
      RxFirebaseDatabase.observeSingleValueEvent(getPostsRef().child("posts"), DataSnapshotMapper.mapOf(PostComment.class))
@@ -146,7 +146,25 @@ or download file as bytes array
                     Log.e("RxFirebaseSample", throwable.toString());
             });
 ```
+### RxFirebaseQuery
 
+RxFirebaseQuery is a builder class used to work together with methods from RxFirebaseDatabase that allow you to retrieve data from multiple databaseReferences. Doing this allow you to build and create dynamic queries to retrieve database objects from references retrieved from different tables easily. 
+At the moment RxFirebaseQuery just allow the user to create the queries and retrieve the data. Filters should be done with the `DatabaseReference` items that you pass to the constructor. In other hand for update and delete data you should use `Firebase` method `updateChildren()`
+```java
+	DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+		      DatabaseReference from = reference.child("tweets");
+		      Query where = reference.child("users").child(userId).child("feedReferences");
+		      RxFirebaseQuery.getInstance()
+			    .filterByRefs(from, where)
+			    .asList()
+			    .subscribe(dataSnapshots -> {
+			       Log.i("RxFirebase", "Retrieved a total of " + dataSnapshots.size() + " tweets");
+			       for (DataSnapshot dataSnapshot : dataSnapshots) {
+				  Tweet tweet = dataSnapshot.getValue(Tweet.class);
+				  Log.i("RxFirebase", "New tweet for user feed: " + tweet.getDescription());
+			       }
+			    });
+```
 ### RxFirebaseRecyclerAdapter:
 
 RxFirebaseRecyclerAdapter was created looking for a way to manage the `RxFirebaseChildEvent<DataSnapshot>`  items recieved with the `observeChildEvent` method. It is an abstract class based on FirebaseRecyclerAdapter but modifying the query and firebase call dependency. 
