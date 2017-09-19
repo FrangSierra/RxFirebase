@@ -25,10 +25,12 @@ import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeEmitter;
+import io.reactivex.MaybeOnSubscribe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import io.reactivex.functions.Cancellable;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
@@ -58,8 +60,9 @@ public class RxFirebaseDatabase {
             final ValueEventListener valueEventListener = new ValueEventListener() {
                @Override
                public void onDataChange(DataSnapshot dataSnapshot) {
-                  if (dataSnapshot.exists())
+                  if (dataSnapshot.exists()) {
                      emitter.onNext(dataSnapshot);
+                  }
                }
 
                @Override
@@ -86,15 +89,16 @@ public class RxFirebaseDatabase {
     * the given {@link DataSnapshot} exists.
     */
    @NonNull
-   public static Single<DataSnapshot> observeSingleValueEvent(@NonNull final Query query) {
-      return Single.create(new SingleOnSubscribe<DataSnapshot>() {
+   public static Maybe<DataSnapshot> observeSingleValueEvent(@NonNull final Query query) {
+      return Maybe.create(new MaybeOnSubscribe<DataSnapshot>() {
          @Override
-         public void subscribe(final SingleEmitter<DataSnapshot> emitter) throws Exception {
+         public void subscribe(final MaybeEmitter<DataSnapshot> emitter) throws Exception {
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                @Override
                public void onDataChange(DataSnapshot dataSnapshot) {
-                  if (dataSnapshot.exists())
+                  if (dataSnapshot.exists()) {
                      emitter.onSuccess(dataSnapshot);
+                  }
                   emitter.onComplete();
                }
 
@@ -267,10 +271,10 @@ public class RxFirebaseDatabase {
     */
    @NonNull
    public static Flowable<DataSnapshot> observeMultipleSingleValueEvent(@NonNull DatabaseReference... whereRefs) {
-      return Single.merge(Flowable.fromArray(whereRefs)
-      .map(new Function<DatabaseReference, SingleSource<? extends DataSnapshot>>() {
+      return Maybe.merge(Flowable.fromArray(whereRefs)
+      .map(new Function<DatabaseReference, MaybeSource<? extends DataSnapshot>>() {
             @Override
-            public SingleSource<? extends DataSnapshot> apply(@io.reactivex.annotations.NonNull DatabaseReference databaseReference) throws
+            public MaybeSource<? extends DataSnapshot> apply(@io.reactivex.annotations.NonNull DatabaseReference databaseReference) throws
                   Exception {
                return observeSingleValueEvent(databaseReference);
             }
