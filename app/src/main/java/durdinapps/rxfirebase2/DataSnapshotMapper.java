@@ -1,5 +1,7 @@
 package durdinapps.rxfirebase2;
 
+import android.support.annotation.NonNull;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.GenericTypeIndicator;
 
@@ -10,6 +12,7 @@ import java.util.List;
 import durdinapps.rxfirebase2.exceptions.RxFirebaseDataCastException;
 import io.reactivex.exceptions.Exceptions;
 import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 
 public abstract class DataSnapshotMapper<T, U> implements Function<T, U> {
 
@@ -149,4 +152,11 @@ public abstract class DataSnapshotMapper<T, U> implements Function<T, U> {
          }
       }
    }
+
+   static final Predicate<DataSnapshot> DATA_SNAPSHOT_EXISTENCE_PREDICATE = new Predicate<DataSnapshot>() {
+      @Override
+      public boolean test(@NonNull DataSnapshot dataSnapshot) throws Exception {
+         return dataSnapshot.exists();
+      }
+   };
 }

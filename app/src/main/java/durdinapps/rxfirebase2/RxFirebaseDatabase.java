@@ -33,16 +33,10 @@ import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Cancellable;
 import io.reactivex.functions.Function;
-import io.reactivex.functions.Predicate;
+
+import static durdinapps.rxfirebase2.DataSnapshotMapper.DATA_SNAPSHOT_EXISTENCE_PREDICATE;
 
 public class RxFirebaseDatabase {
-
-   public static final Predicate<DataSnapshot> DATA_SNAPSHOT_EXISTENCE_PREDICATE = new Predicate<DataSnapshot>() {
-      @Override
-      public boolean test(@io.reactivex.annotations.NonNull DataSnapshot dataSnapshot) throws Exception {
-         return dataSnapshot.exists();
-      }
-   };
 
    /**
     * Listener for changes in te data at the given query location.
@@ -163,7 +157,7 @@ public class RxFirebaseDatabase {
                                       final Object value) {
       return Completable.create(new CompletableOnSubscribe() {
          @Override
-         public void subscribe(@io.reactivex.annotations.NonNull final CompletableEmitter e) throws Exception {
+         public void subscribe(@NonNull final CompletableEmitter e) throws Exception {
             ref.setValue(value).addOnSuccessListener(new OnSuccessListener<Void>() {
                @Override public void onSuccess(Void aVoid) {
                   e.onComplete();
@@ -274,7 +268,7 @@ public class RxFirebaseDatabase {
       return Maybe.merge(Flowable.fromArray(whereRefs)
       .map(new Function<DatabaseReference, MaybeSource<? extends DataSnapshot>>() {
             @Override
-            public MaybeSource<? extends DataSnapshot> apply(@io.reactivex.annotations.NonNull DatabaseReference databaseReference) throws
+            public MaybeSource<? extends DataSnapshot> apply(@NonNull DatabaseReference databaseReference) throws
                   Exception {
                return observeSingleValueEvent(databaseReference);
             }
@@ -304,7 +298,7 @@ public class RxFirebaseDatabase {
                                                                          @NonNull Query whereRef) {
       return observeSingleValueEvent(whereRef, new Function<DataSnapshot, DatabaseReference[]>() {
          @Override
-         public DatabaseReference[] apply(@io.reactivex.annotations.NonNull DataSnapshot dataSnapshot) throws Exception {
+         public DatabaseReference[] apply(@NonNull DataSnapshot dataSnapshot) throws Exception {
             int childrenCount = (int) dataSnapshot.getChildrenCount();
             DatabaseReference[] filterRefs = new DatabaseReference[childrenCount];
             final Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
