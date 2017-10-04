@@ -132,7 +132,7 @@ public class RxFirebaseDatabase {
                }
 
                @Override
-               public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                  public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                   if (databaseError != null) {
                      emitter.onError(new RxFirebaseDataException(databaseError));
                   } else {
