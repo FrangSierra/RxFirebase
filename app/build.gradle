@@ -2,7 +2,7 @@ buildscript {
     ext {
         rx_version = "2.1.0"
         rx_android_version = "2.0.1"
-        firebase_version = "11.2.2"
+        firebase_version = "11.4.2"
         support_version = "26.0.1"
     }
 }
@@ -38,6 +38,7 @@ dependencies {
     provided "com.google.firebase:firebase-auth:$firebase_version"
     provided "com.google.firebase:firebase-database:$firebase_version"
     provided "com.google.firebase:firebase-storage:$firebase_version"
+    provided "com.google.firebase:firebase-firestore:$firebase_version"
     provided "com.android.support:recyclerview-v7:$support_version"
     compile "io.reactivex.rxjava2:rxjava:$rx_version"
     compile "io.reactivex.rxjava2:rxandroid:$rx_android_version"
