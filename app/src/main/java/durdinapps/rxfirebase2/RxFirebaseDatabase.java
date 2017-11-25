@@ -82,7 +82,7 @@ public class RxFirebaseDatabase {
     *
     * @param query reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
     * @return a {@link Maybe} which emits the actual state of the database for the given query. onSuccess will be only call when
-    * the given {@link DataSnapshot} exists.
+    * the given {@link DataSnapshot} exists onComplete will only called when the data doesn't exist.
     */
    @NonNull
    public static Maybe<DataSnapshot> observeSingleValueEvent(@NonNull final Query query) {
@@ -95,7 +95,9 @@ public class RxFirebaseDatabase {
                   if (dataSnapshot.exists()) {
                      emitter.onSuccess(dataSnapshot);
                   }
-                  emitter.onComplete();
+                  else {
+                    emitter.onComplete();
+                  }
                }
 
                @Override
