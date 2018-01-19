@@ -38,26 +38,28 @@ import static durdinapps.rxfirebase2.DataSnapshotMapper.DATA_SNAPSHOT_EXISTENCE_
 
 public class RxFirebaseDatabase {
 
-    /**
-     * Listener for changes in te data at the given query location.
-     *
-     * @param query    reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
-     * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
-     * @return a {@link Flowable} which emits when a value of the database change in the given query.
-     */
-    @NonNull
-    public static Flowable<DataSnapshot> observeValueEvent(@NonNull final Query query,
-                                                           @NonNull BackpressureStrategy strategy) {
-        return Flowable.create(new FlowableOnSubscribe<DataSnapshot>() {
-            @Override
-            public void subscribe(final FlowableEmitter<DataSnapshot> emitter) throws Exception {
-                final ValueEventListener valueEventListener = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            emitter.onNext(dataSnapshot);
-                        }
-                    }
+   /**
+    * Listener for changes in te data at the given query location.
+    *
+    * @param query    reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
+    * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
+    * @return a {@link Flowable} which emits when a value of the database change in the given query.
+    */
+   @NonNull
+   public static Flowable<DataSnapshot> observeValueEvent(@NonNull final Query query,
+                                                          @NonNull BackpressureStrategy strategy) {
+      return Flowable.create(new FlowableOnSubscribe<DataSnapshot>() {
+         @Override
+         public void subscribe(final FlowableEmitter<DataSnapshot> emitter) throws Exception {
+            final ValueEventListener valueEventListener = new ValueEventListener() {
+               @Override
+               public void onDataChange(DataSnapshot dataSnapshot) {
+                  if (dataSnapshot.exists()) {
+                     emitter.onNext(dataSnapshot);
+                  } else {
+                     emitter.onComplete();
+                  }
+               }
 
                     @Override
                     public void onCancelled(final DatabaseError error) {
@@ -76,26 +78,28 @@ public class RxFirebaseDatabase {
         }, strategy);
     }
 
-    /**
-     * Listener for a single change in te data at the given query location.
-     *
-     * @param query reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
-     * @return a {@link Maybe} which emits the actual state of the database for the given query. onSuccess will be only call when
-     * the given {@link DataSnapshot} exists.
-     */
-    @NonNull
-    public static Maybe<DataSnapshot> observeSingleValueEvent(@NonNull final Query query) {
-        return Maybe.create(new MaybeOnSubscribe<DataSnapshot>() {
-            @Override
-            public void subscribe(final MaybeEmitter<DataSnapshot> emitter) throws Exception {
-                query.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            emitter.onSuccess(dataSnapshot);
-                        }
-                        emitter.onComplete();
-                    }
+   /**
+    * Listener for a single change in te data at the given query location.
+    *
+    * @param query reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
+    * @return a {@link Maybe} which emits the actual state of the database for the given query. onSuccess will be only call when
+    * the given {@link DataSnapshot} exists onComplete will only called when the data doesn't exist.
+    */
+   @NonNull
+   public static Maybe<DataSnapshot> observeSingleValueEvent(@NonNull final Query query) {
+      return Maybe.create(new MaybeOnSubscribe<DataSnapshot>() {
+         @Override
+         public void subscribe(final MaybeEmitter<DataSnapshot> emitter) throws Exception {
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+               @Override
+               public void onDataChange(DataSnapshot dataSnapshot) {
+                  if (dataSnapshot.exists()) {
+                     emitter.onSuccess(dataSnapshot);
+                  }
+                  else {
+                    emitter.onComplete();
+                  }
+               }
 
                     @Override
                     public void onCancelled(DatabaseError error) {
