@@ -1,6 +1,8 @@
 package durdinapps.rxfirebase2;
 
 
+import android.app.DownloadManager;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -151,7 +153,7 @@ public class RxFirebaseDatabaseTest {
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
-        argument.getValue().onCancelled(DatabaseError.zzgh(DatabaseError.DISCONNECTED));
+        argument.getValue().onCancelled(DatabaseError.zzgp(DatabaseError.DISCONNECTED));
 
         testObserver.assertError(RxFirebaseDataException.class)
             .assertNotComplete()
@@ -167,7 +169,7 @@ public class RxFirebaseDatabaseTest {
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
-        argument.getValue().onCancelled(DatabaseError.zzgh(DatabaseError.OPERATION_FAILED));
+        argument.getValue().onCancelled(DatabaseError.zzgp(DatabaseError.OPERATION_FAILED));
 
         testObserver.assertError(RxFirebaseDataException.class)
             .assertNotComplete()
@@ -351,7 +353,7 @@ public class RxFirebaseDatabaseTest {
 
         ArgumentCaptor<ChildEventListener> argument = ArgumentCaptor.forClass(ChildEventListener.class);
         verify(databaseReference).addChildEventListener(argument.capture());
-        argument.getValue().onCancelled(DatabaseError.zzgh(DatabaseError.DISCONNECTED));
+        argument.getValue().onCancelled(DatabaseError.zzgp(DatabaseError.DISCONNECTED));
 
         testObserver.assertError(RxFirebaseDataException.class)
             .assertNotComplete()
