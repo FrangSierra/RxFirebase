@@ -3,8 +3,8 @@ package durdinapps.rxfirebase2;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
@@ -76,16 +76,19 @@ public class RxFirebaseStorage {
         return Single.create(new SingleOnSubscribe<FileDownloadTask.TaskSnapshot>() {
             public void subscribe(final SingleEmitter<FileDownloadTask.TaskSnapshot> emitter) throws Exception {
                 final StorageTask<FileDownloadTask.TaskSnapshot> taskSnapshotStorageTask =
-                    storageRef.getFile(destinationFile).addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
+                    storageRef.getFile(destinationFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
-                            if (task.isComplete()) {
-                                emitter.onSuccess(task.getResult());
-                            } else {
-                                emitter.onError(task.getException());
-                            }
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            emitter.onSuccess(taskSnapshot);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (!emitter.isDisposed())
+                            emitter.onError(e);
                         }
                     });
+
                 emitter.setCancellable(new Cancellable() {
                     @Override
                     public void cancel() throws Exception {
@@ -109,16 +112,19 @@ public class RxFirebaseStorage {
         return Single.create(new SingleOnSubscribe<FileDownloadTask.TaskSnapshot>() {
             public void subscribe(final SingleEmitter<FileDownloadTask.TaskSnapshot> emitter) throws Exception {
                 final StorageTask<FileDownloadTask.TaskSnapshot> taskSnapshotStorageTask =
-                    storageRef.getFile(destinationUri).addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
+                    storageRef.getFile(destinationUri).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
-                            if (task.isComplete()) {
-                                emitter.onSuccess(task.getResult());
-                            } else {
-                                emitter.onError(task.getException());
-                            }
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            emitter.onSuccess(taskSnapshot);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (!emitter.isDisposed())
+                            emitter.onError(e);
                         }
                     });
+
                 emitter.setCancellable(new Cancellable() {
                     @Override
                     public void cancel() throws Exception {
@@ -156,16 +162,19 @@ public class RxFirebaseStorage {
         return Single.create(new SingleOnSubscribe<StreamDownloadTask.TaskSnapshot>() {
             public void subscribe(final SingleEmitter<StreamDownloadTask.TaskSnapshot> emitter) throws Exception {
                 final StorageTask<StreamDownloadTask.TaskSnapshot> taskSnapshotStorageTask =
-                    storageRef.getStream().addOnCompleteListener(new OnCompleteListener<StreamDownloadTask.TaskSnapshot>() {
+                    storageRef.getStream().addOnSuccessListener(new OnSuccessListener<StreamDownloadTask.TaskSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<StreamDownloadTask.TaskSnapshot> task) {
-                            if (task.isComplete()) {
-                                emitter.onSuccess(task.getResult());
-                            } else {
-                                emitter.onError(task.getException());
-                            }
+                        public void onSuccess(StreamDownloadTask.TaskSnapshot taskSnapshot) {
+                            emitter.onSuccess(taskSnapshot);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (!emitter.isDisposed())
+                            emitter.onError(e);
                         }
                     });
+
                 emitter.setCancellable(new Cancellable() {
                     @Override
                     public void cancel() throws Exception {
@@ -191,16 +200,19 @@ public class RxFirebaseStorage {
         return Single.create(new SingleOnSubscribe<StreamDownloadTask.TaskSnapshot>() {
             public void subscribe(final SingleEmitter<StreamDownloadTask.TaskSnapshot> emitter) throws Exception {
                 final StorageTask<StreamDownloadTask.TaskSnapshot> taskSnapshotStorageTask =
-                    storageRef.getStream(processor).addOnCompleteListener(new OnCompleteListener<StreamDownloadTask.TaskSnapshot>() {
+                    storageRef.getStream(processor).addOnSuccessListener(new OnSuccessListener<StreamDownloadTask.TaskSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<StreamDownloadTask.TaskSnapshot> task) {
-                            if (task.isComplete()) {
-                                emitter.onSuccess(task.getResult());
-                            } else {
-                                emitter.onError(task.getException());
-                            }
+                        public void onSuccess(StreamDownloadTask.TaskSnapshot taskSnapshot) {
+                            emitter.onSuccess(taskSnapshot);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (!emitter.isDisposed())
+                            emitter.onError(e);
                         }
                     });
+
                 emitter.setCancellable(new Cancellable() {
                     @Override
                     public void cancel() throws Exception {
@@ -224,14 +236,16 @@ public class RxFirebaseStorage {
         return Single.create(new SingleOnSubscribe<UploadTask.TaskSnapshot>() {
             public void subscribe(final SingleEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
                 final StorageTask<UploadTask.TaskSnapshot> taskSnapshotStorageTask =
-                    storageRef.putBytes(bytes).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    storageRef.putBytes(bytes).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isComplete()) {
-                                emitter.onSuccess(task.getResult());
-                            } else {
-                                emitter.onError(task.getException());
-                            }
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            emitter.onSuccess(taskSnapshot);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (!emitter.isDisposed())
+                            emitter.onError(e);
                         }
                     });
                 emitter.setCancellable(new Cancellable() {
@@ -259,16 +273,19 @@ public class RxFirebaseStorage {
         return Single.create(new SingleOnSubscribe<UploadTask.TaskSnapshot>() {
             public void subscribe(final SingleEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
                 final StorageTask<UploadTask.TaskSnapshot> taskSnapshotStorageTask =
-                    storageRef.putBytes(bytes, metadata).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    storageRef.putBytes(bytes, metadata).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isComplete()) {
-                                emitter.onSuccess(task.getResult());
-                            } else {
-                                emitter.onError(task.getException());
-                            }
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            emitter.onSuccess(taskSnapshot);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (!emitter.isDisposed())
+                            emitter.onError(e);
                         }
                     });
+
                 emitter.setCancellable(new Cancellable() {
                     @Override
                     public void cancel() throws Exception {
@@ -292,16 +309,19 @@ public class RxFirebaseStorage {
         return Single.create(new SingleOnSubscribe<UploadTask.TaskSnapshot>() {
             public void subscribe(final SingleEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
                 final StorageTask<UploadTask.TaskSnapshot> taskSnapshotStorageTask =
-                    storageRef.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    storageRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isComplete()) {
-                                emitter.onSuccess(task.getResult());
-                            } else {
-                                emitter.onError(task.getException());
-                            }
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            emitter.onSuccess(taskSnapshot);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (!emitter.isDisposed())
+                            emitter.onError(e);
                         }
                     });
+
                 emitter.setCancellable(new Cancellable() {
                     @Override
                     public void cancel() throws Exception {
@@ -327,16 +347,20 @@ public class RxFirebaseStorage {
         return Single.create(new SingleOnSubscribe<UploadTask.TaskSnapshot>() {
             public void subscribe(final SingleEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
                 final StorageTask<UploadTask.TaskSnapshot> taskSnapshotStorageTask =
-                    storageRef.putFile(uri, metadata).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isComplete()) {
-                                emitter.onSuccess(task.getResult());
-                            } else {
-                                emitter.onError(task.getException());
+                    storageRef.putFile(uri, metadata)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                emitter.onSuccess(taskSnapshot);
                             }
+                        }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (!emitter.isDisposed())
+                            emitter.onError(e);
                         }
                     });
+
                 emitter.setCancellable(new Cancellable() {
                     @Override
                     public void cancel() throws Exception {
@@ -364,16 +388,20 @@ public class RxFirebaseStorage {
         return Single.create(new SingleOnSubscribe<UploadTask.TaskSnapshot>() {
             public void subscribe(final SingleEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
                 final StorageTask<UploadTask.TaskSnapshot> taskSnapshotStorageTask =
-                    storageRef.putFile(uri, metadata, existingUploadUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isComplete()) {
-                                emitter.onSuccess(task.getResult());
-                            } else {
-                                emitter.onError(task.getException());
+                    storageRef.putFile(uri, metadata, existingUploadUri)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                emitter.onSuccess(taskSnapshot);
                             }
+                        }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (!emitter.isDisposed())
+                            emitter.onError(e);
                         }
                     });
+
                 emitter.setCancellable(new Cancellable() {
                     @Override
                     public void cancel() throws Exception {
@@ -397,16 +425,20 @@ public class RxFirebaseStorage {
         return Single.create(new SingleOnSubscribe<UploadTask.TaskSnapshot>() {
             public void subscribe(final SingleEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
                 final StorageTask<UploadTask.TaskSnapshot> taskSnapshotStorageTask =
-                    storageRef.putStream(stream, metadata).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isComplete()) {
-                                emitter.onSuccess(task.getResult());
-                            } else {
-                                emitter.onError(task.getException());
+                    storageRef.putStream(stream, metadata)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                emitter.onSuccess(taskSnapshot);
                             }
+                        }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (!emitter.isDisposed())
+                            emitter.onError(e);
                         }
                     });
+
                 emitter.setCancellable(new Cancellable() {
                     @Override
                     public void cancel() throws Exception {
@@ -430,16 +462,19 @@ public class RxFirebaseStorage {
         return Single.create(new SingleOnSubscribe<UploadTask.TaskSnapshot>() {
             public void subscribe(final SingleEmitter<UploadTask.TaskSnapshot> emitter) throws Exception {
                 final StorageTask<UploadTask.TaskSnapshot> taskSnapshotStorageTask =
-                    storageRef.putStream(stream).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    storageRef.putStream(stream).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isComplete()) {
-                                emitter.onSuccess(task.getResult());
-                            } else {
-                                emitter.onError(task.getException());
-                            }
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            emitter.onSuccess(taskSnapshot);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (!emitter.isDisposed())
+                            emitter.onError(e);
                         }
                     });
+
                 emitter.setCancellable(new Cancellable() {
                     @Override
                     public void cancel() throws Exception {
