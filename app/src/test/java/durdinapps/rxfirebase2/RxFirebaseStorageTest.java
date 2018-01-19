@@ -121,8 +121,8 @@ public class RxFirebaseStorageTest {
     @Test
     public void getBytes() throws InterruptedException {
         TestObserver<byte[]> storageTestObserver =
-            RxFirebaseStorage.getBytes(mockStorageRef, 20)
-                .test();
+                RxFirebaseStorage.getBytes(mockStorageRef, 20)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(notNullbytes);
         testOnCompleteListener.getValue().onComplete(mockBytesTask);
@@ -130,33 +130,33 @@ public class RxFirebaseStorageTest {
         verify(mockStorageRef).getBytes(20);
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(notNullbytes))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(notNullbytes))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
     public void getBytesNoData() throws InterruptedException {
         TestObserver<byte[]> storageTestObserver =
-            RxFirebaseStorage.getBytes(mockStorageRef, 20)
-                .test();
+                RxFirebaseStorage.getBytes(mockStorageRef, 20)
+                        .test();
 
         testOnFailureListener.getValue().onFailure(NULL_FIREBASE_EXCEPTION);
 
         verify(mockStorageRef).getBytes(20);
 
         storageTestObserver.assertError(NULL_FIREBASE_EXCEPTION)
-            .assertValueSet(Collections.singletonList(nullBytes))
-            .assertNotComplete()
-            .dispose();
+                .assertValueSet(Collections.singletonList(nullBytes))
+                .assertNotComplete()
+                .dispose();
     }
 
     @Test
     public void getDownloadUrl() throws InterruptedException {
         TestObserver<Uri> storageTestObserver =
-            RxFirebaseStorage.getDownloadUrl(mockStorageRef)
-                .test();
+                RxFirebaseStorage.getDownloadUrl(mockStorageRef)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(uri);
         testOnCompleteListener.getValue().onComplete(mockUriTask);
@@ -164,46 +164,46 @@ public class RxFirebaseStorageTest {
         verify(mockStorageRef).getDownloadUrl();
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(uri))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(uri))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
     public void getFile() throws InterruptedException {
 
         TestObserver<FileDownloadTask.TaskSnapshot> storageTestObserver =
-            RxFirebaseStorage.getFile(mockStorageRef, file)
-                .test();
+                RxFirebaseStorage.getFile(mockStorageRef, file)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(fileSnapshot);
 
         verify(mockStorageRef).getFile(file);
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(fileSnapshot))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(fileSnapshot))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
     public void getFileUri() throws InterruptedException {
 
         TestObserver<FileDownloadTask.TaskSnapshot> storageTestObserver =
-            RxFirebaseStorage.getFile(mockStorageRef, uri)
-                .test();
+                RxFirebaseStorage.getFile(mockStorageRef, uri)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(fileSnapshot);
 
         verify(mockStorageRef).getFile(uri);
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(fileSnapshot))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(fileSnapshot))
+                .assertComplete()
+                .dispose();
     }
 
 
@@ -211,8 +211,8 @@ public class RxFirebaseStorageTest {
     public void getMetadata() throws InterruptedException {
 
         TestObserver<StorageMetadata> storageTestObserver =
-            RxFirebaseStorage.getMetadata(mockStorageRef)
-                .test();
+                RxFirebaseStorage.getMetadata(mockStorageRef)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(metadata);
         testOnCompleteListener.getValue().onComplete(mockMetadataTask);
@@ -220,10 +220,10 @@ public class RxFirebaseStorageTest {
         verify(mockStorageRef).getMetadata();
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(metadata))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(metadata))
+                .assertComplete()
+                .dispose();
     }
 
 
@@ -231,8 +231,8 @@ public class RxFirebaseStorageTest {
     public void getStream() throws InterruptedException {
 
         TestObserver<StreamDownloadTask.TaskSnapshot> storageTestObserver =
-            RxFirebaseStorage.getStream(mockStorageRef)
-                .test();
+                RxFirebaseStorage.getStream(mockStorageRef)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(streamSnapshot);
 
@@ -249,187 +249,189 @@ public class RxFirebaseStorageTest {
     public void getStreamProcessor() throws InterruptedException {
 
         TestObserver<StreamDownloadTask.TaskSnapshot> storageTestObserver =
-            RxFirebaseStorage.getStream(mockStorageRef, processor)
-                .test();
+                RxFirebaseStorage.getStream(mockStorageRef, processor)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(streamSnapshot);
 
         verify(mockStorageRef).getStream(processor);
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(streamSnapshot))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(streamSnapshot))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
     public void putBytes() throws InterruptedException {
 
         TestObserver<UploadTask.TaskSnapshot> storageTestObserver =
-            RxFirebaseStorage.putBytes(mockStorageRef, notNullbytes)
-                .test();
+                RxFirebaseStorage.putBytes(mockStorageRef, notNullbytes)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(uploadSnapshot);
 
         verify(mockStorageRef).putBytes(notNullbytes);
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(uploadSnapshot))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(uploadSnapshot))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
     public void putBytesNoData() throws InterruptedException {
 
         TestObserver<UploadTask.TaskSnapshot> storageTestObserver =
-            RxFirebaseStorage.putBytes(mockStorageRef, nullBytes)
-                .test();
+                RxFirebaseStorage.putBytes(mockStorageRef, nullBytes)
+                        .test();
 
         testOnFailureListener.getValue().onFailure(NULL_FIREBASE_EXCEPTION);
 
         verify(mockStorageRef).putBytes(nullBytes);
 
         storageTestObserver.assertError(NULL_FIREBASE_EXCEPTION)
-            .assertValueSet(Collections.singletonList(uploadSnapshot))
-            .assertNotComplete()
-            .dispose();
+                .assertValueSet(Collections.singletonList(uploadSnapshot))
+                .assertNotComplete()
+                .dispose();
     }
 
     @Test
     public void putBytesMetadata() throws InterruptedException {
 
         TestObserver<UploadTask.TaskSnapshot> storageTestObserver =
-            RxFirebaseStorage.putBytes(mockStorageRef, notNullbytes, metadata)
-                .test();
+                RxFirebaseStorage.putBytes(mockStorageRef, notNullbytes, metadata)
+                        .test();
+
 
         testOnSuccessListener.getValue().onSuccess(uploadSnapshot);
+        testOnCompleteListener.getValue().onComplete(mockVoidTask);
 
         verify(mockStorageRef).putBytes(notNullbytes, metadata);
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(uploadSnapshot))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(uploadSnapshot))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
     public void putFile() throws InterruptedException {
 
         TestObserver<UploadTask.TaskSnapshot> storageTestObserver =
-            RxFirebaseStorage.putFile(mockStorageRef, uri)
-                .test();
+                RxFirebaseStorage.putFile(mockStorageRef, uri)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(uploadSnapshot);
 
         verify(mockStorageRef).putFile(uri);
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(uploadSnapshot))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(uploadSnapshot))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
     public void putFileMetadata() throws InterruptedException {
 
         TestObserver<UploadTask.TaskSnapshot> storageTestObserver =
-            RxFirebaseStorage.putFile(mockStorageRef, uri, metadata)
-                .test();
+                RxFirebaseStorage.putFile(mockStorageRef, uri, metadata)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(uploadSnapshot);
 
         verify(mockStorageRef).putFile(uri, metadata);
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(uploadSnapshot))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(uploadSnapshot))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
     public void putFileMetadataAndUri() throws InterruptedException {
 
         TestObserver<UploadTask.TaskSnapshot> storageTestObserver =
-            RxFirebaseStorage.putFile(mockStorageRef, uri, metadata, uri)
-                .test();
+                RxFirebaseStorage.putFile(mockStorageRef, uri, metadata, uri)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(uploadSnapshot);
 
         verify(mockStorageRef).putFile(uri, metadata, uri);
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(uploadSnapshot))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(uploadSnapshot))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
     public void putStream() throws InterruptedException {
 
         TestObserver<UploadTask.TaskSnapshot> storageTestObserver =
-            RxFirebaseStorage.putStream(mockStorageRef, stream)
-                .test();
+                RxFirebaseStorage.putStream(mockStorageRef, stream)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(uploadSnapshot);
 
         verify(mockStorageRef).putStream(stream);
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(uploadSnapshot))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(uploadSnapshot))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
     public void putStreamMetadata() throws InterruptedException {
 
         TestObserver<UploadTask.TaskSnapshot> storageTestObserver =
-            RxFirebaseStorage.putStream(mockStorageRef, stream, metadata)
-                .test();
+                RxFirebaseStorage.putStream(mockStorageRef, stream, metadata)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(uploadSnapshot);
 
         verify(mockStorageRef).putStream(stream, metadata);
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(uploadSnapshot))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(uploadSnapshot))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
     public void updateMetadata() throws InterruptedException {
 
         TestObserver<StorageMetadata> storageTestObserver =
-            RxFirebaseStorage.updateMetadata(mockStorageRef, metadata)
-                .test();
+                RxFirebaseStorage.updateMetadata(mockStorageRef, metadata)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(metadata);
 
         verify(mockStorageRef).updateMetadata(metadata);
 
         storageTestObserver.assertNoErrors()
-            .assertValueCount(1)
-            .assertValueSet(Collections.singletonList(metadata))
-            .assertComplete()
-            .dispose();
+                .assertValueCount(1)
+                .assertValueSet(Collections.singletonList(metadata))
+                .assertComplete()
+                .dispose();
     }
 
     @Test
     public void delete() throws InterruptedException {
 
         TestObserver<Void> storageTestObserver =
-            RxFirebaseStorage.delete(mockStorageRef)
-                .test();
+                RxFirebaseStorage.delete(mockStorageRef)
+                        .test();
 
         testOnSuccessListener.getValue().onSuccess(voidData);
         testOnCompleteListener.getValue().onComplete(mockVoidTask);
@@ -437,7 +439,7 @@ public class RxFirebaseStorageTest {
         verify(mockStorageRef).delete();
 
         storageTestObserver.assertNoErrors()
-            .assertComplete()
-            .dispose();
+                .assertComplete()
+                .dispose();
     }
 }
