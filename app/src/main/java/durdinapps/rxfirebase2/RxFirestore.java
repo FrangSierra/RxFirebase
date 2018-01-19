@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentListenOptions;
@@ -16,6 +17,7 @@ import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Transaction;
@@ -283,17 +285,20 @@ public class RxFirestore {
         return Maybe.create(new MaybeOnSubscribe<DocumentSnapshot>() {
             @Override
             public void subscribe(final MaybeEmitter<DocumentSnapshot> emitter) throws Exception {
-                ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document != null) {
-                                emitter.onSuccess(task.getResult());
-                            }
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            emitter.onSuccess(documentSnapshot);
+                        } else {
                             emitter.onComplete();
-                        } else if (!emitter.isDisposed())
-                            emitter.onError(task.getException());
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (!emitter.isDisposed())
+                            emitter.onError(e);
                     }
                 });
             }
@@ -310,18 +315,51 @@ public class RxFirestore {
         return Maybe.create(new MaybeOnSubscribe<QuerySnapshot>() {
             @Override
             public void subscribe(final MaybeEmitter<QuerySnapshot> emitter) throws Exception {
-                ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                ref.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            QuerySnapshot query = task.getResult();
-                            if (query != null) {
-                                emitter.onSuccess(task.getResult());
-                            }
+                    public void onSuccess(QuerySnapshot documentSnapshots) {
+                        if (documentSnapshots.isEmpty()) {
                             emitter.onComplete();
-                        } else if (!emitter.isDisposed())
-                            emitter.onError(task.getException());
+                        } else {
+                            emitter.onSuccess(documentSnapshots);
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (!emitter.isDisposed())
+                            emitter.onError(e);
+                    }
+                });
+            }
+        });
+    }
 
+
+    /**
+     * Reads the collection referenced by this DocumentReference
+     *
+     * @param query The given Collection query.
+     */
+    @NonNull
+    public static Maybe<QuerySnapshot> getCollection(@NonNull final Query query) {
+        return Maybe.create(new MaybeOnSubscribe<QuerySnapshot>() {
+            @Override
+            public void subscribe(final MaybeEmitter<QuerySnapshot> emitter) throws Exception {
+                query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot documentSnapshots) {
+                        if (documentSnapshots.isEmpty()) {
+                            emitter.onComplete();
+                        } else {
+                            emitter.onSuccess(documentSnapshots);
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (!emitter.isDisposed())
+                            emitter.onError(e);
                     }
                 });
             }
@@ -349,10 +387,7 @@ public class RxFirestore {
                             emitter.onError(e);
                             return;
                         }
-
-                        if (documentSnapshot != null && documentSnapshot.exists()) {
-                            emitter.onNext(documentSnapshot);
-                        }
+                        emitter.onNext(documentSnapshot);
                     }
                 });
                 emitter.setCancellable(new Cancellable() {
@@ -388,10 +423,7 @@ public class RxFirestore {
                             emitter.onError(e);
                             return;
                         }
-
-                        if (documentSnapshot != null && documentSnapshot.exists()) {
-                            emitter.onNext(documentSnapshot);
-                        }
+                        emitter.onNext(documentSnapshot);
                     }
                 });
                 emitter.setCancellable(new Cancellable() {
@@ -428,10 +460,7 @@ public class RxFirestore {
                             emitter.onError(e);
                             return;
                         }
-
-                        if (documentSnapshot != null && documentSnapshot.exists()) {
-                            emitter.onNext(documentSnapshot);
-                        }
+                        emitter.onNext(documentSnapshot);
                     }
                 });
                 emitter.setCancellable(new Cancellable() {
@@ -658,9 +687,9 @@ public class RxFirestore {
     }
 
     /**
-     * Starts listening to the document referenced by this DocumentReference.
+     * Reads the collection referenced by this CollectionReference.
      *
-     * @param ref   The given Document reference.
+     * @param ref   The given Collection reference.
      * @param clazz class type for the {@link DocumentSnapshot} items.
      */
     @NonNull
@@ -669,9 +698,44 @@ public class RxFirestore {
         return getCollection(ref, DocumentSnapshotMapper.listOf(clazz));
     }
 
+    /**
+     * SReads the collection referenced by this CollectionReference.
+     *
+     * @param ref    The given Collection reference.
+     * @param mapper specific function to map the dispatched events.
+     */
+    @NonNull
     private static <T> Maybe<List<T>> getCollection(CollectionReference ref,
-                                                    DocumentSnapshotMapper<QuerySnapshot, List<T>> mapper) {
+                                                    DocumentSnapshotMapper<QuerySnapshot,
+                                                        List<T>> mapper) {
         return getCollection(ref)
+            .filter(QUERY_EXISTENCE_PREDICATE)
+            .map(mapper);
+    }
+
+    /**
+     * Reads the collection referenced by this Query.
+     *
+     * @param query The given Collection query.
+     * @param clazz class type for the {@link DocumentSnapshot} items.
+     */
+    @NonNull
+    public static <T> Maybe<List<T>> getCollection(@NonNull final Query query,
+                                                   @NonNull final Class<T> clazz) {
+        return getCollection(query, DocumentSnapshotMapper.listOf(clazz));
+    }
+
+    /**
+     * Reads the collection referenced by this Query.
+     *
+     * @param query  The given Collection query.
+     * @param mapper specific function to map the dispatched events.
+     */
+    @NonNull
+    private static <T> Maybe<List<T>> getCollection(@NonNull Query query,
+                                                    @NonNull DocumentSnapshotMapper<QuerySnapshot,
+                                                        List<T>> mapper) {
+        return getCollection(query)
             .filter(QUERY_EXISTENCE_PREDICATE)
             .map(mapper);
     }
