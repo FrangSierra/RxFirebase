@@ -87,9 +87,9 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).getIdToken(ANY_FORCE_REFRESH_VALUE);
 
         userTestObserver.assertComplete()
-                .assertNoErrors()
-                .assertValueCount(1)
-                .dispose();
+            .assertNoErrors()
+            .assertValueCount(1)
+            .dispose();
     }
 
     @Test
@@ -99,7 +99,7 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).getIdToken(ANY_FORCE_REFRESH_VALUE);
 
         userTestObserver.assertError(EXCEPTION)
-                .dispose();
+            .dispose();
     }
 
     @Test
@@ -112,7 +112,7 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).updateEmail(ANY_EMAIL);
 
         userTestObserver.assertComplete()
-                .dispose();
+            .dispose();
 
     }
 
@@ -125,7 +125,7 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).updateEmail(ANY_EMAIL);
 
         userTestObserver.assertError(EXCEPTION)
-                .dispose();
+            .dispose();
 
     }
 
@@ -138,7 +138,7 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).updatePassword(ANY_PASSWORD);
 
         userTestObserver.assertComplete()
-                .dispose();
+            .dispose();
     }
 
     @Test
@@ -150,7 +150,7 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).updatePassword(ANY_PASSWORD);
 
         userTestObserver.assertError(EXCEPTION)
-                .dispose();
+            .dispose();
 
     }
 
@@ -164,7 +164,7 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).updateProfile(userProfileChangeRequest);
 
         userTestObserver.assertComplete()
-                .dispose();
+            .dispose();
 
     }
 
@@ -177,7 +177,7 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).updateProfile(userProfileChangeRequest);
 
         userTestObserver.assertError(EXCEPTION)
-                .dispose();
+            .dispose();
 
     }
 
@@ -191,7 +191,7 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).delete();
 
         userTestObserver.assertComplete()
-                .dispose();
+            .dispose();
     }
 
     @Test
@@ -202,7 +202,7 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).delete();
 
         userTestObserver.assertError(EXCEPTION)
-                .dispose();
+            .dispose();
     }
 
     @Test
@@ -215,7 +215,7 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).reauthenticate(authCredential);
 
         userTestObserver.assertComplete()
-                .dispose();
+            .dispose();
 
     }
 
@@ -229,10 +229,10 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).reauthenticateAndRetrieveData(authCredential);
 
         userTestObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertComplete()
-                .assertValueSet(Collections.singletonList(authResult))
-                .dispose();
+            .assertValueCount(1)
+            .assertComplete()
+            .assertValueSet(Collections.singletonList(authResult))
+            .dispose();
 
     }
 
@@ -245,7 +245,7 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).reauthenticate(authCredential);
 
         userTestObserver.assertError(EXCEPTION)
-                .dispose();
+            .dispose();
     }
 
     @Test
@@ -259,10 +259,10 @@ public class RxFirebaseUserTest {
 
 
         userTestObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertComplete()
-                .assertValueSet(Collections.singletonList(authResult))
-                .dispose();
+            .assertValueCount(1)
+            .assertComplete()
+            .assertValueSet(Collections.singletonList(authResult))
+            .dispose();
     }
 
     @Test
@@ -274,7 +274,7 @@ public class RxFirebaseUserTest {
         verify(firebaseUser).linkWithCredential(authCredential);
 
         userTestObserver.assertError(EXCEPTION)
-                .dispose();
+            .dispose();
 
 
     }

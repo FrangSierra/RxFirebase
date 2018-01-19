@@ -553,8 +553,8 @@ public class RxFirestore {
     public static <T> Flowable<T> observeDocumentRef(@NonNull final DocumentReference ref,
                                                      @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
         return observeDocumentRef(ref)
-                .filter(DOCUMENT_EXISTENCE_PREDICATE)
-                .map(mapper);
+            .filter(DOCUMENT_EXISTENCE_PREDICATE)
+            .map(mapper);
     }
 
     @NonNull
@@ -576,8 +576,8 @@ public class RxFirestore {
                                                      @NonNull BackpressureStrategy strategy,
                                                      @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
         return observeDocumentRef(ref, new DocumentListenOptions(), strategy)
-                .filter(DOCUMENT_EXISTENCE_PREDICATE)
-                .map(mapper);
+            .filter(DOCUMENT_EXISTENCE_PREDICATE)
+            .map(mapper);
     }
 
     /**
@@ -594,8 +594,8 @@ public class RxFirestore {
                                                      @NonNull final Executor executor,
                                                      @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
         return observeDocumentRef(ref, executor, new DocumentListenOptions(), strategy)
-                .filter(DOCUMENT_EXISTENCE_PREDICATE)
-                .map(mapper);
+            .filter(DOCUMENT_EXISTENCE_PREDICATE)
+            .map(mapper);
     }
 
     /**
@@ -612,8 +612,8 @@ public class RxFirestore {
                                                      @NonNull final Activity activity,
                                                      @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
         return observeDocumentRef(ref, activity, new DocumentListenOptions(), strategy)
-                .filter(DOCUMENT_EXISTENCE_PREDICATE)
-                .map(mapper);
+            .filter(DOCUMENT_EXISTENCE_PREDICATE)
+            .map(mapper);
     }
 
     /**
@@ -632,8 +632,8 @@ public class RxFirestore {
                                                      @NonNull final DocumentListenOptions options,
                                                      @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
         return observeDocumentRef(ref, executor, options, strategy)
-                .filter(DOCUMENT_EXISTENCE_PREDICATE)
-                .map(mapper);
+            .filter(DOCUMENT_EXISTENCE_PREDICATE)
+            .map(mapper);
     }
 
     /**
@@ -653,8 +653,8 @@ public class RxFirestore {
                                                      @NonNull final DocumentListenOptions options,
                                                      @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
         return observeDocumentRef(ref, activity, options, strategy)
-                .filter(DOCUMENT_EXISTENCE_PREDICATE)
-                .map(mapper);
+            .filter(DOCUMENT_EXISTENCE_PREDICATE)
+            .map(mapper);
     }
 
     /**
@@ -672,8 +672,8 @@ public class RxFirestore {
     private static <T> Maybe<List<T>> getCollection(CollectionReference ref,
                                                     DocumentSnapshotMapper<QuerySnapshot, List<T>> mapper) {
         return getCollection(ref)
-                .filter(QUERY_EXISTENCE_PREDICATE)
-                .map(mapper);
+            .filter(QUERY_EXISTENCE_PREDICATE)
+            .map(mapper);
     }
 
     /**
@@ -698,7 +698,7 @@ public class RxFirestore {
     public static <T> Maybe<T> getDocument(@NonNull final DocumentReference ref,
                                            @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
         return getDocument(ref)
-                .filter(DOCUMENT_EXISTENCE_PREDICATE)
-                .map(mapper);
+            .filter(DOCUMENT_EXISTENCE_PREDICATE)
+            .map(mapper);
     }
 }

@@ -71,8 +71,8 @@ public abstract class DocumentSnapshotMapper<T, U> implements Function<T, U> {
             List<U> items = new ArrayList<>();
             for (DocumentSnapshot documentSnapshot : querySnapshot) {
                 items.add(mapper != null
-                        ? mapper.apply(documentSnapshot)
-                        : getDataSnapshotTypedValue(documentSnapshot, clazz));
+                    ? mapper.apply(documentSnapshot)
+                    : getDataSnapshotTypedValue(documentSnapshot, clazz));
             }
             return items;
         }

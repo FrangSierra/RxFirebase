@@ -38,28 +38,28 @@ import static durdinapps.rxfirebase2.DataSnapshotMapper.DATA_SNAPSHOT_EXISTENCE_
 
 public class RxFirebaseDatabase {
 
-   /**
-    * Listener for changes in te data at the given query location.
-    *
-    * @param query    reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
-    * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
-    * @return a {@link Flowable} which emits when a value of the database change in the given query.
-    */
-   @NonNull
-   public static Flowable<DataSnapshot> observeValueEvent(@NonNull final Query query,
-                                                          @NonNull BackpressureStrategy strategy) {
-      return Flowable.create(new FlowableOnSubscribe<DataSnapshot>() {
-         @Override
-         public void subscribe(final FlowableEmitter<DataSnapshot> emitter) throws Exception {
-            final ValueEventListener valueEventListener = new ValueEventListener() {
-               @Override
-               public void onDataChange(DataSnapshot dataSnapshot) {
-                  if (dataSnapshot.exists()) {
-                     emitter.onNext(dataSnapshot);
-                  } else {
-                     emitter.onComplete();
-                  }
-               }
+    /**
+     * Listener for changes in te data at the given query location.
+     *
+     * @param query    reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
+     * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
+     * @return a {@link Flowable} which emits when a value of the database change in the given query.
+     */
+    @NonNull
+    public static Flowable<DataSnapshot> observeValueEvent(@NonNull final Query query,
+                                                           @NonNull BackpressureStrategy strategy) {
+        return Flowable.create(new FlowableOnSubscribe<DataSnapshot>() {
+            @Override
+            public void subscribe(final FlowableEmitter<DataSnapshot> emitter) throws Exception {
+                final ValueEventListener valueEventListener = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            emitter.onNext(dataSnapshot);
+                        } else {
+                            emitter.onComplete();
+                        }
+                    }
 
                     @Override
                     public void onCancelled(final DatabaseError error) {
@@ -78,28 +78,27 @@ public class RxFirebaseDatabase {
         }, strategy);
     }
 
-   /**
-    * Listener for a single change in te data at the given query location.
-    *
-    * @param query reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
-    * @return a {@link Maybe} which emits the actual state of the database for the given query. onSuccess will be only call when
-    * the given {@link DataSnapshot} exists onComplete will only called when the data doesn't exist.
-    */
-   @NonNull
-   public static Maybe<DataSnapshot> observeSingleValueEvent(@NonNull final Query query) {
-      return Maybe.create(new MaybeOnSubscribe<DataSnapshot>() {
-         @Override
-         public void subscribe(final MaybeEmitter<DataSnapshot> emitter) throws Exception {
-            query.addListenerForSingleValueEvent(new ValueEventListener() {
-               @Override
-               public void onDataChange(DataSnapshot dataSnapshot) {
-                  if (dataSnapshot.exists()) {
-                     emitter.onSuccess(dataSnapshot);
-                  }
-                  else {
-                    emitter.onComplete();
-                  }
-               }
+    /**
+     * Listener for a single change in te data at the given query location.
+     *
+     * @param query reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
+     * @return a {@link Maybe} which emits the actual state of the database for the given query. onSuccess will be only call when
+     * the given {@link DataSnapshot} exists onComplete will only called when the data doesn't exist.
+     */
+    @NonNull
+    public static Maybe<DataSnapshot> observeSingleValueEvent(@NonNull final Query query) {
+        return Maybe.create(new MaybeOnSubscribe<DataSnapshot>() {
+            @Override
+            public void subscribe(final MaybeEmitter<DataSnapshot> emitter) throws Exception {
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            emitter.onSuccess(dataSnapshot);
+                        } else {
+                            emitter.onComplete();
+                        }
+                    }
 
                     @Override
                     public void onCancelled(DatabaseError error) {
@@ -217,7 +216,7 @@ public class RxFirebaseDatabase {
      */
     @NonNull
     public static Flowable<RxFirebaseChildEvent<DataSnapshot>> observeChildEvent(
-            @NonNull final Query query, @NonNull BackpressureStrategy strategy) {
+        @NonNull final Query query, @NonNull BackpressureStrategy strategy) {
         return Flowable.create(new FlowableOnSubscribe<RxFirebaseChildEvent<DataSnapshot>>() {
             @Override
             public void subscribe(final FlowableEmitter<RxFirebaseChildEvent<DataSnapshot>> emitter) throws Exception {
@@ -226,28 +225,28 @@ public class RxFirebaseDatabase {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                         emitter.onNext(
-                                new RxFirebaseChildEvent<>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
-                                        RxFirebaseChildEvent.EventType.ADDED));
+                            new RxFirebaseChildEvent<>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
+                                RxFirebaseChildEvent.EventType.ADDED));
                     }
 
                     @Override
                     public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
                         emitter.onNext(
-                                new RxFirebaseChildEvent<>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
-                                        RxFirebaseChildEvent.EventType.CHANGED));
+                            new RxFirebaseChildEvent<>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
+                                RxFirebaseChildEvent.EventType.CHANGED));
                     }
 
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
                         emitter.onNext(new RxFirebaseChildEvent<>(dataSnapshot.getKey(), dataSnapshot,
-                                RxFirebaseChildEvent.EventType.REMOVED));
+                            RxFirebaseChildEvent.EventType.REMOVED));
                     }
 
                     @Override
                     public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
                         emitter.onNext(
-                                new RxFirebaseChildEvent<>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
-                                        RxFirebaseChildEvent.EventType.MOVED));
+                            new RxFirebaseChildEvent<>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
+                                RxFirebaseChildEvent.EventType.MOVED));
                     }
 
                     @Override
@@ -277,13 +276,13 @@ public class RxFirebaseDatabase {
     @NonNull
     public static Flowable<DataSnapshot> observeMultipleSingleValueEvent(@NonNull DatabaseReference... whereRefs) {
         return Maybe.merge(Flowable.fromArray(whereRefs)
-                .map(new Function<DatabaseReference, MaybeSource<? extends DataSnapshot>>() {
-                    @Override
-                    public MaybeSource<? extends DataSnapshot> apply(@NonNull DatabaseReference databaseReference) throws
-                            Exception {
-                        return observeSingleValueEvent(databaseReference);
-                    }
-                })
+            .map(new Function<DatabaseReference, MaybeSource<? extends DataSnapshot>>() {
+                @Override
+                public MaybeSource<? extends DataSnapshot> apply(@NonNull DatabaseReference databaseReference) throws
+                    Exception {
+                    return observeSingleValueEvent(databaseReference);
+                }
+            })
         );
     }
 
@@ -359,8 +358,8 @@ public class RxFirebaseDatabase {
      */
     @NonNull
     public static <T> Flowable<RxFirebaseChildEvent<T>> observeChildEvent(
-            @NonNull final Query query, @NonNull final Class<T> clazz,
-            @NonNull BackpressureStrategy strategy) {
+        @NonNull final Query query, @NonNull final Class<T> clazz,
+        @NonNull BackpressureStrategy strategy) {
         return observeChildEvent(query, DataSnapshotMapper.ofChildEvent(clazz), strategy);
     }
 
@@ -390,8 +389,8 @@ public class RxFirebaseDatabase {
     public static <T> Maybe<T> observeSingleValueEvent(@NonNull final Query query,
                                                        @NonNull final Function<? super DataSnapshot, ? extends T> mapper) {
         return observeSingleValueEvent(query)
-                .filter(DATA_SNAPSHOT_EXISTENCE_PREDICATE)
-                .map(mapper);
+            .filter(DATA_SNAPSHOT_EXISTENCE_PREDICATE)
+            .map(mapper);
     }
 
     /**
@@ -404,8 +403,8 @@ public class RxFirebaseDatabase {
      */
     @NonNull
     public static <T> Flowable<RxFirebaseChildEvent<T>> observeChildEvent(
-            @NonNull final Query query, @NonNull final Function<? super RxFirebaseChildEvent<DataSnapshot>,
-            ? extends RxFirebaseChildEvent<T>> mapper, @NonNull BackpressureStrategy strategy) {
+        @NonNull final Query query, @NonNull final Function<? super RxFirebaseChildEvent<DataSnapshot>,
+        ? extends RxFirebaseChildEvent<T>> mapper, @NonNull BackpressureStrategy strategy) {
         return observeChildEvent(query, strategy).map(mapper);
     }
 
@@ -429,7 +428,7 @@ public class RxFirebaseDatabase {
      */
     @NonNull
     public static Flowable<RxFirebaseChildEvent<DataSnapshot>> observeChildEvent(
-            @NonNull final Query query) {
+        @NonNull final Query query) {
         return observeChildEvent(query, BackpressureStrategy.DROP);
     }
 
@@ -468,7 +467,7 @@ public class RxFirebaseDatabase {
      */
     @NonNull
     public static <T> Flowable<RxFirebaseChildEvent<T>> observeChildEvent(
-            @NonNull final Query query, @NonNull final Class<T> clazz) {
+        @NonNull final Query query, @NonNull final Class<T> clazz) {
         return observeChildEvent(query, DataSnapshotMapper.ofChildEvent(clazz), BackpressureStrategy.DROP);
     }
 
@@ -493,8 +492,8 @@ public class RxFirebaseDatabase {
      */
     @NonNull
     public static <T> Flowable<RxFirebaseChildEvent<T>> observeChildEvent(
-            @NonNull final Query query, @NonNull final Function<? super RxFirebaseChildEvent<DataSnapshot>,
-            ? extends RxFirebaseChildEvent<T>> mapper) {
+        @NonNull final Query query, @NonNull final Function<? super RxFirebaseChildEvent<DataSnapshot>,
+        ? extends RxFirebaseChildEvent<T>> mapper) {
         return observeChildEvent(query, BackpressureStrategy.DROP).map(mapper);
     }
 }
