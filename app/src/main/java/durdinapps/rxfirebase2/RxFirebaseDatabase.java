@@ -54,11 +54,7 @@ public class RxFirebaseDatabase {
                 final ValueEventListener valueEventListener = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            emitter.onNext(dataSnapshot);
-                        } else {
-                            emitter.onComplete();
-                        }
+                        emitter.onNext(dataSnapshot);
                     }
 
                     @Override
