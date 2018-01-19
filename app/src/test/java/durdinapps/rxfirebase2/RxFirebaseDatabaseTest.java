@@ -93,18 +93,18 @@ public class RxFirebaseDatabaseTest {
     @Test
     public void testObserveSingleValue() throws InterruptedException {
         TestObserver<ChildData> testObserver = RxFirebaseDatabase
-                .observeSingleValueEvent(databaseReference, ChildData.class)
-                .test();
+            .observeSingleValueEvent(databaseReference, ChildData.class)
+            .test();
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
         argument.getValue().onDataChange(dataSnapshot);
 
         testObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(childData))
-                .assertComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(childData))
+            .assertComplete()
+            .dispose();
     }
 
     @Test
@@ -114,90 +114,90 @@ public class RxFirebaseDatabaseTest {
         when(mockFirebaseDataSnapshotNoData.exists()).thenReturn(false);
 
         TestObserver<ChildData> testObserver = RxFirebaseDatabase
-                .observeSingleValueEvent(databaseReference, ChildData.class)
-                .test();
+            .observeSingleValueEvent(databaseReference, ChildData.class)
+            .test();
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
         argument.getValue().onDataChange(mockFirebaseDataSnapshotNoData);
 
         testObserver.assertValueCount(0)
-                .assertComplete()
-                .dispose();
+            .assertComplete()
+            .dispose();
     }
 
     @Test
     public void testObserveSingleWrongType() throws InterruptedException {
 
         TestObserver<WrongType> testObserver = RxFirebaseDatabase
-                .observeSingleValueEvent(databaseReference, WrongType.class)
-                .test();
+            .observeSingleValueEvent(databaseReference, WrongType.class)
+            .test();
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
         argument.getValue().onDataChange(dataSnapshot);
 
         testObserver.assertError(RuntimeException.class)
-                .assertNotComplete()
-                .dispose();
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void testObserveSingleValue_Disconnected() throws InterruptedException {
 
         TestObserver<ChildData> testObserver = RxFirebaseDatabase
-                .observeSingleValueEvent(databaseReference, ChildData.class)
-                .test();
+            .observeSingleValueEvent(databaseReference, ChildData.class)
+            .test();
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
         argument.getValue().onCancelled(DatabaseError.zzgh(DatabaseError.DISCONNECTED));
 
         testObserver.assertError(RxFirebaseDataException.class)
-                .assertNotComplete()
-                .dispose();
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void testObserveSingleValueEventFailed() throws InterruptedException {
 
         TestObserver<ChildData> testObserver = RxFirebaseDatabase
-                .observeSingleValueEvent(databaseReference, ChildData.class)
-                .test();
+            .observeSingleValueEvent(databaseReference, ChildData.class)
+            .test();
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
         argument.getValue().onCancelled(DatabaseError.zzgh(DatabaseError.OPERATION_FAILED));
 
         testObserver.assertError(RxFirebaseDataException.class)
-                .assertNotComplete()
-                .dispose();
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void testObserveValueEvent() throws InterruptedException {
 
         TestSubscriber<ChildData> testObserver = RxFirebaseDatabase
-                .observeValueEvent(databaseReference, ChildData.class)
-                .test();
+            .observeValueEvent(databaseReference, ChildData.class)
+            .test();
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(databaseReference).addValueEventListener(argument.capture());
         argument.getValue().onDataChange(dataSnapshot);
 
         testObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(childData))
-                .assertNotComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(childData))
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void testMultipleSingleValueEvent() throws InterruptedException {
 
         TestSubscriber<DataSnapshot> testObserver = RxFirebaseDatabase
-                .observeMultipleSingleValueEvent(databaseReference, databaseReferenceTwo)
-                .test();
+            .observeMultipleSingleValueEvent(databaseReference, databaseReferenceTwo)
+            .test();
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
@@ -206,9 +206,9 @@ public class RxFirebaseDatabaseTest {
         argument.getValue().onDataChange(dataSnapshotTwo);
 
         testObserver.assertNoErrors()
-                .assertValueCount(2)
-                .assertComplete()
-                .dispose();
+            .assertValueCount(2)
+            .assertComplete()
+            .dispose();
     }
 
     @Test
@@ -216,163 +216,163 @@ public class RxFirebaseDatabaseTest {
 
 
         TestObserver<ChildData> testObserver = RxFirebaseDatabase
-                .observeSingleValueEvent(databaseReference, ChildData.class)
-                .test();
+            .observeSingleValueEvent(databaseReference, ChildData.class)
+            .test();
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
         argument.getValue().onDataChange(dataSnapshot);
 
         testObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(childData))
-                .assertComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(childData))
+            .assertComplete()
+            .dispose();
     }
 
     @Test
     public void testObserveValueEventList() throws InterruptedException {
 
         TestObserver<ChildData> testObserver = RxFirebaseDatabase
-                .observeSingleValueEvent(databaseReference, ChildData.class)
-                .test();
+            .observeSingleValueEvent(databaseReference, ChildData.class)
+            .test();
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
         argument.getValue().onDataChange(dataSnapshot);
 
         testObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertComplete()
+            .dispose();
     }
 
     @Test
     public void testObserveValuesMap() throws InterruptedException {
         TestObserver<Map<String, ChildData>> testObserver = RxFirebaseDatabase
-                .observeSingleValueEvent(databaseReference)
-                .map(new Function<DataSnapshot, Map<String, ChildData>>() {
-                    @Override
-                    public LinkedHashMap<String, ChildData> apply(DataSnapshot dataSnapshot) throws Exception {
-                        LinkedHashMap<String, ChildData> map = new LinkedHashMap<>();
-                        map.put(dataSnapshot.getKey(), dataSnapshot.getValue(ChildData.class));
-                        return map;
-                    }
-                }).test();
+            .observeSingleValueEvent(databaseReference)
+            .map(new Function<DataSnapshot, Map<String, ChildData>>() {
+                @Override
+                public LinkedHashMap<String, ChildData> apply(DataSnapshot dataSnapshot) throws Exception {
+                    LinkedHashMap<String, ChildData> map = new LinkedHashMap<>();
+                    map.put(dataSnapshot.getKey(), dataSnapshot.getValue(ChildData.class));
+                    return map;
+                }
+            }).test();
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(databaseReference).addListenerForSingleValueEvent(argument.capture());
         argument.getValue().onDataChange(dataSnapshot);
 
         testObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(childDataMap))
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(childDataMap))
+            .dispose();
     }
 
     @Test
     public void testObserveChildEventAdded() throws InterruptedException {
 
         TestSubscriber<RxFirebaseChildEvent<ChildData>> testObserver = RxFirebaseDatabase
-                .observeChildEvent(databaseReference, ChildData.class)
-                .test();
+            .observeChildEvent(databaseReference, ChildData.class)
+            .test();
 
         ArgumentCaptor<ChildEventListener> argument = ArgumentCaptor.forClass(ChildEventListener.class);
         verify(databaseReference).addChildEventListener(argument.capture());
         argument.getValue().onChildAdded(dataSnapshot, PREVIOUS_CHILD_NAME);
 
         testObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(childEventAdded))
-                .assertNotComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(childEventAdded))
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void testObserveChildEventChanged() throws InterruptedException {
 
         TestSubscriber<RxFirebaseChildEvent<ChildData>> testObserver = RxFirebaseDatabase
-                .observeChildEvent(databaseReference, ChildData.class)
-                .test();
+            .observeChildEvent(databaseReference, ChildData.class)
+            .test();
 
         ArgumentCaptor<ChildEventListener> argument = ArgumentCaptor.forClass(ChildEventListener.class);
         verify(databaseReference).addChildEventListener(argument.capture());
         argument.getValue().onChildChanged(dataSnapshot, PREVIOUS_CHILD_NAME);
 
         testObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(childEventChanged))
-                .assertNotComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(childEventChanged))
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void testObserveChildEventRemoved() throws InterruptedException {
 
         TestSubscriber<RxFirebaseChildEvent<ChildData>> testObserver = RxFirebaseDatabase
-                .observeChildEvent(databaseReference, ChildData.class)
-                .test();
+            .observeChildEvent(databaseReference, ChildData.class)
+            .test();
 
         ArgumentCaptor<ChildEventListener> argument = ArgumentCaptor.forClass(ChildEventListener.class);
         verify(databaseReference).addChildEventListener(argument.capture());
         argument.getValue().onChildRemoved(dataSnapshot);
 
         testObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(childEventRemoved))
-                .assertNotComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(childEventRemoved))
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void testObserveChildEventMoved() throws InterruptedException {
 
         TestSubscriber<RxFirebaseChildEvent<ChildData>> testObserver = RxFirebaseDatabase
-                .observeChildEvent(databaseReference, ChildData.class)
-                .test();
+            .observeChildEvent(databaseReference, ChildData.class)
+            .test();
 
         ArgumentCaptor<ChildEventListener> argument = ArgumentCaptor.forClass(ChildEventListener.class);
         verify(databaseReference).addChildEventListener(argument.capture());
         argument.getValue().onChildMoved(dataSnapshot, PREVIOUS_CHILD_NAME);
 
         testObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(childEventMoved))
-                .assertNotComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(childEventMoved))
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void testObserveChildEventCancelled() throws InterruptedException {
 
         TestSubscriber<RxFirebaseChildEvent<ChildData>> testObserver = RxFirebaseDatabase
-                .observeChildEvent(databaseReference, ChildData.class)
-                .test();
+            .observeChildEvent(databaseReference, ChildData.class)
+            .test();
 
         ArgumentCaptor<ChildEventListener> argument = ArgumentCaptor.forClass(ChildEventListener.class);
         verify(databaseReference).addChildEventListener(argument.capture());
         argument.getValue().onCancelled(DatabaseError.zzgh(DatabaseError.DISCONNECTED));
 
         testObserver.assertError(RxFirebaseDataException.class)
-                .assertNotComplete()
-                .dispose();
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void testObserveListWithDataSnapshotMapper() {
         TestSubscriber<List<ChildData>> testObserver = RxFirebaseDatabase
-                .observeValueEvent(query, DataSnapshotMapper.listOf(ChildData.class))
-                .test();
+            .observeValueEvent(query, DataSnapshotMapper.listOf(ChildData.class))
+            .test();
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(query).addValueEventListener(argument.capture());
         argument.getValue().onDataChange(dataSnapshot);
 
         testObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(childDataList))
-                .assertNotComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(childDataList))
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
@@ -382,8 +382,8 @@ public class RxFirebaseDatabaseTest {
         doReturn(childData).when(mapper).apply(eq(dataSnapshot));
 
         TestSubscriber<List<ChildData>> testObserver = RxFirebaseDatabase
-                .observeValueEvent(query, DataSnapshotMapper.listOf(ChildData.class, mapper))
-                .test();
+            .observeValueEvent(query, DataSnapshotMapper.listOf(ChildData.class, mapper))
+            .test();
 
         ArgumentCaptor<ValueEventListener> argument = ArgumentCaptor.forClass(ValueEventListener.class);
         verify(query).addValueEventListener(argument.capture());
@@ -392,10 +392,10 @@ public class RxFirebaseDatabaseTest {
         verify(mapper).apply(dataSnapshot);
 
         testObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(childDataList))
-                .assertNotComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(childDataList))
+            .assertNotComplete()
+            .dispose();
     }
 
     class ChildData {

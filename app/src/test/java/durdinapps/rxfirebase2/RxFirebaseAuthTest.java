@@ -103,8 +103,8 @@ public class RxFirebaseAuthTest {
     public void signInAnonymously() throws InterruptedException {
 
         TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
-                .signInAnonymously(firebaseAuth)
-                .test();
+            .signInAnonymously(firebaseAuth)
+            .test();
 
         testOnSuccessListener.getValue().onSuccess(authResult);
         testOnCompleteListener.getValue().onComplete(authResultTask);
@@ -112,32 +112,32 @@ public class RxFirebaseAuthTest {
         verify(firebaseAuth).signInAnonymously();
 
         authTestObserver
-                .assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(authResult))
-                .assertComplete();
+            .assertNoErrors()
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(authResult))
+            .assertComplete();
     }
 
     @Test
     public void signInAnonymouslyError() throws InterruptedException {
 
         TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
-                .signInAnonymously(firebaseAuth)
-                .test();
+            .signInAnonymously(firebaseAuth)
+            .test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
 
         verify(firebaseAuth).signInAnonymously();
 
         authTestObserver.assertError(EXCEPTION)
-                .assertNotComplete();
+            .assertNotComplete();
     }
 
     @Test
     public void createUserWithEmailAndPassword() throws InterruptedException {
         TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
-                .createUserWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
-                .test();
+            .createUserWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
+            .test();
 
         testOnSuccessListener.getValue().onSuccess(authResult);
         testOnCompleteListener.getValue().onComplete(authResultTask);
@@ -145,34 +145,34 @@ public class RxFirebaseAuthTest {
         verify(firebaseAuth).createUserWithEmailAndPassword(ANY_EMAIL, ANY_PASSWORD);
 
         authTestObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(authResult))
-                .assertComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(authResult))
+            .assertComplete()
+            .dispose();
     }
 
     @Test
     public void createUserWithEmailAndPasswordError() throws InterruptedException {
 
         TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
-                .createUserWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
-                .test();
+            .createUserWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
+            .test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
 
         verify(firebaseAuth).createUserWithEmailAndPassword(ANY_EMAIL, ANY_PASSWORD);
 
         authTestObserver.assertError(EXCEPTION)
-                .assertNotComplete()
-                .dispose();
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void signInWithEmailAndPassword() throws InterruptedException {
 
         TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
-                .signInWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
-                .test();
+            .signInWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
+            .test();
 
         testOnSuccessListener.getValue().onSuccess(authResult);
         testOnCompleteListener.getValue().onComplete(authResultTask);
@@ -180,34 +180,34 @@ public class RxFirebaseAuthTest {
         verify(firebaseAuth).signInWithEmailAndPassword(eq(ANY_EMAIL), eq(ANY_PASSWORD));
 
         authTestObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(authResult))
-                .assertComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(authResult))
+            .assertComplete()
+            .dispose();
     }
 
     @Test
     public void signInWithEmailAndPasswordError() throws InterruptedException {
 
         TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
-                .signInWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
-                .test();
+            .signInWithEmailAndPassword(firebaseAuth, ANY_EMAIL, ANY_PASSWORD)
+            .test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
 
         verify(firebaseAuth).signInWithEmailAndPassword(eq(ANY_EMAIL), eq(ANY_PASSWORD));
 
         authTestObserver.assertError(EXCEPTION)
-                .assertNotComplete()
-                .dispose();
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void signInWithCredential() throws InterruptedException {
 
         TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
-                .signInWithCredential(firebaseAuth, authCredential)
-                .test();
+            .signInWithCredential(firebaseAuth, authCredential)
+            .test();
 
         testOnSuccessListener.getValue().onSuccess(authResult);
         testOnCompleteListener.getValue().onComplete(authResultTask);
@@ -215,34 +215,34 @@ public class RxFirebaseAuthTest {
         verify(firebaseAuth).signInWithCredential(authCredential);
 
         authTestObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(authResult))
-                .assertComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(authResult))
+            .assertComplete()
+            .dispose();
     }
 
     @Test
     public void signInWithCredentialError() throws InterruptedException {
 
         TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
-                .signInWithCredential(firebaseAuth, authCredential)
-                .test();
+            .signInWithCredential(firebaseAuth, authCredential)
+            .test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
 
         verify(firebaseAuth).signInWithCredential(authCredential);
 
         authTestObserver.assertError(EXCEPTION)
-                .assertNotComplete()
-                .dispose();
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void signInWithCustomToken() throws InterruptedException {
 
         TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
-                .signInWithCustomToken(firebaseAuth, ANY_TOKEN)
-                .test();
+            .signInWithCustomToken(firebaseAuth, ANY_TOKEN)
+            .test();
 
         testOnSuccessListener.getValue().onSuccess(authResult);
         testOnCompleteListener.getValue().onComplete(authResultTask);
@@ -250,34 +250,34 @@ public class RxFirebaseAuthTest {
         verify(firebaseAuth).signInWithCustomToken(eq(ANY_TOKEN));
 
         authTestObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(authResult))
-                .assertComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(authResult))
+            .assertComplete()
+            .dispose();
     }
 
     @Test
     public void signInWithCustomTokenError() throws InterruptedException {
 
         TestObserver<AuthResult> authTestObserver = RxFirebaseAuth
-                .signInWithCustomToken(firebaseAuth, ANY_TOKEN)
-                .test();
+            .signInWithCustomToken(firebaseAuth, ANY_TOKEN)
+            .test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
 
         verify(firebaseAuth).signInWithCustomToken(eq(ANY_TOKEN));
 
         authTestObserver.assertError(EXCEPTION)
-                .assertNotComplete()
-                .dispose();
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void fetchProvidersForEmail() throws InterruptedException {
 
         TestObserver<ProviderQueryResult> authTestObserver = RxFirebaseAuth
-                .fetchProvidersForEmail(firebaseAuth, ANY_EMAIL)
-                .test();
+            .fetchProvidersForEmail(firebaseAuth, ANY_EMAIL)
+            .test();
 
         testOnSuccessListener.getValue().onSuccess(providerQueryResult);
         testOnCompleteListener.getValue().onComplete(providerQueryResultTask);
@@ -285,18 +285,18 @@ public class RxFirebaseAuthTest {
         verify(firebaseAuth).fetchProvidersForEmail(eq(ANY_EMAIL));
 
         authTestObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(providerQueryResult))
-                .assertComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(providerQueryResult))
+            .assertComplete()
+            .dispose();
     }
 
     @Test
     public void checkActionCode() throws InterruptedException {
 
         TestObserver<ActionCodeResult> authTestObserver = RxFirebaseAuth
-                .checkActionCode(firebaseAuth, ANY_CODE)
-                .test();
+            .checkActionCode(firebaseAuth, ANY_CODE)
+            .test();
 
         testOnSuccessListener.getValue().onSuccess(actionCodeResult);
         testOnCompleteListener.getValue().onComplete(actionCodeResultTask);
@@ -304,34 +304,34 @@ public class RxFirebaseAuthTest {
         verify(firebaseAuth).checkActionCode(eq(ANY_CODE));
 
         authTestObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(actionCodeResult))
-                .assertComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(actionCodeResult))
+            .assertComplete()
+            .dispose();
     }
 
     @Test
     public void fetchProvidersForEmailError() throws InterruptedException {
 
         TestObserver<ProviderQueryResult> authTestObserver = RxFirebaseAuth
-                .fetchProvidersForEmail(firebaseAuth, ANY_EMAIL)
-                .test();
+            .fetchProvidersForEmail(firebaseAuth, ANY_EMAIL)
+            .test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
 
         verify(firebaseAuth).fetchProvidersForEmail(ANY_EMAIL);
 
         authTestObserver.assertError(EXCEPTION)
-                .assertNotComplete()
-                .dispose();
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void verifyPasswordResetCode() throws InterruptedException {
 
         TestObserver<String> authTestObserver = RxFirebaseAuth
-                .verifyPasswordResetCode(firebaseAuth, ANY_CODE)
-                .test();
+            .verifyPasswordResetCode(firebaseAuth, ANY_CODE)
+            .test();
 
         testOnSuccessListener.getValue().onSuccess(RESULT_CODE);
         testOnCompleteListener.getValue().onComplete(checkCodeResultTask);
@@ -339,91 +339,91 @@ public class RxFirebaseAuthTest {
         verify(firebaseAuth).verifyPasswordResetCode(ANY_CODE);
 
         authTestObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(RESULT_CODE))
-                .assertComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(RESULT_CODE))
+            .assertComplete()
+            .dispose();
     }
 
     @Test
     public void sendPasswordResetEmail() throws InterruptedException {
         TestObserver authTestObserver = RxFirebaseAuth
-                .sendPasswordResetEmail(firebaseAuth, ANY_EMAIL)
-                .test();
+            .sendPasswordResetEmail(firebaseAuth, ANY_EMAIL)
+            .test();
 
         testOnCompleteListener.getValue().onComplete(voidTask);
 
         verify(firebaseAuth).sendPasswordResetEmail(eq(ANY_EMAIL));
 
         authTestObserver.assertNoErrors()
-                .assertValueSet(Collections.singletonList(voidTask))
-                .assertComplete()
-                .dispose();
+            .assertValueSet(Collections.singletonList(voidTask))
+            .assertComplete()
+            .dispose();
     }
 
     @Test
     public void confirmPasswordReset() throws InterruptedException {
         TestObserver authTestObserver = RxFirebaseAuth
-                .confirmPasswordReset(firebaseAuth, ANY_CODE, ANY_PASSWORD)
-                .test();
+            .confirmPasswordReset(firebaseAuth, ANY_CODE, ANY_PASSWORD)
+            .test();
 
         testOnCompleteListener.getValue().onComplete(voidTask);
 
         verify(firebaseAuth).confirmPasswordReset(eq(ANY_CODE), eq(ANY_PASSWORD));
 
         authTestObserver.assertNoErrors()
-                .assertValueSet(Collections.singletonList(voidTask))
-                .assertComplete()
-                .dispose();
+            .assertValueSet(Collections.singletonList(voidTask))
+            .assertComplete()
+            .dispose();
     }
 
     @Test
     public void applyActionCode() throws InterruptedException {
         TestObserver authTestObserver = RxFirebaseAuth
-                .applyActionCode(firebaseAuth, ANY_CODE)
-                .test();
+            .applyActionCode(firebaseAuth, ANY_CODE)
+            .test();
 
         testOnCompleteListener.getValue().onComplete(voidTask);
 
         verify(firebaseAuth).applyActionCode(eq(ANY_CODE));
 
         authTestObserver.assertNoErrors()
-                .assertValueSet(Collections.singletonList(voidTask))
-                .assertComplete()
-                .dispose();
+            .assertValueSet(Collections.singletonList(voidTask))
+            .assertComplete()
+            .dispose();
     }
 
     @Test
     public void sendPasswordResetEmailError() throws InterruptedException {
 
         TestObserver authTestObserver = RxFirebaseAuth
-                .sendPasswordResetEmail(firebaseAuth, ANY_EMAIL)
-                .test();
+            .sendPasswordResetEmail(firebaseAuth, ANY_EMAIL)
+            .test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
 
         verify(firebaseAuth).sendPasswordResetEmail(eq(ANY_EMAIL));
 
         authTestObserver.assertError(EXCEPTION)
-                .assertNotComplete()
-                .dispose();
+            .assertNotComplete()
+            .dispose();
     }
 
     @Test
     public void testObserveAuthState() throws InterruptedException {
 
         TestObserver<FirebaseAuth> authTestObserver = RxFirebaseAuth
-                .observeAuthState(firebaseAuth)
-                .test();
+            .observeAuthState(firebaseAuth)
+            .test();
 
         ArgumentCaptor<FirebaseAuth.AuthStateListener> argument = ArgumentCaptor.forClass(FirebaseAuth.AuthStateListener.class);
         verify(firebaseAuth).addAuthStateListener(argument.capture());
         argument.getValue().onAuthStateChanged(firebaseAuth);
 
         authTestObserver.assertNoErrors()
-                .assertValueCount(1)
-                .assertValueSet(Collections.singletonList(firebaseAuth))
-                .assertNotComplete()
-                .dispose();
+            .assertValueCount(1)
+            .assertValueSet(Collections.singletonList(firebaseAuth))
+            .assertNotComplete()
+            .dispose();
     }
 }

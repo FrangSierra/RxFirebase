@@ -10,7 +10,7 @@ import com.google.firebase.database.DataSnapshot;
 import java.util.ArrayList;
 
 public abstract class RxFirebaseRecyclerAdapter<ViewHolder extends RecyclerView.ViewHolder, T>
-        extends RecyclerView.Adapter<ViewHolder> {
+    extends RecyclerView.Adapter<ViewHolder> {
     private Class<T> itemClass;
     private ArrayList<T> items;
     private ArrayList<String> keys;
