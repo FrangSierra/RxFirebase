@@ -765,4 +765,71 @@ public class RxFirestore {
             .filter(DOCUMENT_EXISTENCE_PREDICATE)
             .map(mapper);
     }
+
+    /**
+     * Starts listening collection referenced by this CollectionReference.
+     *
+     * @param query The given Collection query.
+     */
+    @NonNull
+    public static Flowable<QuerySnapshot> observeQuery(@NonNull final Query query) {
+        return Flowable.create(new FlowableOnSubscribe<QuerySnapshot>() {
+            @Override
+            public void subscribe(final FlowableEmitter<QuerySnapshot> emitter) throws Exception {
+                final ListenerRegistration registration =
+                    query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(QuerySnapshot snapshot, FirebaseFirestoreException e) {
+                            if (e != null && !emitter.isCancelled()) {
+                                emitter.onError(e);
+                            } else {
+                                emitter.onNext(snapshot);
+                            }
+                        }
+                    });
+
+                emitter.setCancellable(new Cancellable() {
+                    @Override
+                    public void cancel() throws Exception {
+                        registration.remove();
+                    }
+                });
+            }
+        }, BackpressureStrategy.DROP);
+    }
+
+    /**
+     * Reads the collection referenced by this DocumentReference
+     *
+     * @param ref The given Collection reference.
+     */
+    @NonNull
+    public static Flowable<QuerySnapshot> observeCollection(
+        @NonNull final CollectionReference ref) {
+        return observeQuery(ref);
+    }
+
+    /**
+     * Starts listening collection referenced by this CollectionReference.
+     *
+     * @param ref The given Collection reference.
+     * @param mapper specific function to map the dispatched events.
+     */
+    @NonNull
+    public static <T> Flowable<T> observeCollection(@NonNull final CollectionReference ref,
+                                                    @NonNull final Function<? super QuerySnapshot, ? extends T> mapper) {
+        return observeQuery(ref, mapper);
+    }
+
+    /**
+     * Starts listening collection referenced by this Query.
+     *
+     * @param query The given Collection query.
+     * @param mapper specific function to map the dispatched events.
+     */
+    @NonNull
+    public static <T> Flowable<T> observeQuery(@NonNull final Query query,
+                                               @NonNull final Function<? super QuerySnapshot, ? extends T> mapper) {
+        return observeQuery(query).map(mapper);
+    }
 }
