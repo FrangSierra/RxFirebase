@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        rx_version = "2.1.8"
+        rx_version = "2.1.10"
         rx_android_version = "2.0.1"
         firebase_version = "11.8.0"
         support_version = "26.1.0"
