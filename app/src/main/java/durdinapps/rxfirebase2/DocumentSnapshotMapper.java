@@ -23,15 +23,15 @@ public abstract class DocumentSnapshotMapper<T, U> implements Function<T, U> {
     }
 
     public static <U> DocumentSnapshotMapper<QuerySnapshot, List<U>> listOf(Class<U> clazz) {
-        return new DocumentSnapshotMapper.TypedListDocumentSnapshotMapper<>(clazz);
+        return new TypedListQuerySnapshotMapper<>(clazz);
     }
 
     public static <U> DocumentSnapshotMapper<QuerySnapshot, List<U>> listOf(Class<U> clazz, Function<DocumentSnapshot, U> mapper) {
-        return new DocumentSnapshotMapper.TypedListDocumentSnapshotMapper<>(clazz, mapper);
+        return new TypedListQuerySnapshotMapper<>(clazz, mapper);
     }
 
-    public static <U> TypedMapDocumentSnapshotMapper<U> mapOf(Class<U> clazz) {
-        return new DocumentSnapshotMapper.TypedMapDocumentSnapshotMapper<>(clazz);
+    public static <U> TypedMapQuerySnapshotMapper<U> mapOf(Class<U> clazz) {
+        return new TypedMapQuerySnapshotMapper<>(clazz);
     }
 
     private static <U> U getDataSnapshotTypedValue(DocumentSnapshot documentSnapshot, Class<U> clazz) {
@@ -52,16 +52,16 @@ public abstract class DocumentSnapshotMapper<T, U> implements Function<T, U> {
         }
     }
 
-    private static class TypedListDocumentSnapshotMapper<U> extends DocumentSnapshotMapper<QuerySnapshot, List<U>> {
+    private static class TypedListQuerySnapshotMapper<U> extends DocumentSnapshotMapper<QuerySnapshot, List<U>> {
 
         private final Class<U> clazz;
         private final Function<DocumentSnapshot, U> mapper;
 
-        TypedListDocumentSnapshotMapper(final Class<U> clazz) {
+        TypedListQuerySnapshotMapper(final Class<U> clazz) {
             this(clazz, null);
         }
 
-        TypedListDocumentSnapshotMapper(final Class<U> clazz, Function<DocumentSnapshot, U> mapper) {
+        TypedListQuerySnapshotMapper(final Class<U> clazz, Function<DocumentSnapshot, U> mapper) {
             this.clazz = clazz;
             this.mapper = mapper;
         }
@@ -79,11 +79,11 @@ public abstract class DocumentSnapshotMapper<T, U> implements Function<T, U> {
     }
 
 
-    private static class TypedMapDocumentSnapshotMapper<U> extends DocumentSnapshotMapper<QuerySnapshot, LinkedHashMap<String, U>> {
+    private static class TypedMapQuerySnapshotMapper<U> extends DocumentSnapshotMapper<QuerySnapshot, LinkedHashMap<String, U>> {
 
         private final Class<U> clazz;
 
-        TypedMapDocumentSnapshotMapper(final Class<U> clazz) {
+        TypedMapQuerySnapshotMapper(final Class<U> clazz) {
             this.clazz = clazz;
         }
 
@@ -100,7 +100,7 @@ public abstract class DocumentSnapshotMapper<T, U> implements Function<T, U> {
     static final Predicate<QuerySnapshot> QUERY_EXISTENCE_PREDICATE = new Predicate<QuerySnapshot>() {
         @Override
         public boolean test(@NonNull QuerySnapshot querySnapshot) throws Exception {
-            return querySnapshot.isEmpty();
+            return !querySnapshot.isEmpty();
         }
     };
 
