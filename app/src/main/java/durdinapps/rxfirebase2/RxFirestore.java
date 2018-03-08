@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryListenOptions;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Transaction;
@@ -474,6 +475,113 @@ public class RxFirestore {
     }
 
     /**
+     * Starts listening to the document referenced by this Query with the given options.
+     *
+     * @param ref      The given Query reference.
+     * @param options  The options to use for this listen.
+     * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
+     */
+    @NonNull
+    public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
+                                                          @NonNull final QueryListenOptions options,
+                                                          @NonNull BackpressureStrategy strategy) {
+        return Flowable.create(new FlowableOnSubscribe<QuerySnapshot>() {
+            @Override
+            public void subscribe(final FlowableEmitter<QuerySnapshot> emitter) throws Exception {
+                final ListenerRegistration registration = ref.addSnapshotListener(options, new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
+                        if (e != null && !emitter.isCancelled()) {
+                            emitter.onError(e);
+                            return;
+                        }
+                        emitter.onNext(querySnapshot);
+                    }
+                });
+                emitter.setCancellable(new Cancellable() {
+                    @Override
+                    public void cancel() throws Exception {
+                        registration.remove();
+                    }
+                });
+            }
+        }, strategy);
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query with the given options.
+     *
+     * @param ref      The given Query reference.
+     * @param executor The executor to use to call the listener.
+     * @param options  The options to use for this listen.
+     * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
+     */
+    @NonNull
+    public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
+                                                          @NonNull final Executor executor,
+                                                          @NonNull final QueryListenOptions options,
+                                                          @NonNull BackpressureStrategy strategy) {
+        return Flowable.create(new FlowableOnSubscribe<QuerySnapshot>() {
+            @Override
+            public void subscribe(final FlowableEmitter<QuerySnapshot> emitter) throws Exception {
+                final ListenerRegistration registration = ref.addSnapshotListener(executor, options, new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(QuerySnapshot documentSnapshot, FirebaseFirestoreException e) {
+                        if (e != null && !emitter.isCancelled()) {
+                            emitter.onError(e);
+                            return;
+                        }
+                        emitter.onNext(documentSnapshot);
+                    }
+                });
+                emitter.setCancellable(new Cancellable() {
+                    @Override
+                    public void cancel() throws Exception {
+                        registration.remove();
+                    }
+                });
+            }
+        }, strategy);
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query using an Activity-scoped listener.
+     * The listener will be automatically removed during onStop().
+     *
+     * @param ref      The given Query reference.
+     * @param activity The activity to scope the listener to.
+     * @param options  The options to use for this listen.
+     * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
+     */
+    @NonNull
+    public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
+                                                          @NonNull final Activity activity,
+                                                          @NonNull final QueryListenOptions options,
+                                                          @NonNull BackpressureStrategy strategy) {
+        return Flowable.create(new FlowableOnSubscribe<QuerySnapshot>() {
+            @Override
+            public void subscribe(final FlowableEmitter<QuerySnapshot> emitter) throws Exception {
+                final ListenerRegistration registration = ref.addSnapshotListener(activity, options, new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(QuerySnapshot documentSnapshot, FirebaseFirestoreException e) {
+                        if (e != null && !emitter.isCancelled()) {
+                            emitter.onError(e);
+                            return;
+                        }
+                        emitter.onNext(documentSnapshot);
+                    }
+                });
+                emitter.setCancellable(new Cancellable() {
+                    @Override
+                    public void cancel() throws Exception {
+                        registration.remove();
+                    }
+                });
+            }
+        }, strategy);
+    }
+
+    /**
      * Starts listening to the document referenced by this DocumentReference.
      *
      * @param ref The given Document reference.
@@ -683,6 +791,219 @@ public class RxFirestore {
                                                      @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
         return observeDocumentRef(ref, activity, options, strategy)
             .filter(DOCUMENT_EXISTENCE_PREDICATE)
+            .map(mapper);
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query.
+     *
+     * @param ref The given Query reference.
+     */
+    @NonNull
+    public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref) {
+        return observeQueryRef(ref, new QueryListenOptions(), BackpressureStrategy.DROP);
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query.
+     *
+     * @param ref      The given Query reference.
+     * @param executor The executor to use to call the listener.
+     */
+    @NonNull
+    public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
+                                                          @NonNull final Executor executor) {
+        return observeQueryRef(ref, executor, new QueryListenOptions(), BackpressureStrategy.DROP);
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query using an Activity-scoped listener.
+     * The listener will be automatically removed during onStop().
+     *
+     * @param ref      The given Query reference.
+     * @param activity The activity to scope the listener to.
+     */
+    @NonNull
+    public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
+                                                          @NonNull final Activity activity) {
+        return observeQueryRef(ref, activity, new QueryListenOptions(), BackpressureStrategy.DROP);
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query.
+     *
+     * @param ref      The given Query reference.
+     * @param executor The executor to use to call the listener.
+     * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
+     */
+    @NonNull
+    public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
+                                                          @NonNull final Executor executor,
+                                                          @NonNull BackpressureStrategy strategy) {
+        return observeQueryRef(ref, executor, new QueryListenOptions(), strategy);
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query using an Activity-scoped listener.
+     * The listener will be automatically removed during onStop().
+     *
+     * @param ref      The given Query reference.
+     * @param activity The activity to scope the listener to.
+     * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
+     */
+    @NonNull
+    public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
+                                                          @NonNull final Activity activity,
+                                                          @NonNull BackpressureStrategy strategy) {
+        return observeQueryRef(ref, activity, new QueryListenOptions(), strategy);
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query with the given options.
+     *
+     * @param ref      The given Query reference.
+     * @param executor The executor to use to call the listener.
+     * @param options  The options to use for this listen.
+     */
+    @NonNull
+    public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
+                                                          @NonNull final Executor executor,
+                                                          @NonNull final QueryListenOptions options) {
+        return observeQueryRef(ref, executor, options, BackpressureStrategy.DROP);
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query using an Activity-scoped listener.
+     * The listener will be automatically removed during onStop().
+     *
+     * @param ref      The given Query reference.
+     * @param activity The activity to scope the listener to.
+     * @param options  The options to use for this listen.
+     */
+    @NonNull
+    public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
+                                                          @NonNull final Activity activity,
+                                                          @NonNull final QueryListenOptions options) {
+        return observeQueryRef(ref, activity, options, BackpressureStrategy.DROP);
+    }
+
+    @NonNull
+    public static <T> Flowable<List<T>> observeQueryRef(@NonNull final Query ref,
+                                                        @NonNull final Class<T> clazz) {
+        return observeQueryRef(ref, DocumentSnapshotMapper.listOf(clazz));
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query.
+     *
+     * @param ref    The given Query reference.
+     * @param mapper specific function to map the dispatched events.
+     */
+    @NonNull
+    public static <T> Flowable<List<T>> observeQueryRef(@NonNull final Query ref,
+                                                        @NonNull final Function<? super QuerySnapshot, ? extends List<T>> mapper) {
+        return observeQueryRef(ref)
+            .filter(QUERY_EXISTENCE_PREDICATE)
+            .map(mapper);
+    }
+
+    @NonNull
+    public static <T> Flowable<List<T>> observeQueryRef(@NonNull final Query ref,
+                                                        @NonNull BackpressureStrategy strategy,
+                                                        @NonNull final Class<T> clazz) {
+        return observeQueryRef(ref, strategy, DocumentSnapshotMapper.listOf(clazz));
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query with the given options.
+     *
+     * @param ref      The given Query reference.
+     * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
+     * @param mapper   specific function to map the dispatched events.
+     */
+    @NonNull
+    public static <T> Flowable<List<T>> observeQueryRef(@NonNull final Query ref,
+                                                        @NonNull BackpressureStrategy strategy,
+                                                        @NonNull final Function<? super QuerySnapshot, ? extends List<T>> mapper) {
+        return observeQueryRef(ref, new QueryListenOptions(), strategy)
+            .filter(QUERY_EXISTENCE_PREDICATE)
+            .map(mapper);
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query with the given options.
+     *
+     * @param ref      The given Query reference.
+     * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
+     * @param executor The executor to use to call the listener.
+     * @param mapper   specific function to map the dispatched events.
+     */
+    @NonNull
+    public static <T> Flowable<T> observeQueryRef(@NonNull final Query ref,
+                                                  @NonNull BackpressureStrategy strategy,
+                                                  @NonNull final Executor executor,
+                                                  @NonNull final Function<? super QuerySnapshot, ? extends T> mapper) {
+        return observeQueryRef(ref, executor, new QueryListenOptions(), strategy)
+            .filter(QUERY_EXISTENCE_PREDICATE)
+            .map(mapper);
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query with the given options.
+     *
+     * @param ref      The given Query reference.
+     * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
+     * @param activity The activity to scope the listener to.
+     * @param mapper   specific function to map the dispatched events.
+     */
+    @NonNull
+    public static <T> Flowable<T> observeQueryRef(@NonNull final Query ref,
+                                                  @NonNull BackpressureStrategy strategy,
+                                                  @NonNull final Activity activity,
+                                                  @NonNull final Function<? super QuerySnapshot, ? extends T> mapper) {
+        return observeQueryRef(ref, activity, new QueryListenOptions(), strategy)
+            .filter(QUERY_EXISTENCE_PREDICATE)
+            .map(mapper);
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query with the given options.
+     *
+     * @param ref      The given Query reference.
+     * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
+     * @param executor The executor to use to call the listener.
+     * @param options  The options to use for this listen.
+     * @param mapper   specific function to map the dispatched events.
+     */
+    @NonNull
+    public static <T> Flowable<T> observeQueryRef(@NonNull final Query ref,
+                                                  @NonNull BackpressureStrategy strategy,
+                                                  @NonNull final Executor executor,
+                                                  @NonNull final QueryListenOptions options,
+                                                  @NonNull final Function<? super QuerySnapshot, ? extends T> mapper) {
+        return observeQueryRef(ref, executor, options, strategy)
+            .filter(QUERY_EXISTENCE_PREDICATE)
+            .map(mapper);
+    }
+
+    /**
+     * Starts listening to the document referenced by this Query using an Activity-scoped listener.
+     * The listener will be automatically removed during onStop().
+     *
+     * @param ref      The given Query reference.
+     * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
+     * @param activity The activity to scope the listener to.
+     * @param options  The options to use for this listen.
+     * @param mapper   specific function to map the dispatched events.
+     */
+    @NonNull
+    public static <T> Flowable<T> observeQueryRef(@NonNull final Query ref,
+                                                  @NonNull BackpressureStrategy strategy,
+                                                  @NonNull final Activity activity,
+                                                  @NonNull final QueryListenOptions options,
+                                                  @NonNull final Function<? super QuerySnapshot, ? extends T> mapper) {
+        return observeQueryRef(ref, activity, options, strategy)
+            .filter(QUERY_EXISTENCE_PREDICATE)
             .map(mapper);
     }
 
