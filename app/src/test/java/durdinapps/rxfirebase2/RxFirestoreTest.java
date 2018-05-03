@@ -5,15 +5,19 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import io.reactivex.observers.TestObserver;
@@ -99,7 +103,12 @@ public class RxFirestoreTest {
         when(emptyDocumentSnapshot.exists()).thenReturn(false); //This snapshots exist
         when(querySnapshot.isEmpty()).thenReturn(false);
         when(querySnapshot.toObjects(ChildDocData.class)).thenReturn(childDataList);
-        when(querySnapshot.iterator()).thenReturn(Collections.singletonList(documentSnapshot).iterator());
+        when(querySnapshot.iterator()).thenAnswer(new Answer<Iterator<DocumentSnapshot>>() {
+            @Override
+            public Iterator<DocumentSnapshot> answer(InvocationOnMock invocation) throws Throwable {
+                return Collections.singletonList(documentSnapshot).iterator();
+            }
+        });
         when(emptyQuerySnapshot.isEmpty()).thenReturn(true);
     }
 
