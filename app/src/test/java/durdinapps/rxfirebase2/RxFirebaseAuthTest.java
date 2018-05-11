@@ -7,7 +7,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.ProviderQueryResult;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.database.DataSnapshot;
 
 import org.junit.Before;
@@ -43,7 +43,7 @@ public class RxFirebaseAuthTest {
     private Task<AuthResult> authResultTask;
 
     @Mock
-    private Task<ProviderQueryResult> providerQueryResultTask;
+    private Task<SignInMethodQueryResult> providerQueryResultTask;
 
     @Mock
     private Task<ActionCodeResult> actionCodeResultTask;
@@ -58,7 +58,7 @@ public class RxFirebaseAuthTest {
     private AuthResult authResult;
 
     @Mock
-    private ProviderQueryResult providerQueryResult;
+    private SignInMethodQueryResult providerQueryResult;
 
     @Mock
     private ActionCodeResult actionCodeResult;
@@ -88,7 +88,7 @@ public class RxFirebaseAuthTest {
         when(firebaseAuth.signInWithCredential(authCredential)).thenReturn(authResultTask);
         when(firebaseAuth.signInWithCustomToken(ANY_TOKEN)).thenReturn(authResultTask);
         when(firebaseAuth.createUserWithEmailAndPassword(ANY_EMAIL, ANY_PASSWORD)).thenReturn(authResultTask);
-        when(firebaseAuth.fetchProvidersForEmail(ANY_EMAIL)).thenReturn(providerQueryResultTask);
+        when(firebaseAuth.fetchSignInMethodsForEmail(ANY_EMAIL)).thenReturn(providerQueryResultTask);
         when(firebaseAuth.checkActionCode(ANY_CODE)).thenReturn(actionCodeResultTask);
         when(firebaseAuth.verifyPasswordResetCode(ANY_CODE)).thenReturn(checkCodeResultTask);
         when(firebaseAuth.sendPasswordResetEmail(ANY_EMAIL)).thenReturn(voidTask);
@@ -275,14 +275,14 @@ public class RxFirebaseAuthTest {
     @Test
     public void fetchProvidersForEmail() throws InterruptedException {
 
-        TestObserver<ProviderQueryResult> authTestObserver = RxFirebaseAuth
-            .fetchProvidersForEmail(firebaseAuth, ANY_EMAIL)
+        TestObserver<SignInMethodQueryResult> authTestObserver = RxFirebaseAuth
+            .fetchSignInMethodsForEmail(firebaseAuth, ANY_EMAIL)
             .test();
 
         testOnSuccessListener.getValue().onSuccess(providerQueryResult);
         testOnCompleteListener.getValue().onComplete(providerQueryResultTask);
 
-        verify(firebaseAuth).fetchProvidersForEmail(eq(ANY_EMAIL));
+        verify(firebaseAuth).fetchSignInMethodsForEmail(eq(ANY_EMAIL));
 
         authTestObserver.assertNoErrors()
             .assertValueCount(1)
@@ -313,13 +313,13 @@ public class RxFirebaseAuthTest {
     @Test
     public void fetchProvidersForEmailError() throws InterruptedException {
 
-        TestObserver<ProviderQueryResult> authTestObserver = RxFirebaseAuth
-            .fetchProvidersForEmail(firebaseAuth, ANY_EMAIL)
+        TestObserver<SignInMethodQueryResult> authTestObserver = RxFirebaseAuth
+            .fetchSignInMethodsForEmail(firebaseAuth, ANY_EMAIL)
             .test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
 
-        verify(firebaseAuth).fetchProvidersForEmail(ANY_EMAIL);
+        verify(firebaseAuth).fetchSignInMethodsForEmail(ANY_EMAIL);
 
         authTestObserver.assertError(EXCEPTION)
             .assertNotComplete()
