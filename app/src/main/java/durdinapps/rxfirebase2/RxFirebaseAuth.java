@@ -6,7 +6,8 @@ import com.google.firebase.auth.ActionCodeResult;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.ProviderQueryResult;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.SignInMethodQueryResult;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
@@ -143,16 +144,16 @@ public class RxFirebaseAuth {
      *
      * @param firebaseAuth firebaseAuth instance.
      * @param email        An email address.
-     * @return a {@link Maybe} which emits an {@link ProviderQueryResult} if success.
+     * @return a {@link Maybe} which emits an {@link SignInMethodQueryResult} if success.
      * @see <a href="https://firebase.google.com/docs/reference/android/com/google/firebase/auth/FirebaseAuth">Firebase Auth API</a>
      */
     @NonNull
-    public static Maybe<ProviderQueryResult> fetchProvidersForEmail(@NonNull final FirebaseAuth firebaseAuth,
-                                                                    @NonNull final String email) {
-        return Maybe.create(new MaybeOnSubscribe<ProviderQueryResult>() {
+    public static Maybe<SignInMethodQueryResult> fetchSignInMethodsForEmail(@NonNull final FirebaseAuth firebaseAuth,
+                                                                            @NonNull final String email) {
+        return Maybe.create(new MaybeOnSubscribe<SignInMethodQueryResult>() {
             @Override
-            public void subscribe(MaybeEmitter<ProviderQueryResult> emitter) throws Exception {
-                RxHandler.assignOnTask(emitter, firebaseAuth.fetchProvidersForEmail(email));
+            public void subscribe(MaybeEmitter<SignInMethodQueryResult> emitter) {
+                RxHandler.assignOnTask(emitter, firebaseAuth.fetchSignInMethodsForEmail(email));
             }
         });
     }
@@ -175,6 +176,26 @@ public class RxFirebaseAuth {
             @Override
             public void subscribe(CompletableEmitter emitter) throws Exception {
                 RxCompletableHandler.assignOnTask(emitter, firebaseAuth.sendPasswordResetEmail(email));
+            }
+        });
+    }
+
+    /**
+     * Asynchronously sets the provided user as currentUser on the current Auth instance. A new instance copy of the user provided will be made and set as currentUser.
+     * <p>
+     * This will trigger firebase.auth.Auth#onAuthStateChanged and firebase.auth.Auth#onIdTokenChanged listeners like other sign in methods.
+     * @param firebaseAuth firebaseAuth instance.
+     * @param newUser The new user to update the current instance.
+     * @return a {@link Completable} which emits when the action is completed.
+     * @see <a href="https://firebase.google.com/docs/reference/android/com/google/firebase/auth/FirebaseAuth">Firebase Auth API</a>
+     */
+    @NonNull
+    public static Completable updateCurrentUser(@NonNull final FirebaseAuth firebaseAuth,
+                                                     @NonNull final FirebaseUser newUser) {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter emitter) throws Exception {
+                RxCompletableHandler.assignOnTask(emitter, firebaseAuth.updateCurrentUser(newUser));
             }
         });
     }
