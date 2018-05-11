@@ -9,7 +9,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentListenOptions;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -17,8 +16,9 @@ import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.MetadataChanges;
+
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryListenOptions;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Transaction;
@@ -371,17 +371,17 @@ public class RxFirestore {
      * Starts listening to the document referenced by this DocumentReference with the given options.
      *
      * @param ref      The given Document reference.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      */
     @NonNull
     public static Flowable<DocumentSnapshot> observeDocumentRef(@NonNull final DocumentReference ref,
-                                                                @NonNull final DocumentListenOptions options,
+                                                                @NonNull final MetadataChanges metadataChanges,
                                                                 @NonNull BackpressureStrategy strategy) {
         return Flowable.create(new FlowableOnSubscribe<DocumentSnapshot>() {
             @Override
             public void subscribe(final FlowableEmitter<DocumentSnapshot> emitter) throws Exception {
-                final ListenerRegistration registration = ref.addSnapshotListener(options, new EventListener<DocumentSnapshot>() {
+                final ListenerRegistration registration = ref.addSnapshotListener(metadataChanges, new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
                         if (e != null && !emitter.isCancelled()) {
@@ -406,18 +406,18 @@ public class RxFirestore {
      *
      * @param ref      The given Document reference.
      * @param executor The executor to use to call the listener.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      */
     @NonNull
     public static Flowable<DocumentSnapshot> observeDocumentRef(@NonNull final DocumentReference ref,
                                                                 @NonNull final Executor executor,
-                                                                @NonNull final DocumentListenOptions options,
+                                                                @NonNull final MetadataChanges metadataChanges,
                                                                 @NonNull BackpressureStrategy strategy) {
         return Flowable.create(new FlowableOnSubscribe<DocumentSnapshot>() {
             @Override
             public void subscribe(final FlowableEmitter<DocumentSnapshot> emitter) throws Exception {
-                final ListenerRegistration registration = ref.addSnapshotListener(executor, options, new EventListener<DocumentSnapshot>() {
+                final ListenerRegistration registration = ref.addSnapshotListener(executor, metadataChanges, new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
                         if (e != null && !emitter.isCancelled()) {
@@ -443,18 +443,18 @@ public class RxFirestore {
      *
      * @param ref      The given Document reference.
      * @param activity The activity to scope the listener to.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      */
     @NonNull
     public static Flowable<DocumentSnapshot> observeDocumentRef(@NonNull final DocumentReference ref,
                                                                 @NonNull final Activity activity,
-                                                                @NonNull final DocumentListenOptions options,
+                                                                @NonNull final MetadataChanges metadataChanges,
                                                                 @NonNull BackpressureStrategy strategy) {
         return Flowable.create(new FlowableOnSubscribe<DocumentSnapshot>() {
             @Override
             public void subscribe(final FlowableEmitter<DocumentSnapshot> emitter) throws Exception {
-                final ListenerRegistration registration = ref.addSnapshotListener(activity, options, new EventListener<DocumentSnapshot>() {
+                final ListenerRegistration registration = ref.addSnapshotListener(activity, metadataChanges, new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
                         if (e != null && !emitter.isCancelled()) {
@@ -478,17 +478,17 @@ public class RxFirestore {
      * Starts listening to the document referenced by this Query with the given options.
      *
      * @param ref      The given Query reference.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      */
     @NonNull
     public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
-                                                          @NonNull final QueryListenOptions options,
+                                                          @NonNull final MetadataChanges metadataChanges,
                                                           @NonNull BackpressureStrategy strategy) {
         return Flowable.create(new FlowableOnSubscribe<QuerySnapshot>() {
             @Override
             public void subscribe(final FlowableEmitter<QuerySnapshot> emitter) throws Exception {
-                final ListenerRegistration registration = ref.addSnapshotListener(options, new EventListener<QuerySnapshot>() {
+                final ListenerRegistration registration = ref.addSnapshotListener(metadataChanges, new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                         if (e != null && !emitter.isCancelled()) {
@@ -513,18 +513,18 @@ public class RxFirestore {
      *
      * @param ref      The given Query reference.
      * @param executor The executor to use to call the listener.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      */
     @NonNull
     public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
                                                           @NonNull final Executor executor,
-                                                          @NonNull final QueryListenOptions options,
+                                                          @NonNull final MetadataChanges metadataChanges,
                                                           @NonNull BackpressureStrategy strategy) {
         return Flowable.create(new FlowableOnSubscribe<QuerySnapshot>() {
             @Override
             public void subscribe(final FlowableEmitter<QuerySnapshot> emitter) throws Exception {
-                final ListenerRegistration registration = ref.addSnapshotListener(executor, options, new EventListener<QuerySnapshot>() {
+                final ListenerRegistration registration = ref.addSnapshotListener(executor, metadataChanges, new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(QuerySnapshot documentSnapshot, FirebaseFirestoreException e) {
                         if (e != null && !emitter.isCancelled()) {
@@ -550,18 +550,18 @@ public class RxFirestore {
      *
      * @param ref      The given Query reference.
      * @param activity The activity to scope the listener to.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      */
     @NonNull
     public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
                                                           @NonNull final Activity activity,
-                                                          @NonNull final QueryListenOptions options,
+                                                          @NonNull final MetadataChanges metadataChanges,
                                                           @NonNull BackpressureStrategy strategy) {
         return Flowable.create(new FlowableOnSubscribe<QuerySnapshot>() {
             @Override
             public void subscribe(final FlowableEmitter<QuerySnapshot> emitter) throws Exception {
-                final ListenerRegistration registration = ref.addSnapshotListener(activity, options, new EventListener<QuerySnapshot>() {
+                final ListenerRegistration registration = ref.addSnapshotListener(activity, metadataChanges, new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(QuerySnapshot documentSnapshot, FirebaseFirestoreException e) {
                         if (e != null && !emitter.isCancelled()) {
@@ -588,7 +588,7 @@ public class RxFirestore {
      */
     @NonNull
     public static Flowable<DocumentSnapshot> observeDocumentRef(@NonNull final DocumentReference ref) {
-        return observeDocumentRef(ref, new DocumentListenOptions(), BackpressureStrategy.DROP);
+        return observeDocumentRef(ref, MetadataChanges.EXCLUDE, BackpressureStrategy.DROP);
     }
 
     /**
@@ -600,7 +600,7 @@ public class RxFirestore {
     @NonNull
     public static Flowable<DocumentSnapshot> observeDocumentRef(@NonNull final DocumentReference ref,
                                                                 @NonNull final Executor executor) {
-        return observeDocumentRef(ref, executor, new DocumentListenOptions(), BackpressureStrategy.DROP);
+        return observeDocumentRef(ref, executor, MetadataChanges.EXCLUDE, BackpressureStrategy.DROP);
     }
 
     /**
@@ -613,7 +613,7 @@ public class RxFirestore {
     @NonNull
     public static Flowable<DocumentSnapshot> observeDocumentRef(@NonNull final DocumentReference ref,
                                                                 @NonNull final Activity activity) {
-        return observeDocumentRef(ref, activity, new DocumentListenOptions(), BackpressureStrategy.DROP);
+        return observeDocumentRef(ref, activity, MetadataChanges.EXCLUDE, BackpressureStrategy.DROP);
     }
 
     /**
@@ -627,7 +627,7 @@ public class RxFirestore {
     public static Flowable<DocumentSnapshot> observeDocumentRef(@NonNull final DocumentReference ref,
                                                                 @NonNull final Executor executor,
                                                                 @NonNull BackpressureStrategy strategy) {
-        return observeDocumentRef(ref, executor, new DocumentListenOptions(), strategy);
+        return observeDocumentRef(ref, executor, MetadataChanges.EXCLUDE, strategy);
     }
 
     /**
@@ -642,7 +642,7 @@ public class RxFirestore {
     public static Flowable<DocumentSnapshot> observeDocumentRef(@NonNull final DocumentReference ref,
                                                                 @NonNull final Activity activity,
                                                                 @NonNull BackpressureStrategy strategy) {
-        return observeDocumentRef(ref, activity, new DocumentListenOptions(), strategy);
+        return observeDocumentRef(ref, activity, MetadataChanges.EXCLUDE, strategy);
     }
 
     /**
@@ -650,13 +650,13 @@ public class RxFirestore {
      *
      * @param ref      The given Document reference.
      * @param executor The executor to use to call the listener.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      */
     @NonNull
     public static Flowable<DocumentSnapshot> observeDocumentRef(@NonNull final DocumentReference ref,
                                                                 @NonNull final Executor executor,
-                                                                @NonNull final DocumentListenOptions options) {
-        return observeDocumentRef(ref, executor, options, BackpressureStrategy.DROP);
+                                                                @NonNull final MetadataChanges metadataChanges) {
+        return observeDocumentRef(ref, executor, metadataChanges, BackpressureStrategy.DROP);
     }
 
     /**
@@ -665,13 +665,13 @@ public class RxFirestore {
      *
      * @param ref      The given Document reference.
      * @param activity The activity to scope the listener to.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      */
     @NonNull
     public static Flowable<DocumentSnapshot> observeDocumentRef(@NonNull final DocumentReference ref,
                                                                 @NonNull final Activity activity,
-                                                                @NonNull final DocumentListenOptions options) {
-        return observeDocumentRef(ref, activity, options, BackpressureStrategy.DROP);
+                                                                @NonNull final MetadataChanges metadataChanges) {
+        return observeDocumentRef(ref, activity, metadataChanges, BackpressureStrategy.DROP);
     }
 
     @NonNull
@@ -712,7 +712,7 @@ public class RxFirestore {
     public static <T> Flowable<T> observeDocumentRef(@NonNull final DocumentReference ref,
                                                      @NonNull BackpressureStrategy strategy,
                                                      @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
-        return observeDocumentRef(ref, new DocumentListenOptions(), strategy)
+        return observeDocumentRef(ref, MetadataChanges.EXCLUDE, strategy)
             .filter(DOCUMENT_EXISTENCE_PREDICATE)
             .map(mapper);
     }
@@ -730,7 +730,7 @@ public class RxFirestore {
                                                      @NonNull BackpressureStrategy strategy,
                                                      @NonNull final Executor executor,
                                                      @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
-        return observeDocumentRef(ref, executor, new DocumentListenOptions(), strategy)
+        return observeDocumentRef(ref, executor, MetadataChanges.EXCLUDE, strategy)
             .filter(DOCUMENT_EXISTENCE_PREDICATE)
             .map(mapper);
     }
@@ -748,7 +748,7 @@ public class RxFirestore {
                                                      @NonNull BackpressureStrategy strategy,
                                                      @NonNull final Activity activity,
                                                      @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
-        return observeDocumentRef(ref, activity, new DocumentListenOptions(), strategy)
+        return observeDocumentRef(ref, activity, MetadataChanges.EXCLUDE, strategy)
             .filter(DOCUMENT_EXISTENCE_PREDICATE)
             .map(mapper);
     }
@@ -759,16 +759,16 @@ public class RxFirestore {
      * @param ref      The given Document reference.
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      * @param executor The executor to use to call the listener.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      * @param mapper   specific function to map the dispatched events.
      */
     @NonNull
     public static <T> Flowable<T> observeDocumentRef(@NonNull final DocumentReference ref,
                                                      @NonNull BackpressureStrategy strategy,
                                                      @NonNull final Executor executor,
-                                                     @NonNull final DocumentListenOptions options,
+                                                     @NonNull final MetadataChanges metadataChanges,
                                                      @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
-        return observeDocumentRef(ref, executor, options, strategy)
+        return observeDocumentRef(ref, executor, metadataChanges, strategy)
             .filter(DOCUMENT_EXISTENCE_PREDICATE)
             .map(mapper);
     }
@@ -780,16 +780,16 @@ public class RxFirestore {
      * @param ref      The given Document reference.
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      * @param activity The activity to scope the listener to.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      * @param mapper   specific function to map the dispatched events.
      */
     @NonNull
     public static <T> Flowable<T> observeDocumentRef(@NonNull final DocumentReference ref,
                                                      @NonNull BackpressureStrategy strategy,
                                                      @NonNull final Activity activity,
-                                                     @NonNull final DocumentListenOptions options,
+                                                     @NonNull final MetadataChanges metadataChanges,
                                                      @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
-        return observeDocumentRef(ref, activity, options, strategy)
+        return observeDocumentRef(ref, activity, metadataChanges, strategy)
             .filter(DOCUMENT_EXISTENCE_PREDICATE)
             .map(mapper);
     }
@@ -801,7 +801,7 @@ public class RxFirestore {
      */
     @NonNull
     public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref) {
-        return observeQueryRef(ref, new QueryListenOptions(), BackpressureStrategy.DROP);
+        return observeQueryRef(ref, MetadataChanges.EXCLUDE, BackpressureStrategy.DROP);
     }
 
     /**
@@ -813,7 +813,7 @@ public class RxFirestore {
     @NonNull
     public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
                                                           @NonNull final Executor executor) {
-        return observeQueryRef(ref, executor, new QueryListenOptions(), BackpressureStrategy.DROP);
+        return observeQueryRef(ref, executor, MetadataChanges.EXCLUDE, BackpressureStrategy.DROP);
     }
 
     /**
@@ -826,7 +826,7 @@ public class RxFirestore {
     @NonNull
     public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
                                                           @NonNull final Activity activity) {
-        return observeQueryRef(ref, activity, new QueryListenOptions(), BackpressureStrategy.DROP);
+        return observeQueryRef(ref, activity, MetadataChanges.EXCLUDE, BackpressureStrategy.DROP);
     }
 
     /**
@@ -840,7 +840,7 @@ public class RxFirestore {
     public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
                                                           @NonNull final Executor executor,
                                                           @NonNull BackpressureStrategy strategy) {
-        return observeQueryRef(ref, executor, new QueryListenOptions(), strategy);
+        return observeQueryRef(ref, executor, MetadataChanges.EXCLUDE, strategy);
     }
 
     /**
@@ -855,7 +855,7 @@ public class RxFirestore {
     public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
                                                           @NonNull final Activity activity,
                                                           @NonNull BackpressureStrategy strategy) {
-        return observeQueryRef(ref, activity, new QueryListenOptions(), strategy);
+        return observeQueryRef(ref, activity, MetadataChanges.EXCLUDE, strategy);
     }
 
     /**
@@ -863,13 +863,13 @@ public class RxFirestore {
      *
      * @param ref      The given Query reference.
      * @param executor The executor to use to call the listener.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      */
     @NonNull
     public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
                                                           @NonNull final Executor executor,
-                                                          @NonNull final QueryListenOptions options) {
-        return observeQueryRef(ref, executor, options, BackpressureStrategy.DROP);
+                                                          @NonNull final MetadataChanges metadataChanges) {
+        return observeQueryRef(ref, executor, metadataChanges, BackpressureStrategy.DROP);
     }
 
     /**
@@ -878,13 +878,13 @@ public class RxFirestore {
      *
      * @param ref      The given Query reference.
      * @param activity The activity to scope the listener to.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      */
     @NonNull
     public static Flowable<QuerySnapshot> observeQueryRef(@NonNull final Query ref,
                                                           @NonNull final Activity activity,
-                                                          @NonNull final QueryListenOptions options) {
-        return observeQueryRef(ref, activity, options, BackpressureStrategy.DROP);
+                                                          @NonNull final MetadataChanges metadataChanges) {
+        return observeQueryRef(ref, activity, metadataChanges, BackpressureStrategy.DROP);
     }
 
     @NonNull
@@ -925,7 +925,7 @@ public class RxFirestore {
     public static <T> Flowable<List<T>> observeQueryRef(@NonNull final Query ref,
                                                         @NonNull BackpressureStrategy strategy,
                                                         @NonNull final Function<? super QuerySnapshot, ? extends List<T>> mapper) {
-        return observeQueryRef(ref, new QueryListenOptions(), strategy)
+        return observeQueryRef(ref, MetadataChanges.EXCLUDE, strategy)
             .filter(QUERY_EXISTENCE_PREDICATE)
             .map(mapper);
     }
@@ -943,7 +943,7 @@ public class RxFirestore {
                                                   @NonNull BackpressureStrategy strategy,
                                                   @NonNull final Executor executor,
                                                   @NonNull final Function<? super QuerySnapshot, ? extends T> mapper) {
-        return observeQueryRef(ref, executor, new QueryListenOptions(), strategy)
+        return observeQueryRef(ref, executor, MetadataChanges.EXCLUDE, strategy)
             .filter(QUERY_EXISTENCE_PREDICATE)
             .map(mapper);
     }
@@ -961,7 +961,7 @@ public class RxFirestore {
                                                   @NonNull BackpressureStrategy strategy,
                                                   @NonNull final Activity activity,
                                                   @NonNull final Function<? super QuerySnapshot, ? extends T> mapper) {
-        return observeQueryRef(ref, activity, new QueryListenOptions(), strategy)
+        return observeQueryRef(ref, activity, MetadataChanges.EXCLUDE, strategy)
             .filter(QUERY_EXISTENCE_PREDICATE)
             .map(mapper);
     }
@@ -972,16 +972,16 @@ public class RxFirestore {
      * @param ref      The given Query reference.
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      * @param executor The executor to use to call the listener.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      * @param mapper   specific function to map the dispatched events.
      */
     @NonNull
     public static <T> Flowable<T> observeQueryRef(@NonNull final Query ref,
                                                   @NonNull BackpressureStrategy strategy,
                                                   @NonNull final Executor executor,
-                                                  @NonNull final QueryListenOptions options,
+                                                  @NonNull final MetadataChanges metadataChanges,
                                                   @NonNull final Function<? super QuerySnapshot, ? extends T> mapper) {
-        return observeQueryRef(ref, executor, options, strategy)
+        return observeQueryRef(ref, executor, metadataChanges, strategy)
             .filter(QUERY_EXISTENCE_PREDICATE)
             .map(mapper);
     }
@@ -993,16 +993,16 @@ public class RxFirestore {
      * @param ref      The given Query reference.
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      * @param activity The activity to scope the listener to.
-     * @param options  The options to use for this listen.
+     * @param metadataChanges  Listen for metadata changes
      * @param mapper   specific function to map the dispatched events.
      */
     @NonNull
     public static <T> Flowable<T> observeQueryRef(@NonNull final Query ref,
                                                   @NonNull BackpressureStrategy strategy,
                                                   @NonNull final Activity activity,
-                                                  @NonNull final QueryListenOptions options,
+                                                  @NonNull final MetadataChanges metadataChanges,
                                                   @NonNull final Function<? super QuerySnapshot, ? extends T> mapper) {
-        return observeQueryRef(ref, activity, options, strategy)
+        return observeQueryRef(ref, activity, metadataChanges, strategy)
             .filter(QUERY_EXISTENCE_PREDICATE)
             .map(mapper);
     }
