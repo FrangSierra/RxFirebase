@@ -17,13 +17,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.MetadataChanges;
-
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -43,6 +43,7 @@ import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Cancellable;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 import static durdinapps.rxfirebase2.DocumentSnapshotMapper.DOCUMENT_EXISTENCE_PREDICATE;
 import static durdinapps.rxfirebase2.DocumentSnapshotMapper.QUERY_EXISTENCE_PREDICATE;
@@ -81,6 +82,37 @@ public class RxFirestore {
             }
         });
     }
+
+   /**
+    * Execute all of the writes in this write batch as a single atomic unit.
+    *
+    * @param batches A list of write batched, used to perform multiple writes as a single atomic unit.
+    */
+   public static Completable atomicOperation(@NonNull final List<WriteBatch> batches) {
+      if (batches.isEmpty()) throw new IllegalArgumentException("Batches list can't be empty");
+
+      List<Completable> batchTasks = new ArrayList<>();
+      for (final WriteBatch batch : batches) {
+         batchTasks.add(Completable.create(new CompletableOnSubscribe() {
+            @Override public void subscribe(final CompletableEmitter emitter) {
+               batch.commit()
+                  .addOnSuccessListener(new OnSuccessListener<Void>() {
+                     @Override public void onSuccess(Void aVoid) {
+                        emitter.onComplete();
+                     }
+                  })
+                  .addOnFailureListener(new OnFailureListener() {
+                     @Override public void onFailure(@NonNull Exception e) {
+                        if (!emitter.isDisposed())
+                           emitter.onError(e);
+                     }
+                  });
+            }
+         }).subscribeOn(Schedulers.io()));
+      }
+
+      return Completable.merge(batchTasks);
+   }
 
     /**
      * Adds a new document to this collection with the specified data, assigning it a document ID automatically.
