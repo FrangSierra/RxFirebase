@@ -10,7 +10,7 @@ This repository started as a personal usage of [Nick Moskalenko](https://github.
 
 ```groovy
 dependencies {
-  compile 'com.github.frangsierra:rx2firebase:1.4.0'
+  compile 'com.github.frangsierra:rx2firebase:1.5.0'
 }
 ```
 ```
@@ -22,47 +22,13 @@ allprojects {
 	}
 ```
 
-
-## RxJava and RxJava 2.0
-One of the differences between RxJava and RxJava 2 is that RxJava 2 no longer accepts `null` values. Throwing a `NullPointerException` immediately. For this reason some of the methods of the library as been redesigned to return a `Completable` instead of a `Observable<Void>`. For example:
-
-#### RxFirebase 
-
-```java
-@NonNull
-public static Observable<Void> updateEmail(@NonNull final FirebaseUser firebaseUser, @NonNull final String email) {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
-            @Override
-            public void call(final Subscriber<? super Void> subscriber) {
-                RxHandler.assignOnTask(subscriber, firebaseUser.updateEmail(email));
-            }
-        });
-}
-```
-
-#### Rx2Firebase
-
-```java
-@NonNull
-public static Completable updateEmail(@NonNull final FirebaseUser firebaseUser, @NonNull final String email) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(CompletableEmitter emitter) throws Exception {
-                RxCompletableHandler.assignOnTask(emitter, firebaseUser.updateEmail(email));
-            }
-        });
-}
-```
-
-`RxCompletableHandler` manages the CompletableEmitters in the same way that `RxHandler` manages the `Subscriber`.
-You can check all the differences between RxJava and RxJava 2.0 in the next [Link](https://github.com/ReactiveX/RxJava/wiki/What's-different-in-2.0)
-
 ## Usage
 Library provides set of static methods of classes:
 * RxFirebaseAuth
 * RxFirebaseUser
 * RxFirebaseDatabase
 * RxFirebaseStorage
+* RxFirestore
 
 It also provides a custom implementation of `FirebaseRecyclerAdapter`:
 * RxFirebaseRecyclerAdapter
@@ -78,6 +44,35 @@ Sign in with email and password:
                     Log.i("Rxfirebase2", "User logged " + logged);
                 });
 ```
+### Firestore:
+
+You can observe values providing the Class of expected data like:
+
+```java
+    DocumentReference document = firestore.collection("Users").document("UserId_1");
+    RxFirestore.observeDocumentRef(document)
+       .subscribe( userDoc -> {
+          //Do something with my snapshot
+       });
+```
+
+Get and set documents on a specific reference:
+
+```java
+    DocumentReference document = firestore.collection("Users").document("UserId_1");
+    User mynewUser = User("newUserName", 24);
+    //Set data
+    RxFirestore.setDocument(document, myNewUser).subscribe();
+    //Get and map data
+    RxFirestore.getDocument(document)
+       .map( userDoc -> { return userDoc.toObject(User.class); })
+       .subscribe( casterUser -> {
+          //Do something with my already casted user
+       });
+```
+
+Finally you can do sync operations on the database using `runTransaction` and if you wanna realize multiple
+operations at once, you should use the method `atomicOperation` which wraps the `WriteBatch` related methods from Firestore.
 
 ### Database:
 
@@ -249,6 +244,40 @@ public class PostAdapter extends RxFirebaseRecyclerAdapter<PostViewHolder, Post>
 
 }
 ```
+
+## RxJava and RxJava 2.0
+One of the differences between RxJava and RxJava 2 is that RxJava 2 no longer accepts `null` values. Throwing a `NullPointerException` immediately. For this reason some of the methods of the library as been redesigned to return a `Completable` instead of a `Observable<Void>`. For example:
+
+#### RxFirebase
+
+```java
+@NonNull
+public static Observable<Void> updateEmail(@NonNull final FirebaseUser firebaseUser, @NonNull final String email) {
+        return Observable.create(new Observable.OnSubscribe<Void>() {
+            @Override
+            public void call(final Subscriber<? super Void> subscriber) {
+                RxHandler.assignOnTask(subscriber, firebaseUser.updateEmail(email));
+            }
+        });
+}
+```
+
+#### Rx2Firebase
+
+```java
+@NonNull
+public static Completable updateEmail(@NonNull final FirebaseUser firebaseUser, @NonNull final String email) {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter emitter) throws Exception {
+                RxCompletableHandler.assignOnTask(emitter, firebaseUser.updateEmail(email));
+            }
+        });
+}
+```
+
+`RxCompletableHandler` manages the CompletableEmitters in the same way that `RxHandler` manages the `Subscriber`.
+You can check all the differences between RxJava and RxJava 2.0 in the next [Link](https://github.com/ReactiveX/RxJava/wiki/What's-different-in-2.0)
 
 ## License
 
