@@ -303,3 +303,8 @@ You can check all the differences between RxJava and RxJava 2.0 in the next [Lin
 	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR 
 	OTHER DEALINGS IN THE SOFTWARE.
 
+
+## Support on Beerpay
+Hey dude! Help me out for a couple of :beers:!
+
+[![Beerpay](https://beerpay.io/FrangSierra/RxFirebase/badge.svg?style=beer-square)](https://beerpay.io/FrangSierra/RxFirebase)  [![Beerpay](https://beerpay.io/FrangSierra/RxFirebase/make-wish.svg?style=flat-square)](https://beerpay.io/FrangSierra/RxFirebase?focus=wish)
