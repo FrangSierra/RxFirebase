@@ -2,10 +2,10 @@ buildscript {
     ext {
         rx_version = "2.1.10"
         rx_android_version = "2.0.2"
-        firebase_auth_version='15.1.0'
-        firebase_database_version='15.0.0'
-        firebase_storage_version='15.0.2'
-        firebase_firestore_version='16.0.0'
+        firebase_auth_version='16.0.2'
+        firebase_database_version='16.0.1'
+        firebase_storage_version='16.0.1'
+        firebase_firestore_version='17.0.2'
         support_version = "27.0.2"
     }
 }
@@ -20,7 +20,7 @@ android {
     }
 
     compileSdkVersion 27
-    buildToolsVersion "26.0.3"
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         minSdkVersion 14
@@ -32,18 +32,23 @@ android {
 }
 
 repositories{
-    maven { url 'https://maven.google.com' }
+    google()
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    provided "com.google.firebase:firebase-auth:$firebase_auth_version"
-    provided "com.google.firebase:firebase-database:$firebase_database_version"
-    provided "com.google.firebase:firebase-storage:$firebase_storage_version"
-    provided "com.google.firebase:firebase-firestore:$firebase_firestore_version"
-    provided "com.android.support:recyclerview-v7:$support_version"
-    compile "io.reactivex.rxjava2:rxjava:$rx_version"
-    compile "io.reactivex.rxjava2:rxandroid:$rx_android_version"
-    testCompile 'junit:junit:4.12'
-    testCompile "org.mockito:mockito-core:2.2.16"
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly "com.google.firebase:firebase-auth:$firebase_auth_version"
+    compileOnly "com.google.firebase:firebase-database:$firebase_database_version"
+    compileOnly "com.google.firebase:firebase-storage:$firebase_storage_version"
+    compileOnly "com.google.firebase:firebase-firestore:$firebase_firestore_version"
+    compileOnly "com.android.support:recyclerview-v7:$support_version"
+    implementation "io.reactivex.rxjava2:rxjava:$rx_version"
+    implementation "io.reactivex.rxjava2:rxandroid:$rx_android_version"
+
+    testImplementation "com.google.firebase:firebase-auth:$firebase_auth_version"
+    testImplementation "com.google.firebase:firebase-database:$firebase_database_version"
+    testImplementation "com.google.firebase:firebase-storage:$firebase_storage_version"
+    testImplementation "com.google.firebase:firebase-firestore:$firebase_firestore_version"
+    testImplementation 'junit:junit:4.12'
+    testImplementation "org.mockito:mockito-core:2.2.16"
 }
