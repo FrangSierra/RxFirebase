@@ -193,6 +193,7 @@ public class RxFirestore {
             public void subscribe(CompletableEmitter emitter) {
                 try {
                     ref.add(data);
+                    emitter.onComplete();
                 } catch (Exception e) {
                     emitter.onError(e);
                 }
@@ -218,6 +219,7 @@ public class RxFirestore {
             public void subscribe(CompletableEmitter emitter) {
                 try {
                     ref.add(pojo);
+                    emitter.onComplete();
                 } catch (Exception e) {
                     emitter.onError(e);
                 }
