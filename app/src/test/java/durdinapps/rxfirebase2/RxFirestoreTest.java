@@ -4,8 +4,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.junit.Before;
@@ -17,12 +17,16 @@ import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import io.reactivex.observers.TestObserver;
 
+import static durdinapps.rxfirebase2.RxTestUtil.eventSnapshotListener;
+import static durdinapps.rxfirebase2.RxTestUtil.setupOfflineTask;
 import static durdinapps.rxfirebase2.RxTestUtil.setupTask;
+import static durdinapps.rxfirebase2.RxTestUtil.testOnCompleteListener;
 import static durdinapps.rxfirebase2.RxTestUtil.testOnSuccessListener;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -72,12 +76,20 @@ public class RxFirestoreTest {
     private Task<DocumentSnapshot> documentSnapshotTask;
 
     @Mock
+    private Task<DocumentReference> documentRefTask;
+
+    @Mock
     private Task<QuerySnapshot> queryResultTask;
 
     @Mock
     private Task<QuerySnapshot> emptyQueryResultTask;
 
+    @Mock
+    private ListenerRegistration registration;
 
+
+    private HashMap<String, Object> updateMap = new HashMap<>();
+    private ChildDocData setData = new ChildDocData();
     private ChildDocData childData = new ChildDocData();
     private List<ChildDocData> childDataList = new ArrayList<>();
 
@@ -90,6 +102,7 @@ public class RxFirestoreTest {
         setupTask(queryResultTask);
         setupTask(emptyQueryResultTask);
         setupTask(mockVoidTask);
+        setupOfflineTask(documentReference, registration);
 
         when(documentReference.get()).thenReturn(documentSnapshotTask);
         when(emptyDocumentReference.get()).thenReturn(emptyDocumentSnapshotTask);
@@ -97,6 +110,9 @@ public class RxFirestoreTest {
         when(emptyCollectionReference.get()).thenReturn(emptyQueryResultTask);
         when(queryReference.get()).thenReturn(queryResultTask);
         when(emptyQueryReference.get()).thenReturn(emptyQueryResultTask);
+        when(documentReference.delete()).thenReturn(mockVoidTask);
+        when(documentReference.update(updateMap)).thenReturn(mockVoidTask);
+        when(collectionReference.add(setData)).thenReturn(documentRefTask);
         when(documentSnapshot.toObject(ChildDocData.class)).thenReturn(childData);
         when(documentSnapshot.exists()).thenReturn(true); //This snapshots exist
         when(documentSnapshot.exists()).thenReturn(true); //This snapshots exist
@@ -307,6 +323,85 @@ public class RxFirestoreTest {
             .assertValueCount(0)
             .assertComplete();
     }
+
+    @Test
+    public void testSetDocumentOffline() throws InterruptedException {
+        TestObserver<Void> testObserver = RxFirestore
+            .setDocumentOffline(documentReference, setData)
+            .test();
+
+        eventSnapshotListener.getValue().onEvent(documentSnapshot, null);
+
+        verify(documentReference).set(setData);
+
+        testObserver
+            .assertNoErrors()
+            .assertComplete();
+    }
+
+    @Test
+    public void testUpdateDocument() throws InterruptedException {
+
+        TestObserver<Void> storageTestObserver =
+            RxFirestore.updateDocument(documentReference, updateMap)
+                .test();
+
+        testOnCompleteListener.getValue().onComplete(mockVoidTask);
+
+        verify(documentReference).update(updateMap);
+
+        storageTestObserver.assertNoErrors()
+            .assertComplete()
+            .dispose();
+    }
+
+
+    @Test
+    public void testUpdateDocumentOffline() throws InterruptedException {
+        TestObserver<Void> testObserver = RxFirestore
+            .updateDocumentOffline(documentReference, updateMap)
+            .test();
+
+        eventSnapshotListener.getValue().onEvent(documentSnapshot, null);
+
+        verify(documentReference).update(updateMap);
+
+        testObserver
+            .assertNoErrors()
+            .assertComplete();
+    }
+
+
+    @Test
+    public void testDeleteDocument() throws InterruptedException {
+
+        TestObserver<Void> storageTestObserver =
+            RxFirestore.deleteDocument(documentReference)
+                .test();
+
+        testOnCompleteListener.getValue().onComplete(mockVoidTask);
+
+        verify(documentReference).delete();
+
+        storageTestObserver.assertNoErrors()
+            .assertComplete()
+            .dispose();
+    }
+
+    @Test
+    public void testDeleteDocumentOffline() throws InterruptedException {
+        TestObserver<Void> testObserver = RxFirestore
+            .deleteDocumentOffline(documentReference)
+            .test();
+
+        eventSnapshotListener.getValue().onEvent(documentSnapshot, null);
+        verify(documentReference).delete();
+
+        testObserver
+            .assertNoErrors()
+            .assertComplete();
+    }
+
 
     class ChildDocData {
         int id;
