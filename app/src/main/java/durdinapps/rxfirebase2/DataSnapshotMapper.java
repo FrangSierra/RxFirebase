@@ -44,10 +44,16 @@ public abstract class DataSnapshotMapper<T, U> implements Function<T, U> {
     }
 
     private static <U> U getDataSnapshotTypedValue(DataSnapshot dataSnapshot, Class<U> clazz) {
-        U value = dataSnapshot.getValue(clazz);
+        U value;
+        try {
+            value = dataSnapshot.getValue(clazz);
+        } catch (Exception ex) {
+            throw Exceptions.propagate(new RxFirebaseDataCastException(
+                "There was a problem trying to cast " + dataSnapshot.toString() + " to " + clazz.getSimpleName(), ex));
+        }
         if (value == null) {
             throw Exceptions.propagate(new RxFirebaseDataCastException(
-                "unable to cast firebase data response to " + clazz.getSimpleName()));
+                "The value after cast  " + dataSnapshot.toString() + " to " + clazz.getSimpleName() + "is null."));
         }
         return value;
     }

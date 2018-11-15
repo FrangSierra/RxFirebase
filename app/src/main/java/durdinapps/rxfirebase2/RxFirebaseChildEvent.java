@@ -3,7 +3,6 @@ package durdinapps.rxfirebase2;
 
 import android.support.annotation.NonNull;
 
-
 public class RxFirebaseChildEvent<T> {
 
     private EventType eventType;
