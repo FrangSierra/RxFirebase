@@ -59,7 +59,7 @@ public class RxFirebaseUserTest {
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         setupTask(getTokenResultTask);
@@ -78,7 +78,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void getToken() throws Exception {
+    public void getToken() {
         TestObserver<GetTokenResult> userTestObserver = RxFirebaseUser.getIdToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
 
         testOnSuccessListener.getValue().onSuccess(getTokenResult);
@@ -93,7 +93,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void getTokenError() throws Exception {
+    public void getTokenError() {
         TestObserver<GetTokenResult> userTestObserver = RxFirebaseUser.getIdToken(firebaseUser, ANY_FORCE_REFRESH_VALUE).test();
         testOnFailureListener.getValue().onFailure(EXCEPTION);
         verify(firebaseUser).getIdToken(ANY_FORCE_REFRESH_VALUE);
@@ -103,7 +103,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void updateEmail() throws Exception {
+    public void updateEmail() {
         TestObserver<Void> userTestObserver = RxFirebaseUser.updateEmail(firebaseUser, ANY_EMAIL).test();
 
         testOnCompleteListener.getValue().onComplete(voidTask);
@@ -117,7 +117,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void updateEmailError() throws Exception {
+    public void updateEmailError() {
         TestObserver<Void> userTestObserver = RxFirebaseUser.updateEmail(firebaseUser, ANY_EMAIL).test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
@@ -130,7 +130,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void updatePassword() throws Exception {
+    public void updatePassword() {
         TestObserver<Void> userTestObserver = RxFirebaseUser.updatePassword(firebaseUser, ANY_PASSWORD).test();
         testOnCompleteListener.getValue().onComplete(voidTask);
         testOnSuccessListener.getValue().onSuccess(voidTask);
@@ -142,7 +142,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void updatePasswordError() throws Exception {
+    public void updatePasswordError() {
         TestObserver<Void> userTestObserver = RxFirebaseUser.updatePassword(firebaseUser, ANY_PASSWORD).test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
@@ -155,7 +155,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void updateProfile() throws Exception {
+    public void updateProfile() {
         TestObserver<Void> userTestObserver = RxFirebaseUser.updateProfile(firebaseUser, userProfileChangeRequest).test();
 
         testOnCompleteListener.getValue().onComplete(voidTask);
@@ -169,7 +169,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void updateProfileError() throws Exception {
+    public void updateProfileError() {
         TestObserver<Void> userTestObserver = RxFirebaseUser.updateProfile(firebaseUser, userProfileChangeRequest).test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
@@ -182,7 +182,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void delete() throws Exception {
+    public void delete() {
         TestObserver<Void> userTestObserver = RxFirebaseUser.delete(firebaseUser).test();
 
         testOnCompleteListener.getValue().onComplete(voidTask);
@@ -195,7 +195,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void deleteError() throws Exception {
+    public void deleteError() {
         TestObserver<Void> userTestObserver = RxFirebaseUser.delete(firebaseUser).test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
@@ -206,7 +206,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void reAuthenticate() throws Exception {
+    public void reAuthenticate() {
         TestObserver<Void> userTestObserver = RxFirebaseUser.reAuthenticate(firebaseUser, authCredential).test();
 
         testOnCompleteListener.getValue().onComplete(voidTask);
@@ -220,7 +220,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void reauthenticateAndRetrieveData() throws Exception {
+    public void reauthenticateAndRetrieveData() {
         TestObserver<AuthResult> userTestObserver = RxFirebaseUser.reauthenticateAndRetrieveData(firebaseUser, authCredential).test();
 
         testOnSuccessListener.getValue().onSuccess(authResult);
@@ -237,7 +237,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void reAuthenticateError() throws Exception {
+    public void reAuthenticateError() {
         TestObserver<Void> userTestObserver = RxFirebaseUser.reAuthenticate(firebaseUser, authCredential).test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);
@@ -249,7 +249,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void linkWithCredentials() throws Exception {
+    public void linkWithCredentials() {
         TestObserver<AuthResult> userTestObserver = RxFirebaseUser.linkWithCredential(firebaseUser, authCredential).test();
 
         testOnSuccessListener.getValue().onSuccess(authResult);
@@ -266,7 +266,7 @@ public class RxFirebaseUserTest {
     }
 
     @Test
-    public void linkWithCredentialsError() throws Exception {
+    public void linkWithCredentialsError() {
         TestObserver<AuthResult> userTestObserver = RxFirebaseUser.linkWithCredential(firebaseUser, authCredential).test();
 
         testOnFailureListener.getValue().onFailure(EXCEPTION);

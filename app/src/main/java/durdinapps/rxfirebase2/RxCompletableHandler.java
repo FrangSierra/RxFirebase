@@ -9,9 +9,6 @@ import com.google.android.gms.tasks.Task;
 
 import io.reactivex.CompletableEmitter;
 
-/**
- * Created by Durdin on 13/11/2016.
- */
 
 public class RxCompletableHandler implements OnFailureListener, OnSuccessListener, OnCompleteListener {
 
