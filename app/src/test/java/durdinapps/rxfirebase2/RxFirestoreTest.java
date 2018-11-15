@@ -31,10 +31,6 @@ import static durdinapps.rxfirebase2.RxTestUtil.testOnSuccessListener;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by frangsierra on 8/3/18.
- */
-
 public class RxFirestoreTest {
 
     @Mock
@@ -121,7 +117,7 @@ public class RxFirestoreTest {
         when(querySnapshot.toObjects(ChildDocData.class)).thenReturn(childDataList);
         when(querySnapshot.iterator()).thenAnswer(new Answer<Iterator<DocumentSnapshot>>() {
             @Override
-            public Iterator<DocumentSnapshot> answer(InvocationOnMock invocation) throws Throwable {
+            public Iterator<DocumentSnapshot> answer(InvocationOnMock invocation) {
                 return Collections.singletonList(documentSnapshot).iterator();
             }
         });
@@ -129,7 +125,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testGetDocument() throws InterruptedException {
+    public void testGetDocument() {
         TestObserver<DocumentSnapshot> testObserver = RxFirestore
             .getDocument(documentReference)
             .test();
@@ -146,7 +142,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testGetEmptyDocument() throws InterruptedException {
+    public void testGetEmptyDocument() {
         TestObserver<DocumentSnapshot> testObserver = RxFirestore
             .getDocument(emptyDocumentReference)
             .test();
@@ -162,7 +158,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testMappedGetDocument() throws InterruptedException {
+    public void testMappedGetDocument() {
         TestObserver<ChildDocData> testObserver = RxFirestore
             .getDocument(documentReference, ChildDocData.class)
             .test();
@@ -179,7 +175,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testMappedGetEmptyDocument() throws InterruptedException {
+    public void testMappedGetEmptyDocument() {
         TestObserver<ChildDocData> testObserver = RxFirestore
             .getDocument(emptyDocumentReference, ChildDocData.class)
             .test();
@@ -195,7 +191,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testGetCollection() throws InterruptedException {
+    public void testGetCollection() {
         TestObserver<QuerySnapshot> testObserver = RxFirestore
             .getCollection(collectionReference)
             .test();
@@ -212,7 +208,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testGetEmptyCollection() throws InterruptedException {
+    public void testGetEmptyCollection() {
         TestObserver<QuerySnapshot> testObserver = RxFirestore
             .getCollection(emptyCollectionReference)
             .test();
@@ -228,7 +224,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testMappedGetCollection() throws InterruptedException {
+    public void testMappedGetCollection() {
         TestObserver<List<ChildDocData>> testObserver = RxFirestore
             .getCollection(collectionReference, ChildDocData.class)
             .test();
@@ -244,7 +240,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testMappedGetEmptyCollection() throws InterruptedException {
+    public void testMappedGetEmptyCollection() {
         TestObserver<List<ChildDocData>> testObserver = RxFirestore
             .getCollection(emptyCollectionReference, ChildDocData.class)
             .test();
@@ -260,7 +256,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testGetQuery() throws InterruptedException {
+    public void testGetQuery() {
         TestObserver<QuerySnapshot> testObserver = RxFirestore
             .getCollection(queryReference)
             .test();
@@ -277,7 +273,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testGetEmptyQuery() throws InterruptedException {
+    public void testGetEmptyQuery() {
         TestObserver<QuerySnapshot> testObserver = RxFirestore
             .getCollection(emptyQueryReference)
             .test();
@@ -293,7 +289,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testMappedGetQuery() throws InterruptedException {
+    public void testMappedGetQuery() {
         TestObserver<List<ChildDocData>> testObserver = RxFirestore
             .getCollection(queryReference, ChildDocData.class)
             .test();
@@ -309,7 +305,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testMappedGetEmptyQuery() throws InterruptedException {
+    public void testMappedGetEmptyQuery() {
         TestObserver<List<ChildDocData>> testObserver = RxFirestore
             .getCollection(emptyQueryReference, ChildDocData.class)
             .test();
@@ -325,7 +321,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testSetDocumentOffline() throws InterruptedException {
+    public void testSetDocumentOffline() {
         TestObserver<Void> testObserver = RxFirestore
             .setDocumentOffline(documentReference, setData)
             .test();
@@ -340,7 +336,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testUpdateDocument() throws InterruptedException {
+    public void testUpdateDocument() {
 
         TestObserver<Void> storageTestObserver =
             RxFirestore.updateDocument(documentReference, updateMap)
@@ -357,7 +353,7 @@ public class RxFirestoreTest {
 
 
     @Test
-    public void testUpdateDocumentOffline() throws InterruptedException {
+    public void testUpdateDocumentOffline() {
         TestObserver<Void> testObserver = RxFirestore
             .updateDocumentOffline(documentReference, updateMap)
             .test();
@@ -373,7 +369,7 @@ public class RxFirestoreTest {
 
 
     @Test
-    public void testDeleteDocument() throws InterruptedException {
+    public void testDeleteDocument() {
 
         TestObserver<Void> storageTestObserver =
             RxFirestore.deleteDocument(documentReference)
@@ -389,7 +385,7 @@ public class RxFirestoreTest {
     }
 
     @Test
-    public void testDeleteDocumentOffline() throws InterruptedException {
+    public void testDeleteDocumentOffline() {
         TestObserver<Void> testObserver = RxFirestore
             .deleteDocumentOffline(documentReference)
             .test();
