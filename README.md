@@ -10,7 +10,7 @@ This repository started as a personal usage of [Nick Moskalenko](https://github.
 
 ```groovy
 dependencies {
-  compile 'com.github.FrangSierra:RxFirebase:1.5.0'
+  compile 'com.github.FrangSierra:RxFirebase:1.5.6'
 }
 ```
 ```
