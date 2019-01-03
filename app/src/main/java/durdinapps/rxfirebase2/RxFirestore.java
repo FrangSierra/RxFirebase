@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import durdinapps.rxfirebase2.exceptions.RxFirebaseNullDataException;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
@@ -133,6 +134,10 @@ public class RxFirestore {
                 ref.add(data).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
+                        if (task.getResult() == null) {
+                            emitter.onError(new RxFirebaseNullDataException(task.getException()));
+                            return;
+                        }
                         emitter.onSuccess(task.getResult());
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -162,6 +167,10 @@ public class RxFirestore {
                 ref.add(pojo).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
+                        if (task.getResult() == null){
+                            emitter.onError(new RxFirebaseNullDataException(task.getException()));
+                            return;
+                        }
                         emitter.onSuccess(task.getResult());
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -187,7 +196,7 @@ public class RxFirestore {
      */
     @NonNull
     public static Completable addDocumentOffline(@NonNull final CollectionReference ref,
-                                                  @NonNull final Map<String, Object> data) {
+                                                 @NonNull final Map<String, Object> data) {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(CompletableEmitter emitter) {
@@ -213,7 +222,7 @@ public class RxFirestore {
      */
     @NonNull
     public static Completable addDocumentOffline(@NonNull final CollectionReference ref,
-                                                  @NonNull final Object pojo) {
+                                                 @NonNull final Object pojo) {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(CompletableEmitter emitter) {
@@ -1233,8 +1242,8 @@ public class RxFirestore {
      */
     @NonNull
     public static <T> Maybe<List<T>> getCollection(CollectionReference ref,
-                                                    DocumentSnapshotMapper<QuerySnapshot,
-                                                        List<T>> mapper) {
+                                                   DocumentSnapshotMapper<QuerySnapshot,
+                                                       List<T>> mapper) {
         return getCollection(ref)
             .filter(QUERY_EXISTENCE_PREDICATE)
             .map(mapper);
@@ -1260,8 +1269,8 @@ public class RxFirestore {
      */
     @NonNull
     public static <T> Maybe<List<T>> getCollection(@NonNull Query query,
-                                                    @NonNull DocumentSnapshotMapper<QuerySnapshot,
-                                                        List<T>> mapper) {
+                                                   @NonNull DocumentSnapshotMapper<QuerySnapshot,
+                                                       List<T>> mapper) {
         return getCollection(query)
             .filter(QUERY_EXISTENCE_PREDICATE)
             .map(mapper);
