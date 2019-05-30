@@ -31,9 +31,6 @@ Library provides set of static methods of classes:
 * RxFirestore
 * RxFirebaseFunctions
 
-It also provides a custom implementation of `FirebaseRecyclerAdapter`:
-* RxFirebaseRecyclerAdapter
-
 ### Authentication:
 Sign in with email and password:
 
