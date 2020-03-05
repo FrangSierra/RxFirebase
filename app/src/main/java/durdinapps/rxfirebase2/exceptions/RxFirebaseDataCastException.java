@@ -1,6 +1,6 @@
 package durdinapps.rxfirebase2.exceptions;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class RxFirebaseDataCastException extends Exception {
 
