@@ -1,7 +1,5 @@
 package durdinapps.rxfirebase2;
 
-import android.support.annotation.NonNull;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.GenericTypeIndicator;
 
@@ -9,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import durdinapps.rxfirebase2.exceptions.RxFirebaseDataCastException;
 import io.reactivex.exceptions.Exceptions;
 import io.reactivex.functions.Function;

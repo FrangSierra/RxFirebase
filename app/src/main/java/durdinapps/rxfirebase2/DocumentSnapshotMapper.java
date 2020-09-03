@@ -1,8 +1,6 @@
 package durdinapps.rxfirebase2;
 
 
-import android.support.annotation.NonNull;
-
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -10,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 
