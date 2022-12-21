@@ -77,6 +77,8 @@ public class RxFirebaseAuthTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
+        Plugins.allowMainThreadQueries = true;
+
         setupTask(authResultTask);
         setupTask(providerQueryResultTask);
         setupTask(actionCodeResultTask);
