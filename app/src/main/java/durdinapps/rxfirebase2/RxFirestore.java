@@ -1,6 +1,5 @@
 package durdinapps.rxfirebase2;
 
-
 import android.app.Activity;
 import androidx.annotation.NonNull;
 
@@ -48,6 +47,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static durdinapps.rxfirebase2.DocumentSnapshotMapper.DOCUMENT_EXISTENCE_PREDICATE;
 import static durdinapps.rxfirebase2.DocumentSnapshotMapper.QUERY_EXISTENCE_PREDICATE;
+import static durdinapps.rxfirebase2.Plugins.throwExceptionIfMainThread;
 
 public class RxFirestore {
 
@@ -242,15 +242,16 @@ public class RxFirestore {
      *
      * @param ref             The given Document reference.
      * @param updateFieldsMap A map of field / value pairs to update. Fields can contain dots to reference nested fields within the document.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Completable updateDocument(@NonNull final DocumentReference ref,
                                              @NonNull final Map<String, Object> updateFieldsMap) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(CompletableEmitter emitter) {
-                RxCompletableHandler.assignOnTask(emitter, ref.update(updateFieldsMap));
-            }
+        return Completable.create(emitter -> {
+            throwExceptionIfMainThread();
+
+            RxCompletableHandler.assignOnTask(emitter, ref.update(updateFieldsMap));
         });
     }
 
@@ -469,14 +470,15 @@ public class RxFirestore {
      * Deletes the document referred to by this DocumentReference.
      *
      * @param ref The given Document reference.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Completable deleteDocument(@NonNull final DocumentReference ref) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(CompletableEmitter emitter) {
-                RxCompletableHandler.assignOnTask(emitter, ref.delete());
-            }
+        return Completable.create(emitter -> {
+            throwExceptionIfMainThread();
+
+            RxCompletableHandler.assignOnTask(emitter, ref.delete());
         });
     }
 
@@ -495,29 +497,24 @@ public class RxFirestore {
      * Reads the document referenced by this DocumentReference.
      *
      * @param ref The given Document reference.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Maybe<DocumentSnapshot> getDocument(@NonNull final DocumentReference ref) {
-        return Maybe.create(new MaybeOnSubscribe<DocumentSnapshot>() {
-            @Override
-            public void subscribe(final MaybeEmitter<DocumentSnapshot> emitter) {
-                ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            emitter.onSuccess(documentSnapshot);
-                        } else {
-                            emitter.onComplete();
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (!emitter.isDisposed())
-                            emitter.onError(e);
-                    }
-                });
-            }
+        return Maybe.create(emitter -> {
+            throwExceptionIfMainThread();
+
+            ref.get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    emitter.onSuccess(documentSnapshot);
+                } else {
+                    emitter.onComplete();
+                }
+            }).addOnFailureListener(e -> {
+                if (!emitter.isDisposed())
+                    emitter.onError(e);
+            });
         });
     }
 
@@ -525,29 +522,24 @@ public class RxFirestore {
      * Reads the collection referenced by this DocumentReference
      *
      * @param ref The given Collection reference.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Maybe<QuerySnapshot> getCollection(@NonNull final CollectionReference ref) {
-        return Maybe.create(new MaybeOnSubscribe<QuerySnapshot>() {
-            @Override
-            public void subscribe(final MaybeEmitter<QuerySnapshot> emitter) throws Exception {
-                ref.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot documentSnapshots) {
-                        if (documentSnapshots.isEmpty()) {
-                            emitter.onComplete();
-                        } else {
-                            emitter.onSuccess(documentSnapshots);
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (!emitter.isDisposed())
-                            emitter.onError(e);
-                    }
-                });
-            }
+        return Maybe.create(emitter -> {
+            throwExceptionIfMainThread();
+
+            ref.get().addOnSuccessListener(documentSnapshots -> {
+                if (documentSnapshots.isEmpty()) {
+                    emitter.onComplete();
+                } else {
+                    emitter.onSuccess(documentSnapshots);
+                }
+            }).addOnFailureListener(e -> {
+                if (!emitter.isDisposed())
+                    emitter.onError(e);
+            });
         });
     }
 
@@ -556,29 +548,24 @@ public class RxFirestore {
      * Reads the collection referenced by this DocumentReference
      *
      * @param query The given Collection query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Maybe<QuerySnapshot> getCollection(@NonNull final Query query) {
-        return Maybe.create(new MaybeOnSubscribe<QuerySnapshot>() {
-            @Override
-            public void subscribe(final MaybeEmitter<QuerySnapshot> emitter) {
-                query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot documentSnapshots) {
-                        if (documentSnapshots.isEmpty()) {
-                            emitter.onComplete();
-                        } else {
-                            emitter.onSuccess(documentSnapshots);
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (!emitter.isDisposed())
-                            emitter.onError(e);
-                    }
-                });
-            }
+        return Maybe.create(emitter -> {
+            throwExceptionIfMainThread();
+
+            query.get().addOnSuccessListener(documentSnapshots -> {
+                if (documentSnapshots.isEmpty()) {
+                    emitter.onComplete();
+                } else {
+                    emitter.onSuccess(documentSnapshots);
+                }
+            }).addOnFailureListener(e -> {
+                if (!emitter.isDisposed())
+                    emitter.onError(e);
+            });
         });
     }
 
@@ -588,31 +575,24 @@ public class RxFirestore {
      * @param ref             The given Document reference.
      * @param metadataChanges Listen for metadata changes
      * @param strategy        {@link BackpressureStrategy} associated to this {@link Flowable}
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Flowable<DocumentSnapshot> observeDocumentRef(@NonNull final DocumentReference ref,
                                                                 @NonNull final MetadataChanges metadataChanges,
                                                                 @NonNull BackpressureStrategy strategy) {
-        return Flowable.create(new FlowableOnSubscribe<DocumentSnapshot>() {
-            @Override
-            public void subscribe(final FlowableEmitter<DocumentSnapshot> emitter) throws Exception {
-                final ListenerRegistration registration = ref.addSnapshotListener(metadataChanges, new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-                        if (e != null && !emitter.isCancelled()) {
-                            emitter.onError(e);
-                            return;
-                        }
-                        emitter.onNext(documentSnapshot);
-                    }
-                });
-                emitter.setCancellable(new Cancellable() {
-                    @Override
-                    public void cancel() throws Exception {
-                        registration.remove();
-                    }
-                });
-            }
+        return Flowable.create(emitter -> {
+            throwExceptionIfMainThread();
+
+            final ListenerRegistration registration = ref.addSnapshotListener(metadataChanges, (documentSnapshot, e) -> {
+                if (e != null && !emitter.isCancelled()) {
+                    emitter.onError(e);
+                    return;
+                }
+                emitter.onNext(documentSnapshot);
+            });
+            emitter.setCancellable(registration::remove);
         }, strategy);
     }
 
@@ -1227,6 +1207,8 @@ public class RxFirestore {
      *
      * @param ref   The given Collection reference.
      * @param clazz class type for the {@link DocumentSnapshot} items.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static <T> Maybe<List<T>> getCollection(@NonNull final CollectionReference ref,
@@ -1239,11 +1221,13 @@ public class RxFirestore {
      *
      * @param ref    The given Collection reference.
      * @param mapper specific function to map the dispatched events.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
-    public static <T> Maybe<List<T>> getCollection(CollectionReference ref,
-                                                    DocumentSnapshotMapper<QuerySnapshot,
-                                                        List<T>> mapper) {
+    public static <T> Maybe<List<T>> getCollection(
+            CollectionReference ref,
+            DocumentSnapshotMapper<QuerySnapshot, List<T>> mapper) {
         return getCollection(ref)
             .filter(QUERY_EXISTENCE_PREDICATE)
             .map(mapper);
@@ -1266,11 +1250,13 @@ public class RxFirestore {
      *
      * @param query  The given Collection query.
      * @param mapper specific function to map the dispatched events.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
-    public static <T> Maybe<List<T>> getCollection(@NonNull Query query,
-                                                    @NonNull DocumentSnapshotMapper<QuerySnapshot,
-                                                        List<T>> mapper) {
+    public static <T> Maybe<List<T>> getCollection(
+            @NonNull Query query,
+            @NonNull DocumentSnapshotMapper<QuerySnapshot, List<T>> mapper) {
         return getCollection(query)
             .filter(QUERY_EXISTENCE_PREDICATE)
             .map(mapper);
@@ -1281,6 +1267,8 @@ public class RxFirestore {
      *
      * @param ref   The given Document reference.
      * @param clazz class type for the {@link DocumentSnapshot} items.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static <T> Maybe<T> getDocument(@NonNull final DocumentReference ref,
@@ -1293,10 +1281,13 @@ public class RxFirestore {
      *
      * @param ref    The given Document reference.
      * @param mapper specific function to map the dispatched events.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
-    public static <T> Maybe<T> getDocument(@NonNull final DocumentReference ref,
-                                           @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
+    public static <T> Maybe<T> getDocument(
+            @NonNull final DocumentReference ref,
+            @NonNull final Function<? super DocumentSnapshot, ? extends T> mapper) {
         return getDocument(ref)
             .filter(DOCUMENT_EXISTENCE_PREDICATE)
             .map(mapper);
