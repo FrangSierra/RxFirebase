@@ -9,8 +9,7 @@ import com.google.android.gms.tasks.Task;
 
 import io.reactivex.CompletableEmitter;
 
-
-public class RxCompletableHandler implements OnFailureListener, OnSuccessListener, OnCompleteListener {
+public class RxCompletableHandler<T> implements OnFailureListener, OnSuccessListener<T>, OnCompleteListener<T> {
 
     private final CompletableEmitter completableEmitter;
 
@@ -19,7 +18,7 @@ public class RxCompletableHandler implements OnFailureListener, OnSuccessListene
     }
 
     public static <T> void assignOnTask(CompletableEmitter completableEmitter, Task<T> task) {
-        RxCompletableHandler handler = new RxCompletableHandler(completableEmitter);
+        RxCompletableHandler<T> handler = new RxCompletableHandler<>(completableEmitter);
         task.addOnFailureListener(handler);
         task.addOnSuccessListener(handler);
         try {
@@ -28,7 +27,6 @@ public class RxCompletableHandler implements OnFailureListener, OnSuccessListene
             // ignore
         }
     }
-
 
     @Override
     public void onFailure(@NonNull Exception e) {

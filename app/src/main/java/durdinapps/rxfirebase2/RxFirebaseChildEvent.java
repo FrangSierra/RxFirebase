@@ -1,13 +1,12 @@
 package durdinapps.rxfirebase2;
 
-
 import androidx.annotation.NonNull;
 
 public class RxFirebaseChildEvent<T> {
 
-    private EventType eventType;
-    private String key;
-    private T value;
+    private final EventType eventType;
+    private final String key;
+    private final T value;
     private String previousChildName;
 
     public RxFirebaseChildEvent(@NonNull String key,

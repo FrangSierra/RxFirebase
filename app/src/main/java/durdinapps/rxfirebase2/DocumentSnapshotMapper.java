@@ -1,6 +1,5 @@
 package durdinapps.rxfirebase2;
 
-
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -8,7 +7,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import androidx.annotation.NonNull;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 
@@ -96,17 +94,7 @@ public abstract class DocumentSnapshotMapper<T, U> implements Function<T, U> {
         }
     }
 
-    static final Predicate<QuerySnapshot> QUERY_EXISTENCE_PREDICATE = new Predicate<QuerySnapshot>() {
-        @Override
-        public boolean test(@NonNull QuerySnapshot querySnapshot) throws Exception {
-            return !querySnapshot.isEmpty();
-        }
-    };
+    static final Predicate<QuerySnapshot> QUERY_EXISTENCE_PREDICATE = querySnapshot -> !querySnapshot.isEmpty();
 
-    static final Predicate<DocumentSnapshot> DOCUMENT_EXISTENCE_PREDICATE = new Predicate<DocumentSnapshot>() {
-        @Override
-        public boolean test(@NonNull DocumentSnapshot documentSnapshot) throws Exception {
-            return documentSnapshot.exists();
-        }
-    };
+    static final Predicate<DocumentSnapshot> DOCUMENT_EXISTENCE_PREDICATE = DocumentSnapshot::exists;
 }

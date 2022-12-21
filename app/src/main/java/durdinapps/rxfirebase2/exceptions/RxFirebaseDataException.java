@@ -16,6 +16,7 @@ public class RxFirebaseDataException extends Exception {
         return error;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "RxFirebaseDataException{" +
