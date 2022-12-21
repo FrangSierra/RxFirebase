@@ -262,6 +262,8 @@ public class RxFirestore {
      *
      * @param ref             The given Document reference.
      * @param updateFieldsMap A map of field / value pairs to update. Fields can contain dots to reference nested fields within the document.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Completable updateDocumentOffline(@NonNull final DocumentReference ref,
@@ -301,6 +303,8 @@ public class RxFirestore {
      * @param field               The first field to update. Fields can contain dots to reference a nested field within the document.
      * @param value               The first value
      * @param moreFieldsAndValues Additional field/value pairs.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Completable updateDocumentOffline(@NonNull final DocumentReference ref,
@@ -343,6 +347,8 @@ public class RxFirestore {
      * @param fieldPath           The first field to update. Fields can contain dots to reference a nested field within the document.
      * @param value               The first value
      * @param moreFieldsAndValues Additional field/value pairs.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Completable updateDocumentOffline(@NonNull final DocumentReference ref,
@@ -400,6 +406,8 @@ public class RxFirestore {
      * @param ref     The given Document reference.
      * @param pojo    The POJO that will be used to populate the document contents.
      * @param options An object to configure the set behavior.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Completable setDocumentOffline(@NonNull final DocumentReference ref,
@@ -429,6 +437,8 @@ public class RxFirestore {
      *
      * @param ref          The given Document reference.
      * @param setFieldsMap A map of the fields and values for the document.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Completable setDocumentOffline(@NonNull final DocumentReference ref,
@@ -457,6 +467,8 @@ public class RxFirestore {
      *
      * @param ref  The given Document reference.
      * @param pojo The POJO that will be used to populate the document contents.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Completable setDocumentOffline(@NonNull final DocumentReference ref,
@@ -485,6 +497,8 @@ public class RxFirestore {
      * Deletes the document referred to by this DocumentReference.
      *
      * @param ref The given Document reference.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Completable deleteDocumentOffline(@NonNull final DocumentReference ref) {
