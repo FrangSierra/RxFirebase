@@ -1,5 +1,8 @@
 package durdinapps.rxfirebase2;
 
+import static durdinapps.rxfirebase2.DataSnapshotMapper.DATA_SNAPSHOT_EXISTENCE_PREDICATE;
+import static durdinapps.rxfirebase2.Plugins.throwExceptionIfMainThread;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -15,6 +18,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 import durdinapps.rxfirebase2.exceptions.RxFirebaseDataException;
 import io.reactivex.BackpressureStrategy;
@@ -22,19 +26,9 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
-import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.Maybe;
-import io.reactivex.MaybeEmitter;
-import io.reactivex.MaybeOnSubscribe;
-import io.reactivex.MaybeSource;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Cancellable;
 import io.reactivex.functions.Function;
-
-import static durdinapps.rxfirebase2.DataSnapshotMapper.DATA_SNAPSHOT_EXISTENCE_PREDICATE;
 
 public class RxFirebaseDatabase {
 
@@ -44,33 +38,30 @@ public class RxFirebaseDatabase {
      * @param query    reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      * @return a {@link Flowable} which emits when a value of the database change in the given query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Flowable<DataSnapshot> observeValueEvent(@NonNull final Query query,
                                                            @NonNull BackpressureStrategy strategy) {
-        return Flowable.create(new FlowableOnSubscribe<DataSnapshot>() {
-            @Override
-            public void subscribe(final FlowableEmitter<DataSnapshot> emitter) throws Exception {
-                final ValueEventListener valueEventListener = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        emitter.onNext(dataSnapshot);
-                    }
+        return Flowable.create(emitter -> {
+            throwExceptionIfMainThread();
 
-                    @Override
-                    public void onCancelled(final DatabaseError error) {
-                        if (!emitter.isCancelled())
-                            emitter.onError(new RxFirebaseDataException(error));
-                    }
-                };
-                emitter.setCancellable(new Cancellable() {
-                    @Override
-                    public void cancel() throws Exception {
-                        query.removeEventListener(valueEventListener);
-                    }
-                });
-                query.addValueEventListener(valueEventListener);
-            }
+            final ValueEventListener valueEventListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    emitter.onNext(dataSnapshot);
+                }
+
+                @Override
+                public void onCancelled(@NonNull final DatabaseError error) {
+                    if (!emitter.isCancelled())
+                        emitter.onError(new RxFirebaseDataException(error));
+                }
+            };
+
+            emitter.setCancellable(() -> query.removeEventListener(valueEventListener));
+            query.addValueEventListener(valueEventListener);
         }, strategy);
     }
 
@@ -80,29 +71,30 @@ public class RxFirebaseDatabase {
      * @param query reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
      * @return a {@link Maybe} which emits the actual state of the database for the given query. onSuccess will be only call when
      * the given {@link DataSnapshot} exists onComplete will only called when the data doesn't exist.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Maybe<DataSnapshot> observeSingleValueEvent(@NonNull final Query query) {
-        return Maybe.create(new MaybeOnSubscribe<DataSnapshot>() {
-            @Override
-            public void subscribe(final MaybeEmitter<DataSnapshot> emitter) throws Exception {
-                query.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            emitter.onSuccess(dataSnapshot);
-                        } else {
-                            emitter.onComplete();
-                        }
-                    }
+        return Maybe.create(emitter -> {
+            throwExceptionIfMainThread();
 
-                    @Override
-                    public void onCancelled(DatabaseError error) {
-                        if (!emitter.isDisposed())
-                            emitter.onError(new RxFirebaseDataException(error));
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        emitter.onSuccess(dataSnapshot);
+                    } else {
+                        emitter.onComplete();
                     }
-                });
-            }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    if (!emitter.isDisposed())
+                        emitter.onError(new RxFirebaseDataException(error));
+                }
+            });
         });
     }
 
@@ -113,36 +105,38 @@ public class RxFirebaseDatabase {
      * @param fireLocalEvents  boolean which allow to receive calls of your transaction in your local device.
      * @param transactionValue value of the transaction.
      * @return a {@link Single} which emits the final {@link DataSnapshot} value if the transaction success.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Single<DataSnapshot> runTransaction(@NonNull final DatabaseReference ref,
-                                                      @NonNull final boolean fireLocalEvents,
-                                                      @NonNull final long transactionValue) {
-        return Single.create(new SingleOnSubscribe<DataSnapshot>() {
-            @Override
-            public void subscribe(final SingleEmitter emitter) throws Exception {
-                ref.runTransaction(new Transaction.Handler() {
-                    @Override
-                    public Transaction.Result doTransaction(MutableData mutableData) {
-                        Integer currentValue = mutableData.getValue(Integer.class);
-                        if (currentValue == null) {
-                            mutableData.setValue(transactionValue);
-                        } else {
-                            mutableData.setValue(currentValue + transactionValue);
-                        }
-                        return Transaction.success(mutableData);
-                    }
+                                                      final boolean fireLocalEvents,
+                                                      final long transactionValue) {
+        return Single.create(emitter -> {
+            throwExceptionIfMainThread();
 
-                    @Override
-                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                        if (databaseError != null && !emitter.isDisposed()) {
-                            emitter.onError(new RxFirebaseDataException(databaseError));
-                        } else {
-                            emitter.onSuccess(dataSnapshot);
-                        }
+            ref.runTransaction(new Transaction.Handler() {
+                @NonNull
+                @Override
+                public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                    Integer currentValue = mutableData.getValue(Integer.class);
+                    if (currentValue == null) {
+                        mutableData.setValue(transactionValue);
+                    } else {
+                        mutableData.setValue(currentValue + transactionValue);
                     }
-                }, fireLocalEvents);
-            }
+                    return Transaction.success(mutableData);
+                }
+
+                @Override
+                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                    if (databaseError != null && !emitter.isDisposed()) {
+                        emitter.onError(new RxFirebaseDataException(databaseError));
+                    } else {
+                        emitter.onSuccess(dataSnapshot);
+                    }
+                }
+            }, fireLocalEvents);
         });
     }
 
@@ -209,57 +203,54 @@ public class RxFirebaseDatabase {
      * @param query    reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      * @return a {@link Flowable} which emits when a value of a child int the database change on the given query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Flowable<RxFirebaseChildEvent<DataSnapshot>> observeChildEvent(
         @NonNull final Query query, @NonNull BackpressureStrategy strategy) {
-        return Flowable.create(new FlowableOnSubscribe<RxFirebaseChildEvent<DataSnapshot>>() {
-            @Override
-            public void subscribe(final FlowableEmitter<RxFirebaseChildEvent<DataSnapshot>> emitter) throws Exception {
-                final ChildEventListener childEventListener = new ChildEventListener() {
+        return Flowable.create(emitter -> {
+            throwExceptionIfMainThread();
 
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-                        emitter.onNext(
-                            new RxFirebaseChildEvent<>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
-                                RxFirebaseChildEvent.EventType.ADDED));
-                    }
+            final ChildEventListener childEventListener = new ChildEventListener() {
 
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
-                        emitter.onNext(
-                            new RxFirebaseChildEvent<>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
-                                RxFirebaseChildEvent.EventType.CHANGED));
-                    }
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, String previousChildName) {
+                    emitter.onNext(
+                        new RxFirebaseChildEvent<>(Objects.requireNonNull(dataSnapshot.getKey()), dataSnapshot, previousChildName,
+                            RxFirebaseChildEvent.EventType.ADDED));
+                }
 
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-                        emitter.onNext(new RxFirebaseChildEvent<>(dataSnapshot.getKey(), dataSnapshot,
-                            RxFirebaseChildEvent.EventType.REMOVED));
-                    }
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, String previousChildName) {
+                    emitter.onNext(
+                        new RxFirebaseChildEvent<>(Objects.requireNonNull(dataSnapshot.getKey()), dataSnapshot, previousChildName,
+                            RxFirebaseChildEvent.EventType.CHANGED));
+                }
 
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
-                        emitter.onNext(
-                            new RxFirebaseChildEvent<>(dataSnapshot.getKey(), dataSnapshot, previousChildName,
-                                RxFirebaseChildEvent.EventType.MOVED));
-                    }
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                    emitter.onNext(new RxFirebaseChildEvent<>(Objects.requireNonNull(dataSnapshot.getKey()), dataSnapshot,
+                        RxFirebaseChildEvent.EventType.REMOVED));
+                }
 
-                    @Override
-                    public void onCancelled(DatabaseError error) {
-                        if (!emitter.isCancelled())
-                            emitter.onError(new RxFirebaseDataException(error));
-                    }
-                };
-                emitter.setCancellable(new Cancellable() {
-                    @Override
-                    public void cancel() throws Exception {
-                        query.removeEventListener(childEventListener);
-                    }
-                });
-                query.addChildEventListener(childEventListener);
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, String previousChildName) {
+                    emitter.onNext(
+                        new RxFirebaseChildEvent<>(Objects.requireNonNull(dataSnapshot.getKey()), dataSnapshot, previousChildName,
+                            RxFirebaseChildEvent.EventType.MOVED));
+                }
 
-            }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    if (!emitter.isCancelled())
+                        emitter.onError(new RxFirebaseDataException(error));
+                }
+            };
+
+            emitter.setCancellable(() -> query.removeEventListener(childEventListener));
+
+            query.addChildEventListener(childEventListener);
         }, strategy);
     }
 
@@ -268,17 +259,13 @@ public class RxFirebaseDatabase {
      *
      * @param whereRefs array of {@link DatabaseReference references.}
      * @return a {@link Flowable} which emmit {@link DataSnapshot} from the given queries.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Flowable<DataSnapshot> observeMultipleSingleValueEvent(@NonNull DatabaseReference... whereRefs) {
         return Maybe.merge(Flowable.fromArray(whereRefs)
-            .map(new Function<DatabaseReference, MaybeSource<? extends DataSnapshot>>() {
-                @Override
-                public MaybeSource<? extends DataSnapshot> apply(@NonNull DatabaseReference databaseReference) throws
-                    Exception {
-                    return observeSingleValueEvent(databaseReference);
-                }
-            })
+            .map(RxFirebaseDatabase::observeSingleValueEvent)
         );
     }
 
@@ -302,17 +289,14 @@ public class RxFirebaseDatabase {
     @NonNull
     public static Maybe<DatabaseReference[]> requestFilteredReferenceKeys(@NonNull final DatabaseReference from,
                                                                           @NonNull Query whereRef) {
-        return observeSingleValueEvent(whereRef, new Function<DataSnapshot, DatabaseReference[]>() {
-            @Override
-            public DatabaseReference[] apply(@NonNull DataSnapshot dataSnapshot) throws Exception {
-                int childrenCount = (int) dataSnapshot.getChildrenCount();
-                DatabaseReference[] filterRefs = new DatabaseReference[childrenCount];
-                final Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-                for (int i = 0; i < childrenCount; i++) {
-                    filterRefs[i] = from.child(iterator.next().getKey());
-                }
-                return filterRefs;
+        return observeSingleValueEvent(whereRef, dataSnapshot -> {
+            int childrenCount = (int) dataSnapshot.getChildrenCount();
+            DatabaseReference[] filterRefs = new DatabaseReference[childrenCount];
+            final Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+            for (int i = 0; i < childrenCount; i++) {
+                filterRefs[i] = from.child(Objects.requireNonNull(iterator.next().getKey()));
             }
+            return filterRefs;
         });
     }
 
@@ -323,6 +307,8 @@ public class RxFirebaseDatabase {
      * @param clazz    class type for the {@link DataSnapshot} items.
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      * @return a {@link Flowable} which emits when a value of the database change in the given query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static <T> Flowable<T> observeValueEvent(@NonNull final Query query,
@@ -351,6 +337,8 @@ public class RxFirebaseDatabase {
      * @param clazz    class type for the {@link DataSnapshot} items.
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      * @return a {@link Flowable} which emits when a value of a child int the database change on the given query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static <T> Flowable<RxFirebaseChildEvent<T>> observeChildEvent(
@@ -366,6 +354,8 @@ public class RxFirebaseDatabase {
      * @param mapper   specific function to map the dispatched events.
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      * @return a {@link Flowable} which emits when a value of the database change in the given query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static <T> Flowable<T> observeValueEvent(@NonNull final Query query,
@@ -380,10 +370,13 @@ public class RxFirebaseDatabase {
      * @param query  reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
      * @param mapper specific function to map the dispatched events.
      * @return a {@link Maybe} which emits the actual state of the database for the given query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
-    public static <T> Maybe<T> observeSingleValueEvent(@NonNull final Query query,
-                                                       @NonNull final Function<? super DataSnapshot, ? extends T> mapper) {
+    public static <T> Maybe<T> observeSingleValueEvent(
+            @NonNull final Query query,
+            @NonNull final Function<? super DataSnapshot, ? extends T> mapper) {
         return observeSingleValueEvent(query)
             .filter(DATA_SNAPSHOT_EXISTENCE_PREDICATE)
             .map(mapper);
@@ -396,6 +389,8 @@ public class RxFirebaseDatabase {
      * @param mapper   specific function to map the dispatched events.
      * @param strategy {@link BackpressureStrategy} associated to this {@link Flowable}
      * @return a {@link Flowable} which emits when a value of a child int the database change on the given query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static <T> Flowable<RxFirebaseChildEvent<T>> observeChildEvent(
@@ -409,6 +404,8 @@ public class RxFirebaseDatabase {
      *
      * @param query reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
      * @return a {@link Flowable} which emits when a value of the database change in the given query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Flowable<DataSnapshot> observeValueEvent(@NonNull final Query query) {
@@ -421,6 +418,8 @@ public class RxFirebaseDatabase {
      *
      * @param query reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
      * @return a {@link Flowable} which emits when a value of a child int the database change on the given query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Flowable<RxFirebaseChildEvent<DataSnapshot>> observeChildEvent(
@@ -434,10 +433,12 @@ public class RxFirebaseDatabase {
      * @param ref              reference represents a particular location in your database.
      * @param transactionValue value of the transaction.
      * @return a {@link Single} which emits the final {@link DataSnapshot} value if the transaction success.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Single<DataSnapshot> runTransaction(@NonNull final DatabaseReference ref,
-                                                      @NonNull final long transactionValue) {
+                                                      final long transactionValue) {
         return runTransaction(ref, true, transactionValue);
     }
 
@@ -447,6 +448,8 @@ public class RxFirebaseDatabase {
      * @param query reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
      * @param clazz class type for the {@link DataSnapshot} items.
      * @return a {@link Flowable} which emits when a value of the database change in the given query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static <T> Flowable<T> observeValueEvent(@NonNull final Query query,
@@ -460,6 +463,8 @@ public class RxFirebaseDatabase {
      * @param query reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
      * @param clazz class type for the {@link DataSnapshot} items.
      * @return a {@link Flowable} which emits when a value of a child int the database change on the given query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static <T> Flowable<RxFirebaseChildEvent<T>> observeChildEvent(
@@ -472,10 +477,13 @@ public class RxFirebaseDatabase {
      *
      * @param query reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
      * @return a {@link Flowable} which emits when a value of the database change in the given query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
-    public static <T> Flowable<T> observeValueEvent(@NonNull final Query query,
-                                                    @NonNull final Function<? super DataSnapshot, ? extends T> mapper) {
+    public static <T> Flowable<T> observeValueEvent(
+            @NonNull final Query query,
+            @NonNull final Function<? super DataSnapshot, ? extends T> mapper) {
         return observeValueEvent(query, BackpressureStrategy.DROP).map(mapper);
     }
 
@@ -485,6 +493,8 @@ public class RxFirebaseDatabase {
      * @param query  reference represents a particular location in your Database and can be used for reading or writing data to that Database location.
      * @param mapper specific function to map the dispatched events.
      * @return a {@link Flowable} which emits when a value of a child int the database change on the given query.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static <T> Flowable<RxFirebaseChildEvent<T>> observeChildEvent(
