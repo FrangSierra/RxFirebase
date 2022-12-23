@@ -10,7 +10,7 @@ This repository started as a personal usage of [Nick Moskalenko](https://github.
 
 ```groovy
 dependencies {
-  compile 'com.github.FrangSierra:RxFirebase:1.5.6'
+    implementation "com.github.FrangSierra:RxFirebase:1.5.6"
 }
 ```
 ```
@@ -191,6 +191,15 @@ public static Completable updateEmail(@NonNull final FirebaseUser firebaseUser, 
 
 `RxCompletableHandler` manages the CompletableEmitters in the same way that `RxHandler` manages the `Subscriber`.
 You can check all the differences between RxJava and RxJava 2.0 in the next [Link](https://github.com/ReactiveX/RxJava/wiki/What's-different-in-2.0)
+
+### Plugins
+
+```java
+    public static boolean allowMainThreadQueries = false;
+```
+The flag, that controls can be extensions be called on the main thread or not.
+By default it doesn't permit the main thread queries
+
 
 ## License
 

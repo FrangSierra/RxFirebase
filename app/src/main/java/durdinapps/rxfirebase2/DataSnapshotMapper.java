@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import androidx.annotation.NonNull;
 import durdinapps.rxfirebase2.exceptions.RxFirebaseDataCastException;
 import io.reactivex.exceptions.Exceptions;
 import io.reactivex.functions.Function;
@@ -158,10 +157,5 @@ public abstract class DataSnapshotMapper<T, U> implements Function<T, U> {
         }
     }
 
-    static final Predicate<DataSnapshot> DATA_SNAPSHOT_EXISTENCE_PREDICATE = new Predicate<DataSnapshot>() {
-        @Override
-        public boolean test(@NonNull DataSnapshot dataSnapshot) throws Exception {
-            return dataSnapshot.exists();
-        }
-    };
+    static final Predicate<DataSnapshot> DATA_SNAPSHOT_EXISTENCE_PREDICATE = DataSnapshot::exists;
 }

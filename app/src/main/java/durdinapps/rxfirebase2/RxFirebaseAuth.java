@@ -1,5 +1,7 @@
 package durdinapps.rxfirebase2;
 
+import static durdinapps.rxfirebase2.Plugins.throwExceptionIfMainThread;
+
 import androidx.annotation.NonNull;
 
 import com.google.firebase.auth.ActionCodeResult;
@@ -16,9 +18,6 @@ import io.reactivex.Maybe;
 import io.reactivex.MaybeEmitter;
 import io.reactivex.MaybeOnSubscribe;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.functions.Cancellable;
 
 public class RxFirebaseAuth {
 
@@ -205,27 +204,19 @@ public class RxFirebaseAuth {
      *
      * @param firebaseAuth firebaseAuth instance.
      * @return an {@link Observable} which emits every time that the {@link FirebaseAuth} state change.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     @NonNull
     public static Observable<FirebaseAuth> observeAuthState(@NonNull final FirebaseAuth firebaseAuth) {
+        return Observable.create(emitter -> {
+            throwExceptionIfMainThread();
 
-        return Observable.create(new ObservableOnSubscribe<FirebaseAuth>() {
-            @Override
-            public void subscribe(final ObservableEmitter<FirebaseAuth> emitter) throws Exception {
-                final FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
-                    @Override
-                    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                        emitter.onNext(firebaseAuth);
-                    }
-                };
-                firebaseAuth.addAuthStateListener(authStateListener);
-                emitter.setCancellable(new Cancellable() {
-                    @Override
-                    public void cancel() throws Exception {
-                        firebaseAuth.removeAuthStateListener(authStateListener);
-                    }
-                });
-            }
+            final FirebaseAuth.AuthStateListener authStateListener = emitter::onNext;
+
+            firebaseAuth.addAuthStateListener(authStateListener);
+
+            emitter.setCancellable(() -> firebaseAuth.removeAuthStateListener(authStateListener));
         });
     }
 

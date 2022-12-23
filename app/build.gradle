@@ -1,50 +1,44 @@
 buildscript {
     ext {
-        rx_version = "2.1.10"
+        rx_version = "2.2.20"
         rx_android_version = "2.1.1"
-        firebase_auth_version = '19.2.0'
-        firebase_database_version = '19.2.1'
-        firebase_storage_version = '19.1.1'
-        firebase_firestore_version = '21.4.1'
-        firebase_functions_version = '19.0.2'
-        firebase_remote_version = '19.1.2'
+        firebase_auth_version = "21.1.0"
+        firebase_database_version = "20.1.0"
+        firebase_storage_version = "20.1.0"
+        firebase_firestore_version = "24.4.1"
+        firebase_functions_version = "20.2.1"
+        firebase_remote_version = "21.2.0"
         support_version = "28.0.3"
     }
 }
+
 apply plugin: 'com.android.library'
 
 android {
 
-    packagingOptions {
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE-FIREBASE.txt'
-        exclude 'META-INF/NOTICE'
-    }
-
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 31
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 28
+        targetSdkVersion 31
         versionCode 6
         versionName "1.5.5"
         consumerProguardFiles 'consumer-proguard-rules.pro'
     }
 }
 
-repositories{
+repositories {
     google()
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly "com.google.firebase:firebase-auth:$firebase_auth_version"
-    compileOnly "com.google.firebase:firebase-database:$firebase_database_version"
-    compileOnly "com.google.firebase:firebase-storage:$firebase_storage_version"
-    compileOnly "com.google.firebase:firebase-firestore:$firebase_firestore_version"
-    compileOnly "com.google.firebase:firebase-functions:$firebase_functions_version"
-    compileOnly "com.google.firebase:firebase-config:$firebase_remote_version"
+    implementation "com.google.firebase:firebase-auth:$firebase_auth_version"
+    implementation "com.google.firebase:firebase-database:$firebase_database_version"
+    implementation "com.google.firebase:firebase-storage:$firebase_storage_version"
+    implementation "com.google.firebase:firebase-firestore:$firebase_firestore_version"
+    implementation "com.google.firebase:firebase-functions:$firebase_functions_version"
+    implementation "com.google.firebase:firebase-config:$firebase_remote_version"
 
     implementation "io.reactivex.rxjava2:rxjava:$rx_version"
     implementation "io.reactivex.rxjava2:rxandroid:$rx_android_version"
@@ -54,6 +48,6 @@ dependencies {
     testImplementation "com.google.firebase:firebase-storage:$firebase_storage_version"
     testImplementation "com.google.firebase:firebase-firestore:$firebase_firestore_version"
     testImplementation "com.google.firebase:firebase-config:$firebase_remote_version"
-    testImplementation 'junit:junit:4.13'
-    testImplementation "org.mockito:mockito-core:3.3.1"
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation "org.mockito:mockito-core:4.0.0"
 }

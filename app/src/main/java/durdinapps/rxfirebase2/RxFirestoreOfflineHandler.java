@@ -1,15 +1,11 @@
 package durdinapps.rxfirebase2;
 
+import static durdinapps.rxfirebase2.Plugins.throwExceptionIfMainThread;
+
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import androidx.annotation.Nullable;
+
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.functions.Cancellable;
 
 public class RxFirestoreOfflineHandler {
 
@@ -20,36 +16,30 @@ public class RxFirestoreOfflineHandler {
      *
      * @param ref Document reference to be listened.
      * @return A Completable which emits when the given reference receives an offline update.
+     * @throws IllegalStateException if operation is happening on the main thread
+     * @see Plugins
      */
     public static Completable listenOfflineListener(final DocumentReference ref) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(final CompletableEmitter emitter) {
-                try {
-                    final ListenerRegistration listener = ref.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                            if (e != null) {
-                                emitter.onError(e);
+        return Completable.create(emitter -> {
+            throwExceptionIfMainThread();
+
+            try {
+                final ListenerRegistration listener =
+                        ref.addSnapshotListener((documentSnapshot, firebaseError) -> {
+                        if (firebaseError != null) {
+                            emitter.onError(firebaseError);
+                        } else {
+                            if (documentSnapshot != null) {
+                                emitter.onComplete();
                             } else {
-                                if (documentSnapshot != null) {
-                                    emitter.onComplete();
-                                } else {
-                                    emitter.onError(new NullPointerException("Empty Snapshot"));
-                                }
+                                emitter.onError(new NullPointerException("Empty Snapshot"));
                             }
                         }
-                    });
+                });
 
-                    emitter.setCancellable(new Cancellable() {
-                        @Override
-                        public void cancel() {
-                            listener.remove();
-                        }
-                    });
-                } catch (Exception e) {
-                    emitter.onError(e);
-                }
+                emitter.setCancellable(listener::remove);
+            } catch (Exception e) {
+                emitter.onError(e);
             }
         });
     }

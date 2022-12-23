@@ -90,6 +90,8 @@ public class RxFirebaseStorageTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
+        Plugins.allowMainThreadQueries = true;
+
         setupTask(mockBytesTask);
         setupTask(mockVoidTask);
         setupTask(mockUriTask);

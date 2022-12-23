@@ -93,6 +93,8 @@ public class RxFirestoreTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
+        Plugins.allowMainThreadQueries = true;
+
         setupTask(documentSnapshotTask);
         setupTask(emptyDocumentSnapshotTask);
         setupTask(queryResultTask);

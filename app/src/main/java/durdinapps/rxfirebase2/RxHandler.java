@@ -20,7 +20,7 @@ public class RxHandler<T> implements OnSuccessListener<T>, OnFailureListener, On
     }
 
     public static <T> void assignOnTask(MaybeEmitter<? super T> emitter, Task<T> task) {
-        RxHandler handler = new RxHandler(emitter);
+        RxHandler<T> handler = new RxHandler<>(emitter);
         task.addOnSuccessListener(handler);
         task.addOnFailureListener(handler);
         try {

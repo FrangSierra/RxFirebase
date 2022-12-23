@@ -1,7 +1,12 @@
 package durdinapps.rxfirebase2;
 
-
-import android.app.DownloadManager;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static durdinapps.rxfirebase2.RxTestUtil.ANY_KEY;
+import static durdinapps.rxfirebase2.RxTestUtil.PREVIOUS_CHILD_NAME;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
@@ -29,14 +34,6 @@ import durdinapps.rxfirebase2.exceptions.RxFirebaseDataException;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-
-import static durdinapps.rxfirebase2.RxTestUtil.ANY_KEY;
-import static durdinapps.rxfirebase2.RxTestUtil.PREVIOUS_CHILD_NAME;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class RxFirebaseDatabaseTest {
 
@@ -69,6 +66,8 @@ public class RxFirebaseDatabaseTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
+
+        Plugins.allowMainThreadQueries = true;
 
         childDataList.add(childData);
         childDataMap.put(ANY_KEY, childData);
